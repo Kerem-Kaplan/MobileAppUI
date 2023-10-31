@@ -72,7 +72,7 @@ android {
     ndkVersion rootProject.ext.ndkVersion
 
     compileSdkVersion rootProject.ext.compileSdkVersion
-
+     
     namespace "com.appui"
     defaultConfig {
         applicationId "com.appui"
@@ -119,5 +119,12 @@ dependencies {
         implementation jscFlavor
     }
 }
+
+project.ext.react = [
+    enableHermes: true,
+    hermesFlagsRelease: ["-O", "-output-source-map"], // plus whichever flag was required to set this away from default
+]
+
+
 
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
