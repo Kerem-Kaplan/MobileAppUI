@@ -123,6 +123,8 @@ dependencies {
 project.ext.react = [
     enableHermes: true,
     hermesFlagsRelease: ["-O", "-output-source-map"], // plus whichever flag was required to set this away from default
+    bundleCommand: "ram-bundle",
+    extraPackagerArgs: ["--indexed-ram-bundle"]
 ]
 
 
