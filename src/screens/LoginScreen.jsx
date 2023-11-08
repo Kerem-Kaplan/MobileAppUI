@@ -1,31 +1,28 @@
 import axios from 'axios';
 import React, {useState} from 'react';
 import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
   StyleSheet,
   Text,
-  useColorScheme,
   View,
   TextInput,
   TouchableOpacity,
+  Image,
+  Dimensions,
 } from 'react-native';
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
-const LoginScreen = () => {
+import SignupScreen from './User/SignupScreen';
+
+const {width, height} = Dimensions.get('window');
+const imageWidth = width / 3;
+
+const LoginScreen = ({navigation}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [errors, setErrors] = useState({});
 
   const onPressLogin = async () => {
-    const url = 'http://192.168.1.10:3000/login';
+    alert('Loginned');
+    /*  const url = 'http://192.168.1.10:3000/login';
 
     try {
       const response = await axios.post(url, {
@@ -40,13 +37,15 @@ const LoginScreen = () => {
       setErrors(error.response.data.errors);
       console.log('errors', errors);
       setMessage('Giriş sırasında hata oluştu');
-    }
+    } */
   };
   const onPressForgotPassword = () => {
     // Do something about forgot password operation
+    alert('Forgot Password');
   };
   const onPressSignUp = () => {
     // Do something about signup operation
+    navigation.navigate("Signup")
   };
 
   validateEmail = email => {
@@ -57,7 +56,11 @@ const LoginScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}> Login Screen</Text>
+      <Text style={styles.title}>Login</Text>
+      <Image
+        source={require('../assets/appIcon.png')}
+        style={styles.imageStyle}
+      />
       <View style={styles.inputView}>
         <TextInput
           style={styles.inputText}
@@ -77,15 +80,18 @@ const LoginScreen = () => {
           value={password}
         />
       </View>
-      <TouchableOpacity onPress={onPressForgotPassword}>
-        <Text style={styles.forgotAndSignUpText}>Forgot Password?</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={onPressLogin} style={styles.loginBtn}>
+
+      <TouchableOpacity onPress={onPressLogin} style={styles.loginButton}>
         <Text style={styles.loginText}>LOGIN </Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={onPressSignUp}>
-        <Text style={styles.forgotAndSignUpText}>Signup</Text>
-      </TouchableOpacity>
+      <View style={styles.containerSignup}>
+        <TouchableOpacity onPress={onPressSignUp}>
+          <Text style={styles.signupText}>Signup</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={onPressForgotPassword}>
+          <Text style={styles.forgotText}>Forgot Password?</Text>
+        </TouchableOpacity>
+      </View>
       <Text>{message}</Text>
     </View>
   );
@@ -94,19 +100,25 @@ const LoginScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#4FD3DA',
+    backgroundColor: '#000000',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  imageStyle: {
+    width: imageWidth,
+    height: imageWidth,
+    margin: '5%',
+    borderRadius: imageWidth / 4,
   },
   title: {
     fontWeight: 'bold',
     fontSize: 50,
-    color: '#fb5b5a',
+    color: '#ffffff',
     marginBottom: 40,
   },
   inputView: {
     width: '80%',
-    backgroundColor: '#3AB4BA',
+    backgroundColor: '#a8f098',
     borderRadius: 25,
     height: 50,
     marginBottom: 20,
@@ -117,13 +129,25 @@ const styles = StyleSheet.create({
     height: 50,
     color: 'white',
   },
-  forgotAndSignUpText: {
-    color: 'white',
-    fontSize: 11,
+  forgotText: {
+    color: '#ffffff',
+    fontSize: 17,
+    margin: 20,
   },
-  loginBtn: {
+  loginText: {
+    color: '#000000',
+  },
+  signupText: {
+    color: '#ffffff',
+    fontSize: 17,
+    margin: 20,
+  },
+  containerSignup: {
+    flexDirection: 'row',
+  },
+  loginButton: {
     width: '80%',
-    backgroundColor: '#fb5b5a',
+    backgroundColor: '#56e236',
     borderRadius: 25,
     height: 50,
     alignItems: 'center',
