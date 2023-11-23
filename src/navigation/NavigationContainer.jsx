@@ -1,20 +1,49 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import LoginScreen from '../screens/LoginScreen';
 import SignupScreen from '../screens/User/SignupScreen';
+import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
+import MainPageBottomNavigation from './User/MainPageBottomNavigation';
 
 const Stack = createStackNavigator();
 
-const NavigationContainer = () => {
+const Navigation = () => {
   return (
     <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Signup" component={SignupScreen} />
+      <Stack.Navigator
+        initialRouteName="Login"
+        screenOptions={{
+          headerTintColor: '#000000',
+        }}>
+        <Stack.Screen
+          name="Login"
+          component={LoginScreen}
+          options={{title: 'Login Screen'}}
+        />
+        <Stack.Screen
+          name="Signup"
+          component={SignupScreen}
+          options={{title: 'Signup Screen'}}
+        />
+        <Stack.Screen
+          name="Forgot Password"
+          component={ForgotPasswordScreen}
+          options={{title: 'Forgot Password Screen'}}
+        />
+        <Stack.Screen
+          name="Main"
+          component={MainPageBottomNavigation}
+          options={{
+            headerLeft: null,
+            headerStyle: {
+              height: 0,
+            },
+          }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
 };
 
-export default NavigationContainer;
+export default Navigation;

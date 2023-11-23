@@ -13,8 +13,8 @@ import {
 } from 'react-native';
 import SelectDropdown from 'react-native-select-dropdown';
 
-const {width, height} = Dimensions.get('window');
-const imageWidth = width / 3;
+const {width} = Dimensions.get('window');
+const imageWidth = width / 2;
 
 const SignupScreen = () => {
   const onPressSignup = () => {
@@ -57,13 +57,25 @@ const SignupScreen = () => {
           />
         </View>
         <View style={styles.selectDropdown}>
-          <SelectDropdown data={genders} defaultButtonText="Select Gender" />
+          <SelectDropdown
+            buttonStyle={{borderRadius: 10, width: width / 2}}
+            data={genders}
+            defaultButtonText="Select Gender"
+          />
         </View>
         <View style={styles.selectDropdown}>
-          <SelectDropdown data={dateOfBirths} defaultButtonText="Select Date" />
+          <SelectDropdown
+            buttonStyle={{borderRadius: 10, width: width / 2}}
+            data={dateOfBirths}
+            defaultButtonText="Select Date"
+          />
         </View>
         <View style={styles.selectDropdown}>
-          <SelectDropdown data={countries} defaultButtonText="Select Country" />
+          <SelectDropdown
+            buttonStyle={{borderRadius: 10, width: width / 2}}
+            data={countries}
+            defaultButtonText="Select Country"
+          />
         </View>
         <View style={styles.inputView}>
           <TextInput
@@ -155,8 +167,8 @@ const styles = StyleSheet.create({
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 40,
-    marginBottom: 10,
+    marginTop: 10,
+    marginBottom: 30,
   },
 });
 

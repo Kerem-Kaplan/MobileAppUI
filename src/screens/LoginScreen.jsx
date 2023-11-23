@@ -10,6 +10,8 @@ import {
   Dimensions,
 } from 'react-native';
 import SignupScreen from './User/SignupScreen';
+import HomeScreen from './User/HomeScreen';
+import MyTabs from '../navigation/User/MainPageBottomNavigation';
 
 const {width, height} = Dimensions.get('window');
 const imageWidth = width / 3;
@@ -21,7 +23,7 @@ const LoginScreen = ({navigation}) => {
   const [errors, setErrors] = useState({});
 
   const onPressLogin = async () => {
-    alert('Loginned');
+    navigation.navigate('Main');
     /*  const url = 'http://192.168.1.10:3000/login';
 
     try {
@@ -41,11 +43,11 @@ const LoginScreen = ({navigation}) => {
   };
   const onPressForgotPassword = () => {
     // Do something about forgot password operation
-    alert('Forgot Password');
+    navigation.navigate('Forgot Password');
   };
   const onPressSignUp = () => {
     // Do something about signup operation
-    navigation.navigate("Signup")
+    navigation.navigate('Signup');
   };
 
   validateEmail = email => {
