@@ -9,6 +9,7 @@ import SendSuggestionScreen from '../../screens/User/SendSuggestionScreen';
 import PastComplaintScreen from '../../screens/User/PastComplaintScreen';
 import PastRequestScreen from '../../screens/User/PastRequestScreen';
 import PastSuggestionScreen from '../../screens/User/PastSuggestionScreen';
+import LoginScreen from '../../screens/LoginScreen';
 
 const Tab = createMaterialTopTabNavigator();
 const Stack = createStackNavigator();

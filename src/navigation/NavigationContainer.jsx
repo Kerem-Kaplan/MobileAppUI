@@ -4,7 +4,8 @@ import {createStackNavigator} from '@react-navigation/stack';
 import LoginScreen from '../screens/LoginScreen';
 import SignupScreen from '../screens/User/SignupScreen';
 import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
-import MainPageBottomNavigation from './User/MainPageBottomNavigation';
+import UserMainPageBottomNavigation from './User/UserMainPageBottomNavigation';
+import ObserverMainPageBottomNavigation from './Observer/ObserverMainPageNavigation';
 
 const Stack = createStackNavigator();
 
@@ -32,8 +33,18 @@ const Navigation = () => {
           options={{title: 'Forgot Password Screen'}}
         />
         <Stack.Screen
-          name="Main"
-          component={MainPageBottomNavigation}
+          name="UserMain"
+          component={UserMainPageBottomNavigation}
+          options={{
+            headerLeft: null,
+            headerStyle: {
+              height: 0,
+            },
+          }}
+        />
+        <Stack.Screen
+          name="ObserverMain"
+          component={ObserverMainPageBottomNavigation}
           options={{
             headerLeft: null,
             headerStyle: {

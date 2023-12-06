@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import SignupScreen from './User/SignupScreen';
 import HomeScreen from './User/HomeScreen';
-import MyTabs from '../navigation/User/MainPageBottomNavigation';
+import MyTabs from '../navigation/User/UserMainPageBottomNavigation';
 
 const {width, height} = Dimensions.get('window');
 const imageWidth = width / 3;
@@ -23,7 +23,7 @@ const LoginScreen = ({navigation}) => {
   const [errors, setErrors] = useState({});
 
   const onPressLogin = async () => {
-    navigation.navigate('Main');
+    navigation.navigate('UserMain');
     /*  const url = 'http://192.168.1.10:3000/login';
 
     try {

@@ -10,15 +10,22 @@ import {
   Dimensions,
   ScrollView,
   SafeAreaView,
+  Button,
+  Modal,
 } from 'react-native';
-import SelectDropdown from 'react-native-select-dropdown';
+import {SelectList} from 'react-native-dropdown-select-list';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import RNPickerSelect from 'react-native-picker-select';
 
 const {width} = Dimensions.get('window');
 const imageWidth = width / 2;
 
-const SignupScreen = () => {
+const SignupScreen = ({navigation}) => {
   const onPressSignup = () => {
     alert('Sign Up');
+  };
+  const onPressBack = () => {
+    navigation.navigate('Login');
   };
   const [name, setName] = useState('');
   const [surname, setSurname] = useState('');
@@ -31,9 +38,70 @@ const SignupScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const genders = ['Male', 'Female'];
-  const countries = ['Country-A', 'Country-B', 'Country-C'];
-  const dateOfBirths = ['1900', '1901'];
+  const [selectedGender, setSelectedGender] = useState(null);
+  const [selectedDateOfBirth, setSelectedDateOfBirth] = useState(new Date());
+  const [selectedNationality, setSelectedNationality] = useState(null);
+
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
+  const onChange = (event, selectedDate) => {
+    const currentDate = selectedDate || selectedDateOfBirth;
+    setShowDatePicker(false);
+    setSelectedDateOfBirth(currentDate);
+    console.log(currentDate.getFullYear());
+    // Burada seçilen tarih ile istediğiniz işlemi yapabilirsiniz
+  };
+
+  const showDatepicker = () => {
+    setShowDatePicker(true);
+  };
+
+  const handleCountryChange = value => {
+    setSelectedNationality(value);
+    console.log(value);
+    // Seçilen ülkeyle ilgili işlemleri burada yapabilirsiniz
+  };
+
+  const handleGenderChange = value => {
+    setSelectedGender(value);
+    console.log(value);
+  };
+
+  const genders = [
+    {label: 'Male', value: 'Male'},
+    {label: 'Female', value: 'Female'},
+  ];
+  const countryList = [
+    {label: 'Türkiye', value: 'Türkiye'},
+    {label: 'USA', value: 'USA'},
+    {label: 'Canada', value: 'Canada'},
+    {label: 'Afghanistan', value: 'Afghanistan'},
+    {label: 'Albania', value: 'Albania'},
+    {label: 'Argentina', value: 'Argentina'},
+    {label: 'Azerbaijan', value: 'United Kingdom'},
+    {label: 'Iraq', value: 'Iraq'},
+    {label: 'Germany', value: 'Germany'},
+    {label: 'Turkmenistan', value: 'Turkmenistan'},
+    {label: 'Syrian Arab Republic', value: 'Syrian Arab Republic'},
+    {label: 'Iran', value: 'Iran'},
+    {label: 'Russian Federation', value: 'Russian Federation'},
+    {label: 'Uzbekistan', value: 'Uzbekistan'},
+    {label: 'Egypt', value: 'Egypt'},
+    {label: 'Other', value: 'Other'},
+    // Diğer ülkeleri buraya ekleyebilirsiniz
+  ];
+  const dateOfBirths = [
+    {key: 1, value: '1900'},
+    {key: 2, value: '1901'},
+    {key: 3, value: '1902'},
+    {key: 4, value: '1903'},
+    {key: 5, value: '1904'},
+    {key: 6, value: '1905'},
+    {key: 7, value: '1906'},
+    {key: 8, value: '1907'},
+    {key: 9, value: '1908'},
+    {key: 10, value: '1909'},
+  ];
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollView}>
@@ -57,24 +125,52 @@ const SignupScreen = () => {
           />
         </View>
         <View style={styles.selectDropdown}>
-          <SelectDropdown
-            buttonStyle={{borderRadius: 10, width: width / 2}}
-            data={genders}
-            defaultButtonText="Select Gender"
+          <RNPickerSelect
+            placeholder={{label: 'Select a Gender', value: null}}
+            items={genders}
+            onValueChange={handleGenderChange}
+            value={selectedGender}
           />
         </View>
-        <View style={styles.selectDropdown}>
-          <SelectDropdown
-            buttonStyle={{borderRadius: 10, width: width / 2}}
-            data={dateOfBirths}
-            defaultButtonText="Select Date"
-          />
+        <View
+          style={{
+            marginBottom: 20,
+            justifyContent: 'flex-start',
+            alignItems: 'flex-start',
+            width: '80%',
+          }}>
+          <View style={{flexDirection: 'row'}}>
+            <Button
+              color={'green'}
+              onPress={showDatepicker}
+              title="Select birth date"
+              placeholder={{label: 'Select a Date', value: null}}
+            />
+            <View style={{justifyContent: 'center', paddingLeft: 30}}>
+              <Text style={{fontSize: 20, color: '#000000'}}>
+                {selectedDateOfBirth.getDay().toString()}-
+                {selectedDateOfBirth.getMonth().toString()}-
+                {selectedDateOfBirth.getFullYear().toString()}
+              </Text>
+            </View>
+          </View>
+          {showDatePicker && (
+            <DateTimePicker
+              testID="dateTimePicker"
+              value={selectedDateOfBirth}
+              mode="date"
+              display="spinner"
+              onChange={onChange}
+            />
+          )}
         </View>
+
         <View style={styles.selectDropdown}>
-          <SelectDropdown
-            buttonStyle={{borderRadius: 10, width: width / 2}}
-            data={countries}
-            defaultButtonText="Select Country"
+          <RNPickerSelect
+            placeholder={{label: 'Select a country', value: null}}
+            items={countryList}
+            onValueChange={handleCountryChange}
+            value={selectedNationality}
           />
         </View>
         <View style={styles.inputView}>
@@ -116,6 +212,9 @@ const SignupScreen = () => {
         <TouchableOpacity onPress={onPressSignup} style={styles.signupButton}>
           <Text style={styles.signupText}>SIGN UP </Text>
         </TouchableOpacity>
+        <TouchableOpacity onPress={onPressBack} style={styles.backButton}>
+          <Text style={styles.backText}>BACK </Text>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
@@ -126,7 +225,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollView: {
-    backgroundColor: '#000000',
+    backgroundColor: '#ffffff',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -150,6 +249,7 @@ const styles = StyleSheet.create({
     color: 'black',
   },
   selectDropdown: {
+    backgroundColor: 'green',
     width: '80%',
     borderRadius: 25,
     height: 50,
@@ -160,6 +260,9 @@ const styles = StyleSheet.create({
   signupText: {
     color: '#000000',
   },
+  backText: {
+    color: '#ffffff',
+  },
   signupButton: {
     width: '80%',
     backgroundColor: '#56e236',
@@ -167,8 +270,16 @@ const styles = StyleSheet.create({
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 10,
-    marginBottom: 30,
+    margin: 10,
+  },
+  backButton: {
+    width: '80%',
+    backgroundColor: '#ff0000',
+    borderRadius: 25,
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+    margin: 10,
   },
 });
 
