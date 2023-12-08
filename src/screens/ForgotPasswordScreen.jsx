@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import {useState} from 'react';
 import {
   StyleSheet,
   Text,
@@ -6,10 +6,23 @@ import {
   TextInput,
   TouchableOpacity,
 } from 'react-native';
+import Validator from '../utils/validator';
 
 const ForgotPasswordScreen = () => {
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
 
+  const [isValidEmail, setIsValidEmail] = useState(true);
+
+  const validateEmail = email => {
+    console.log(email);
+    if (Validator.validateGmail(email)) {
+      console.log('Geçerli');
+      setIsValidEmail(true);
+    } else {
+      console.log('Geçersiz');
+      setIsValidEmail(false);
+    }
+  };
   const onPressForgotPassword = () => {
     alert('Forgot Password');
   };
@@ -17,13 +30,16 @@ const ForgotPasswordScreen = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Forgot Password</Text>
-      <View style={styles.inputView}>
+      <View style={[styles.inputView, !isValidEmail && styles.invalidInput]}>
         <TextInput
           style={styles.inputText}
           placeholder="Email"
           placeholderTextColor="#003f5c"
-          onChangeText={setPassword}
-          value={password}
+          onChangeText={text => {
+            setEmail(text);
+            validateEmail(text);
+          }}
+          value={email}
         />
       </View>
       <TouchableOpacity
@@ -52,7 +68,8 @@ const styles = StyleSheet.create({
   inputView: {
     width: '80%',
     backgroundColor: '#a8f098',
-    borderRadius: 25,
+    borderRadius: 10,
+    borderWidth: 1,
     height: 50,
     marginBottom: 20,
     justifyContent: 'center',
@@ -71,6 +88,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: 40,
     marginBottom: 10,
+  },
+  invalidInput: {
+    borderColor: '#ff0000',
   },
 });
 

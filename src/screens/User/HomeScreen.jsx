@@ -84,7 +84,7 @@ const businesses = [
 ];
 
 const HomeScreen = ({navigation}) => {
-  const [selectedCategory, setSelectedCategory] = React.useState(null);
+  const [selectedCategory, setSelectedCategory] = React.useState(1);
 
   return (
     <View style={styles.container}>

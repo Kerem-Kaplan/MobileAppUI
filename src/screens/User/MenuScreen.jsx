@@ -10,7 +10,6 @@ const MenuScreen = ({navigation}) => {
     {id: '4', title: 'Past Complaints', screen: 'Past Complaints'},
     {id: '5', title: 'Past Requests', screen: 'Past Requests'},
     {id: '6', title: 'Past Suggestions', screen: 'Past Suggestions'},
-    {id: '7', title: 'Logout', screen: 'Login'},
   ];
 
   const renderMenuItem = ({item}) => {

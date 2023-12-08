@@ -2,14 +2,17 @@ import React from 'react';
 import {View, Text, Image, TouchableOpacity, StyleSheet} from 'react-native';
 
 const ProfileScreen = ({navigation}) => {
-  const observer = {
-    name: 'IZBAN',
-    phoneNumber: '02332222',
-    address: 'Observer Address',
-    emailForContact: 'izban@info.com.tr',
+  const user = {
+    name: 'Halil İbrahim Kaan ',
+    username: 'Yıldız',
+    gender: 'Male',
+    dateOfBirth: 2002,
+    nationality: 'Turk',
+    identity: '1111111111',
+    email: 'john@gmail.com',
+    phoneNumber: '05555555555',
     profilePic: require('../../assets/appIcon.png'), // Profil fotoğrafı
   };
-
   return (
     <View style={styles.container}>
       <View
@@ -17,28 +20,49 @@ const ProfileScreen = ({navigation}) => {
           alignItems: 'center',
           margin: 5,
           flex: 0.5,
-          flexDirection: 'column',
-          justifyContent: 'center',
+          flexDirection: 'row',
+          justifyContent: 'space-between',
           borderBottomWidth: 2,
         }}>
-        <Image source={observer.profilePic} style={styles.profilePic} />
-
-        <Text style={styles.name}>
-          {observer.name}
-          {observer.username}
-        </Text>
+        <View style={styles.header}>
+          <Image source={user.profilePic} style={styles.profilePic} />
+        </View>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'flex-start',
+            alignItems: 'flex-start',
+            borderColor: 'black',
+            margin: 5,
+          }}>
+          <Text style={styles.name}>
+            {user.name}
+            {user.username}
+          </Text>
+          <Text style={styles.username}>
+            <Text style={{fontWeight: 'bold'}}>Gender : </Text>
+            {user.gender}
+          </Text>
+          <Text style={styles.dateOfBirth}>
+            <Text style={{fontWeight: 'bold'}}>Date Of Birth : </Text>
+            {user.dateOfBirth}
+          </Text>
+        </View>
       </View>
       <View style={styles.content}>
         <Text style={styles.nationality}>
-          <Text style={{fontWeight: 'bold'}}>Phone Number :</Text>{' '}
-          {observer.phoneNumber}
+          <Text style={{fontWeight: 'bold'}}>Nationality :</Text>{' '}
+          {user.nationality}
         </Text>
         <Text style={styles.id}>
-          <Text style={{fontWeight: 'bold'}}>Email :</Text>{' '}
-          {observer.emailForContact}
+          <Text style={{fontWeight: 'bold'}}>ID :</Text> {user.identity}
         </Text>
         <Text style={styles.email}>
-          <Text style={{fontWeight: 'bold'}}>Address :</Text> {observer.address}
+          <Text style={{fontWeight: 'bold'}}>Email :</Text> {user.email}
+        </Text>
+        <Text style={styles.phoneNumber}>
+          <Text style={{fontWeight: 'bold'}}>Phone Number :</Text>{' '}
+          {user.phoneNumber}
         </Text>
 
         {/* Profil içeriği */}
