@@ -4,12 +4,10 @@ import {TouchableOpacity} from 'react-native-gesture-handler';
 
 const MenuScreen = ({navigation}) => {
   const menuItems = [
-    {id: '1', title: 'Send Complaint', screen: 'Send Complaint'},
-    {id: '2', title: 'Send Request', screen: 'Send Request'},
-    {id: '3', title: 'Send Suggestion', screen: 'Send Suggestion'},
-    {id: '4', title: 'Past Complaints', screen: 'Past Complaints'},
-    {id: '5', title: 'Past Requests', screen: 'Past Requests'},
-    {id: '6', title: 'Past Suggestions', screen: 'Past Suggestions'},
+    {id: '1', title: 'Past Complaints', screen: 'Past Complaints'},
+    {id: '2', title: 'Past Requests', screen: 'Past Requests'},
+    {id: '3', title: 'Past Suggestions', screen: 'Past Suggestions'},
+    {id: '4', title: 'Log Out', screen: 'Login'}, 
   ];
 
   const renderMenuItem = ({item}) => {

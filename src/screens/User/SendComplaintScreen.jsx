@@ -9,7 +9,9 @@ import {
   StyleSheet,
   SafeAreaView,
   Button,
+  Image,
 } from 'react-native';
+import RNPickerSelect from 'react-native-picker-select';
 
 const SendComplaintScreen = ({navigation}) => {
   const [vote, setVote] = useState(0);
@@ -36,10 +38,47 @@ const SendComplaintScreen = ({navigation}) => {
     navigation.navigate('Menu Page');
   };
 
+  const handleSubjectChange = subject => {
+    setSubject(subject);
+    console.log(subject);
+  };
+
+  const subjects = [
+    {label: 'Subject1', value: 'Subject1'},
+    {label: 'Subject2', value: 'Subject2'},
+  ];
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollView}>
         <Text style={styles.title}>Send Complaint</Text>
+        <View
+          style={{
+            alignItems: 'center',
+            margin: 5,
+            width: '85%',
+            flex: 0.5,
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+          }}>
+          <Image
+            source={require('../../assets/appIcon.png')}
+            style={styles.profilePic}
+          />
+          <View
+            style={{
+              flex: 1,
+              justifyContent: 'flex-start',
+              alignItems: 'center',
+              borderColor: 'black',
+              margin: 5,
+            }}>
+            <Text style={styles.observerName}>
+              Observer sldkfhsdlkhglkdfhgkldfhglkd
+            </Text>
+          </View>
+        </View>
+
         <View style={[styles.inputView]}>
           <TextInput
             maxLength={11}
@@ -51,14 +90,16 @@ const SendComplaintScreen = ({navigation}) => {
             value={vote.toString()}
           />
         </View>
-        <View style={[styles.inputView]}>
-          <TextInput
-            maxLength={11}
-            keyboardType="number-pad"
-            style={styles.inputText}
-            placeholder="Subject"
-            placeholderTextColor="#000000"
-            onChangeText={setSubject}
+        <View style={[styles.selectSubject]}>
+          <RNPickerSelect
+            placeholder={{
+              color: '#ffa8a8',
+              label: 'Select a Subject',
+              value: null,
+            }}
+            style={{placeholder: {color: '#000000', margin: -15}}}
+            items={subjects}
+            onValueChange={handleSubjectChange}
             value={subject}
           />
         </View>
@@ -106,11 +147,22 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 50,
     color: '#ffa8a8',
-    marginBottom: 40,
+    marginBottom: 15,
   },
 
   inputView: {
     width: '85%',
+    backgroundColor: '#ffa8a8',
+    borderWidth: 1,
+    borderRadius: 10,
+    height: 50,
+    marginBottom: 20,
+    justifyContent: 'center',
+    padding: 10,
+  },
+  selectSubject: {
+    width: '85%',
+    color: '#000000',
     backgroundColor: '#ffa8a8',
     borderWidth: 1,
     borderRadius: 10,
@@ -151,6 +203,20 @@ const styles = StyleSheet.create({
 
   invalidInput: {
     borderColor: '#ff0000',
+  },
+  profilePic: {
+    width: 130,
+    height: 130,
+    borderRadius: 50,
+    marginBottom: 10,
+    borderWidth: 5,
+    borderColor: '#93a994',
+  },
+  observerName: {
+    fontSize: 25,
+    fontWeight: '300',
+    marginBottom: 5,
+    color: '#000000',
   },
 });
 

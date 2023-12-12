@@ -24,9 +24,7 @@ const ProfileScreen = ({navigation}) => {
           justifyContent: 'space-between',
           borderBottomWidth: 2,
         }}>
-        <View style={styles.header}>
-          <Image source={user.profilePic} style={styles.profilePic} />
-        </View>
+        <Image source={user.profilePic} style={styles.profilePic} />
         <View
           style={{
             flex: 1,

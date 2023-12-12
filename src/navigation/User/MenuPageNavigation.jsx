@@ -21,9 +21,6 @@ const MenuPageNavigation = () => {
           },
         }}
       />
-      <Stack.Screen name="Send Complaint" component={SendComplaintScreen} />
-      <Stack.Screen name="Send Request" component={SendRequestScreen} />
-      <Stack.Screen name="Send Suggestion" component={SendSuggestionScreen} />
       <Stack.Screen name="Past Complaints" component={PastComplaintScreen} />
       <Stack.Screen name="Past Requests" component={PastRequestScreen} />
       <Stack.Screen name="Past Suggestions" component={PastSuggestionScreen} />

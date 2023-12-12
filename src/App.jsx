@@ -9,18 +9,13 @@ import MyTabs from './navigation/User/UserMainPageBottomNavigation';
 import Navigation from './navigation/NavigationContainer';
 
 import {View, Text, Button} from 'react-native';
-import {Provider, useSelector, useDispatch} from 'react-redux';
 import store from './redux/store/store';
 import {decrement, increment} from './redux/actions/actions';
 import CounterComponent from './components/CounterComponent';
 import ModalListe from './components/ModalListe';
 
 const App = () => {
-  return (
-    <Provider store={store}>
-      <Navigation></Navigation>
-    </Provider>
-  );
+  return <Navigation></Navigation>;
 };
 
 export default App;

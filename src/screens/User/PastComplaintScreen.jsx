@@ -10,124 +10,128 @@ import {
 const {width, height} = Dimensions.get('window');
 const imageWidth = width / 3;
 
-const businesses = [
+const complaints = [
   {
     observerName: 'İşletme 1',
     vote: 1,
     subject: 'Example Subject1',
-    date: '9.12.2023',
-    detail:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+    demands: {
+      date: '9.12.2023',
+      detail:
+        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+    },
   },
   {
     observerName: 'İşletme 3',
     vote: 1,
     subject: 'Example Subject1',
-    date: '9.12.2023',
-    detail:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+    demands: {
+      date: '9.12.2023',
+      place: 'Place',
+      detail:
+        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+    },
   },
   {
     observerName: 'İşletme 2',
     vote: 1,
     subject: 'Example Subject1',
-    date: '9.12.2023',
-    detail:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+    demands: {
+      date: '9.12.2023',
+      time: 'Time 2',
+      detail:
+        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+    },
   },
 ];
+
 const PastComplaintScreen = () => {
   return (
     <View style={styles.flatListView}>
       <FlatList
-        data={businesses}
+        data={complaints}
         keyExtractor={item => item.observerName}
         renderItem={({item}) => (
-          <>
+          <View
+            style={{
+              flex: 1,
+              flexDirection: 'column',
+              borderWidth: 1,
+              borderRadius: 25,
+              margin: 3,
+              backgroundColor: '#bdffc7',
+            }}>
             <View
               style={{
+                alignItems: 'flex-start',
+                margin: 5,
                 flex: 1,
-                flexDirection: 'column',
-                borderWidth: 1,
-                borderRadius: 25,
-                margin: 3,
-                backgroundColor: '#bdffc7',
+                flexDirection: 'row',
+                justifyContent: 'space-between',
               }}>
               <View
                 style={{
-                  alignItems: 'flex-start',
-                  margin: 5,
                   flex: 1,
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
+                  justifyContent: 'flex-start',
+                  alignItems: 'flex-start',
+                  borderColor: 'black',
+                  margin: 5,
                 }}>
-                <View
+                <Text
                   style={{
-                    flex: 1,
-                    justifyContent: 'flex-start',
-                    alignItems: 'flex-start',
-                    borderColor: 'black',
-                    margin: 5,
+                    color: 'black',
+                    marginTop: 10,
                   }}>
-                  <Text
-                    style={{
-                      color: 'black',
-                      marginTop: 10,
-                    }}>
-                    <Text style={{fontWeight: 'bold'}}>Observer Name :</Text>
-                    {item.observerName}
+                  <Text style={{fontWeight: 'bold'}}>
+                    {Object.keys(item)[0]} :
                   </Text>
-                  <Text
-                    style={{
-                      color: 'black',
-                      marginTop: 10,
-                    }}>
-                    <Text style={{fontWeight: 'bold'}}>Vote :</Text> {item.vote}
-                  </Text>
-                  <Text
-                    style={{
-                      color: 'black',
-                      marginTop: 10,
-                    }}>
-                    <Text style={{fontWeight: 'bold'}}>Subject :</Text>
-                    {item.subject}
-                  </Text>
-                  <Text
-                    style={{
-                      color: 'black',
-                      marginTop: 10,
-                    }}>
-                    <Text style={{fontWeight: 'bold'}}>Date :</Text>
-                    {item.date}
-                  </Text>
-                  <Text
-                    style={{
-                      color: 'black',
-                      marginTop: 10,
-                    }}>
-                    <Text style={{fontWeight: 'bold'}}>Detail :</Text>
-                    {item.detail}
-                  </Text>
-                </View>
-                <View
+                  {item.observerName}
+                </Text>
+                <Text
                   style={{
-                    flex: 1,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    margin: 2,
+                    color: 'black',
+                    marginTop: 10,
                   }}>
-                  <Image
-                    source={require('../../assets/appIcon.png')}
+                  <Text style={{fontWeight: 'bold'}}>Vote :</Text> {item.vote}
+                </Text>
+                <Text
+                  style={{
+                    color: 'black',
+                    marginTop: 10,
+                  }}>
+                  <Text style={{fontWeight: 'bold'}}>Subject :</Text>
+                  {item.subject}
+                </Text>
+                {Object.keys(item.demands).map(key => (
+                  <Text
+                    key={key}
                     style={{
-                      width: imageWidth / 1.2,
-                      height: imageWidth / 1.2,
-                      margin: '5%',
-                      borderRadius: imageWidth / 20,
-                    }}></Image>
-                </View>
+                      color: 'black',
+                      marginTop: 10,
+                    }}>
+                    <Text style={{fontWeight: 'bold'}}>{key}:</Text>
+                    {item.demands[key]}
+                  </Text>
+                ))}
+              </View>
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  margin: 2,
+                }}>
+                <Image
+                  source={require('../../assets/appIcon.png')}
+                  style={{
+                    width: imageWidth / 1.2,
+                    height: imageWidth / 1.2,
+                    margin: '5%',
+                    borderRadius: imageWidth / 20,
+                  }}></Image>
               </View>
             </View>
-          </>
+          </View>
         )}
       />
     </View>
