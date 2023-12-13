@@ -12,6 +12,7 @@ import {
   Image,
 } from 'react-native';
 import RNPickerSelect from 'react-native-picker-select';
+import {AirbnbRating, Rating} from 'react-native-ratings';
 
 const SendComplaintScreen = ({navigation}) => {
   const [vote, setVote] = useState(0);
@@ -48,6 +49,12 @@ const SendComplaintScreen = ({navigation}) => {
     {label: 'Subject2', value: 'Subject2'},
   ];
 
+  const onStarRatingPress = rating => {
+    setVote(rating); // Kullanıcının seçtiği yıldız sayısı
+    console.log(rating);
+    // Burada, seçilen yıldız sayısını işleyebilirsiniz (örneğin, bir API'ye göndermek)
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollView}>
@@ -73,23 +80,38 @@ const SendComplaintScreen = ({navigation}) => {
               borderColor: 'black',
               margin: 5,
             }}>
-            <Text style={styles.observerName}>
-              Observer sldkfhsdlkhglkdfhgkldfhglkd
-            </Text>
+            <Text style={styles.observerName}>Observer A</Text>
           </View>
         </View>
 
-        <View style={[styles.inputView]}>
-          <TextInput
-            maxLength={11}
-            keyboardType="number-pad"
-            style={styles.inputText}
-            placeholder="Vote"
-            placeholderTextColor="#003f5c"
-            onChangeText={setVote}
-            value={vote.toString()}
-          />
+        <View
+          style={{
+            alignItems: 'center',
+            margin: 5,
+            flex: 0.5,
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+          }}>
+          <Text
+            style={{
+              color: '#000000',
+              width: '25%',
+              fontSize: 15,
+              justifyContent: 'center',
+            }}>
+            Vote:
+          </Text>
+          <View style={[styles.vote]}>
+            <AirbnbRating
+              count={5}
+              reviews={['Terrible', 'Bad', 'Meh', 'OK', 'Good']}
+              defaultRating={3}
+              size={25}
+              onFinishRating={rating => onStarRatingPress(rating)}
+            />
+          </View>
         </View>
+
         <View style={[styles.selectSubject]}>
           <RNPickerSelect
             placeholder={{
@@ -170,6 +192,11 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     justifyContent: 'center',
     padding: 10,
+  },
+  vote: {
+    width: '60%',
+    borderRadius: 10,
+    marginBottom: 20,
   },
   inputText: {
     height: 50,

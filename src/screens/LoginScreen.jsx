@@ -132,7 +132,7 @@ const LoginScreen = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#ffffff',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
   title: {
     fontWeight: 'bold',
     fontSize: 50,
-    color: '#ffffff',
+    color: '#000000',
     marginBottom: 40,
   },
   inputView: {
@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#a8f098',
     borderRadius: 10,
     borderWidth: 1,
-    height: 50,
+    height: '7%',
     marginBottom: 20,
     justifyContent: 'center',
     padding: 20,
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   forgotText: {
-    color: '#ffffff',
+    color: '#000000',
     fontSize: 17,
     margin: 20,
   },
@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
     color: '#000000',
   },
   signupText: {
-    color: '#ffffff',
+    color: '#000000',
     fontSize: 17,
     margin: 20,
   },
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
   loginButton: {
     width: '80%',
     backgroundColor: '#56e236',
-    borderRadius: 25,
+    borderRadius: 10,
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',

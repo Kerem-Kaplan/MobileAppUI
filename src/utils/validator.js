@@ -18,6 +18,15 @@ class Validator {
     const passwordRegex = /^.{6,}$/;
     return passwordRegex.test(password);
   }
+
+  static validateName(name) {
+    const nameRegex = /^[a-zA-Z]{2,}.*$/;
+    return nameRegex.test(name);
+  }
+  static validateSurname(surname) {
+    const surnameRegex = /^[a-zA-Z]{2,}.*$/;
+    return surnameRegex.test(surname);
+  }
 }
 
 export default Validator;

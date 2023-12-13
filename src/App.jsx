@@ -13,9 +13,14 @@ import store from './redux/store/store';
 import {decrement, increment} from './redux/actions/actions';
 import CounterComponent from './components/CounterComponent';
 import ModalListe from './components/ModalListe';
+import {Provider} from 'react-redux';
 
 const App = () => {
-  return <Navigation></Navigation>;
+  return (
+    <Provider store={store}>
+      <Navigation></Navigation>
+    </Provider>
+  );
 };
 
 export default App;

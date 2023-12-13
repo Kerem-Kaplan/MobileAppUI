@@ -5,18 +5,14 @@ import {
   View,
   TextInput,
   TouchableOpacity,
-  Image,
   Dimensions,
   ScrollView,
   SafeAreaView,
-  Button,
-  Modal,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import RNPickerSelect from 'react-native-picker-select';
 import {countryList} from '../../constants/countryList';
 import {genders} from '../../constants/genders';
-import validator from '../../utils/validator';
 import Validator from '../../utils/validator';
 
 const {width} = Dimensions.get('window');
@@ -30,17 +26,21 @@ const SignupScreen = ({navigation}) => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
-  const [selectedGender, setSelectedGender] = useState(null);
-  const [selectedDateOfBirth, setSelectedDateOfBirth] = useState(new Date());
-  const [selectedNationality, setSelectedNationality] = useState(null);
+  const [gender, setGender] = useState(null);
+  const [dateOfBirth, setDateOfBirth] = useState(new Date());
+  const [nationality, setNationality] = useState(null);
 
   const [showDatePicker, setShowDatePicker] = useState(false);
 
-  const [isValidEmail, setIsValidEmail] = useState(true);
-  const [isValidIdentity, setIsValidIdentity] = useState(true);
-  const [isValidPassword, setIsValidPassword] = useState(true);
-  const [isValidPhoneNumber, setIsValidPhoneNumber] = useState(true);
+  const [isValidDateOfBirth, setIsValidDateOfBirth] = useState(false);
+  const [isValidGender, setIsValidGender] = useState(false);
+  const [isValidNationality, setIsValidNationality] = useState(false);
+  const [isValidName, setIsValidName] = useState(false);
+  const [isValidSurname, setIsValidSurname] = useState(false);
+  const [isValidEmail, setIsValidEmail] = useState(false);
+  const [isValidIdentity, setIsValidIdentity] = useState(false);
+  const [isValidPassword, setIsValidPassword] = useState(false);
+  const [isValidPhoneNumber, setIsValidPhoneNumber] = useState(false);
 
   const onPressSignup = () => {
     if (
@@ -48,9 +48,11 @@ const SignupScreen = ({navigation}) => {
       isValidIdentity &&
       isValidPassword &&
       isValidPhoneNumber &&
-      selectedDateOfBirth !== null &&
-      selectedGender !== null &&
-      selectedNationality !== null
+      isValidNationality &&
+      isValidGender &&
+      isValidNationality &&
+      isValidName &&
+      isValidSurname
     ) {
       alert('Sign Up');
     } else {
@@ -61,10 +63,10 @@ const SignupScreen = ({navigation}) => {
     navigation.navigate('Login');
   };
 
-  const onChange = (event, selectedDate) => {
-    const currentDate = selectedDate || selectedDateOfBirth;
+  const handleChangeDateOfBirth = selectedDate => {
+    const currentDate = selectedDate || dateOfBirth;
     setShowDatePicker(false);
-    setSelectedDateOfBirth(currentDate);
+    setDateOfBirth(currentDate);
     console.log(currentDate.getFullYear());
     // Burada seçilen tarih ile istediğiniz işlemi yapabilirsiniz
   };
@@ -74,14 +76,62 @@ const SignupScreen = ({navigation}) => {
   };
 
   const handleCountryChange = value => {
-    setSelectedNationality(value);
+    setNationality(value);
     console.log(value);
     // Seçilen ülkeyle ilgili işlemleri burada yapabilirsiniz
   };
 
   const handleGenderChange = value => {
-    setSelectedGender(value);
+    setGender(value);
     console.log(value);
+  };
+
+  const validateGender = gender => {
+    console.log(gender);
+    if (gender === null) {
+      setIsValidGender(false);
+      console.log('Gender is Empty ', gender);
+    } else {
+      setIsValidGender(true);
+      console.log('Gender is ', gender);
+    }
+  };
+
+  const validateNationality = nationality => {
+    console.log(nationality);
+    if (nationality === null) {
+      setIsValidNationality(false);
+      console.log('Nationality is Empty ', nationality);
+    } else {
+      setIsValidNationality(true);
+      console.log('Nationality is ', nationality);
+    }
+  };
+
+  const validateDateOfBirth = () => {
+    setIsValidDateOfBirth(true);
+  };
+
+  const validateName = name => {
+    console.log(name);
+    if (Validator.validateName(name)) {
+      console.log('Geçerli');
+      setIsValidName(true);
+    } else {
+      console.log('Geçersiz');
+      setIsValidName(false);
+    }
+  };
+
+  const validateSurname = surname => {
+    console.log(surname);
+    if (Validator.validateSurname(surname)) {
+      console.log('Geçerli');
+      setIsValidSurname(true);
+    } else {
+      console.log('Geçersiz');
+      setIsValidSurname(false);
+    }
   };
 
   const validateEmail = email => {
@@ -132,65 +182,92 @@ const SignupScreen = ({navigation}) => {
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollView}>
         <TextInput style={styles.title}>Sign UP</TextInput>
-        <View style={styles.selectDateOfBirth}>
+        <View
+          style={[
+            styles.selectDateOfBirth,
+            !isValidDateOfBirth && styles.invalidInput,
+          ]}>
           <TouchableOpacity onPress={showDatepicker}>
-            <Text style={{fontSize: 17, paddingLeft: 15}}>Select a Date</Text>
+            <Text
+              style={{fontSize: 17, paddingLeft: 15, justifyContent: 'center'}}>
+              Select a Date
+            </Text>
           </TouchableOpacity>
-          <View style={{justifyContent: 'center', paddingLeft: 30}}>
+          <View style={{justifyContent: 'center', paddingLeft: 50}}>
             <Text
               style={{
-                fontSize: 20,
+                fontSize: 22,
                 color: '#ffffff',
-                borderWidth: 1,
                 padding: 1,
               }}>
-              {selectedDateOfBirth.getDate().toString()}-
-              {(selectedDateOfBirth.getMonth() + 1).toString()}-
-              {selectedDateOfBirth.getFullYear().toString()}
+              {dateOfBirth.getDate().toString()}-
+              {(dateOfBirth.getMonth() + 1).toString()}-
+              {dateOfBirth.getFullYear().toString()}
             </Text>
           </View>
         </View>
         {showDatePicker && (
           <DateTimePicker
             testID="dateTimePicker"
-            value={selectedDateOfBirth}
+            value={dateOfBirth}
             mode="date"
             display="spinner"
-            onChange={onChange}
+            onChange={text => {
+              handleChangeDateOfBirth(text);
+              validateDateOfBirth();
+            }}
             maximumDate={new Date()}
           />
         )}
-        <View style={styles.selectGender}>
+        <View
+          style={[styles.selectGender, !isValidGender && styles.invalidInput]}>
           <RNPickerSelect
             placeholder={{label: 'Select a Gender', value: null}}
             items={genders}
-            onValueChange={handleGenderChange}
-            value={selectedGender}
+            onValueChange={text => {
+              handleGenderChange(text);
+              validateGender(text);
+            }}
+            value={gender}
           />
         </View>
-        <View style={styles.selectCountry}>
+        <View
+          style={[
+            styles.selectCountry,
+            !isValidNationality && styles.invalidInput,
+          ]}>
           <RNPickerSelect
             placeholder={{label: 'Select a country', value: null}}
             items={countryList}
-            onValueChange={handleCountryChange}
-            value={selectedNationality}
+            onValueChange={text => {
+              handleCountryChange(text);
+              validateNationality(text);
+            }}
+            value={nationality}
           />
         </View>
-        <View style={styles.inputView}>
+        <View style={[styles.inputView, !isValidName && styles.invalidInput]}>
           <TextInput
             style={styles.inputText}
             placeholder="Name"
             placeholderTextColor="#003f5c"
-            onChangeText={setName}
+            onChangeText={text => {
+              setName(text);
+              validateName(text);
+            }}
             value={name}
           />
         </View>
-        <View style={styles.inputView}>
+        <View
+          style={[styles.inputView, !isValidSurname && styles.invalidInput]}>
           <TextInput
             style={styles.inputText}
             placeholder="Surname"
             placeholderTextColor="#003f5c"
-            onChangeText={setSurname}
+            onChangeText={text => {
+              setSurname(text);
+              validateSurname(text);
+            }}
             value={surname}
           />
         </View>
@@ -280,22 +357,13 @@ const styles = StyleSheet.create({
     color: '#92ed7e',
     marginBottom: 40,
   },
-  inputEmail: {
-    width: '85%',
-    backgroundColor: '#a8f098',
-    borderWidth: 1,
-    borderRadius: 10,
-    height: 50,
-    marginBottom: 20,
-    justifyContent: 'center',
-    padding: 10,
-  },
+
   inputView: {
     width: '85%',
     backgroundColor: '#a8f098',
     borderWidth: 1,
     borderRadius: 10,
-    height: 50,
+    height: '6%',
     marginBottom: 20,
     justifyContent: 'center',
     padding: 10,
@@ -306,9 +374,9 @@ const styles = StyleSheet.create({
   },
   selectGender: {
     backgroundColor: 'green',
-    width: '80%',
+    width: '85%',
     borderRadius: 10,
-    height: 50,
+    height: '6%',
     marginBottom: 20,
     justifyContent: 'center',
     padding: 10,
@@ -316,9 +384,9 @@ const styles = StyleSheet.create({
   },
   selectCountry: {
     backgroundColor: 'green',
-    width: '80%',
+    width: '85%',
     borderRadius: 10,
-    height: 50,
+    height: '6%',
     marginBottom: 20,
     justifyContent: 'center',
     padding: 10,
@@ -326,10 +394,10 @@ const styles = StyleSheet.create({
   },
   selectDateOfBirth: {
     backgroundColor: 'green',
-    width: '80%',
+    width: '85%',
     borderRadius: 10,
-    height: 50,
     marginBottom: 20,
+    height: '6%',
     justifyContent: 'flex-start',
     padding: 10,
     flexDirection: 'row',

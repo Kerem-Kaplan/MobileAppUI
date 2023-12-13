@@ -121,7 +121,7 @@ const HomeScreen = ({navigation}) => {
                   flex: 1,
                   flexDirection: 'column',
                   borderWidth: 1,
-                  borderRadius: 25,
+                  borderRadius: 10,
                   margin: 3,
                   backgroundColor: '#bdffc7',
                 }}>
@@ -180,6 +180,7 @@ const HomeScreen = ({navigation}) => {
                       justifyContent: 'center',
                       alignItems: 'center',
                       margin: 2,
+                      borderLeftWidth: 2,
                     }}>
                     <Image
                       source={require('../../assets/appIcon.png')}
@@ -188,10 +189,14 @@ const HomeScreen = ({navigation}) => {
                         height: imageWidth / 1.5,
                         margin: '5%',
                         borderRadius: imageWidth / 5,
-                      }}></Image>
+                      }}
+                    />
                     <View>
-                      <Text style={{color: '#000000', borderBottomWidth: 1}}>
-                        Oy Ortalaması : {item.voteAverage} / 5
+                      <Text style={{color: '#000000'}}>
+                        <Text style={{fontWeight: 'bold'}}>
+                          Oy Ortalaması :
+                        </Text>{' '}
+                        {item.voteAverage} / 5
                       </Text>
                     </View>
                   </View>
@@ -208,7 +213,8 @@ const HomeScreen = ({navigation}) => {
                     style={{
                       width: '30%',
                       backgroundColor: '#ffa8a8',
-                      borderRadius: 25,
+                      borderWidth: 1,
+                      borderRadius: 10,
                       height: height / 20,
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -218,13 +224,16 @@ const HomeScreen = ({navigation}) => {
                     onPress={() => {
                       navigation.navigate('Send Complaint');
                     }}>
-                    <Text style={{color: '#000000'}}>Send Complaint</Text>
+                    <Text style={{color: '#000000', fontWeight: '500'}}>
+                      Send Complaint
+                    </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={{
                       width: '30%',
                       backgroundColor: '#9fbca7',
-                      borderRadius: 25,
+                      borderRadius: 10,
+                      borderWidth: 1,
                       height: height / 20,
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -234,13 +243,16 @@ const HomeScreen = ({navigation}) => {
                     onPress={() => {
                       navigation.navigate('Send Request');
                     }}>
-                    <Text style={{color: '#000000'}}>Send Request</Text>
+                    <Text style={{color: '#000000', fontWeight: '500'}}>
+                      Send Request
+                    </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={{
                       width: '30%',
                       backgroundColor: '#addaff',
-                      borderRadius: 25,
+                      borderRadius: 10,
+                      borderWidth: 1,
                       height: height / 20,
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -250,7 +262,9 @@ const HomeScreen = ({navigation}) => {
                     onPress={() => {
                       navigation.navigate('Send Suggestion');
                     }}>
-                    <Text style={{color: '#000000'}}>Send Suggestion</Text>
+                    <Text style={{color: '#000000', fontWeight: '500'}}>
+                      Send Suggestion
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </View>

@@ -7,7 +7,7 @@ const ProfilePageNavigation = () => {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="Menu Page"
+        name="ProfilePage"
         component={ProfileScreen}
         options={{
           headerLeft: null,
@@ -16,7 +16,7 @@ const ProfilePageNavigation = () => {
           },
         }}
       />
-      <Stack.Screen name="Edit Profile" component={EditProfileScreen} />
+      <Stack.Screen name="EditProfile" component={EditProfileScreen} />
     </Stack.Navigator>
   );
 };

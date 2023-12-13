@@ -1,5 +1,13 @@
 import React from 'react';
-import {View, Text, Image, TouchableOpacity, StyleSheet} from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+  ScrollView,
+} from 'react-native';
 
 const ProfileScreen = ({navigation}) => {
   const user = {
@@ -14,25 +22,16 @@ const ProfileScreen = ({navigation}) => {
     profilePic: require('../../assets/appIcon.png'), // Profil fotoğrafı
   };
   return (
-    <View style={styles.container}>
-      <View
-        style={{
-          alignItems: 'center',
-          margin: 5,
-          flex: 0.5,
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          borderBottomWidth: 2,
-        }}>
-        <Image source={user.profilePic} style={styles.profilePic} />
+    <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollView}>
         <View
           style={{
-            flex: 1,
-            justifyContent: 'flex-start',
-            alignItems: 'flex-start',
-            borderColor: 'black',
-            margin: 5,
+            alignItems: 'center',
+            margin: 20,
+            flexDirection: 'column',
+            borderBottomWidth: 3,
           }}>
+          <Image source={user.profilePic} style={styles.profilePic} />
           <Text style={styles.name}>
             {user.name}
             {user.username}
@@ -46,34 +45,31 @@ const ProfileScreen = ({navigation}) => {
             {user.dateOfBirth}
           </Text>
         </View>
-      </View>
-      <View style={styles.content}>
-        <Text style={styles.nationality}>
-          <Text style={{fontWeight: 'bold'}}>Nationality :</Text>{' '}
-          {user.nationality}
-        </Text>
-        <Text style={styles.id}>
-          <Text style={{fontWeight: 'bold'}}>ID :</Text> {user.identity}
-        </Text>
-        <Text style={styles.email}>
-          <Text style={{fontWeight: 'bold'}}>Email :</Text> {user.email}
-        </Text>
-        <Text style={styles.phoneNumber}>
-          <Text style={{fontWeight: 'bold'}}>Phone Number :</Text>{' '}
-          {user.phoneNumber}
-        </Text>
-
-        {/* Profil içeriği */}
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => {
-            navigation.navigate('Edit Profile');
-          }}>
-          <Text style={styles.buttonText}>Profili Düzenle</Text>
-        </TouchableOpacity>
-        {/* Diğer profil içeriği */}
-      </View>
-    </View>
+        <View style={styles.content}>
+          <Text style={styles.nationality}>
+            <Text style={{fontWeight: 'bold'}}>Nationality :</Text>{' '}
+            {user.nationality}
+          </Text>
+          <Text style={styles.id}>
+            <Text style={{fontWeight: 'bold'}}>ID :</Text> {user.identity}
+          </Text>
+          <Text style={styles.email}>
+            <Text style={{fontWeight: 'bold'}}>Email :</Text> {user.email}
+          </Text>
+          <Text style={styles.phoneNumber}>
+            <Text style={{fontWeight: 'bold'}}>Phone Number :</Text>{' '}
+            {user.phoneNumber}
+          </Text>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => {
+              navigation.navigate('EditProfile');
+            }}>
+            <Text style={styles.buttonText}>Profili Düzenle</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
@@ -94,8 +90,7 @@ const styles = StyleSheet.create({
     borderColor: '#93a994',
   },
   name: {
-    fontSize: 30,
-    fontWeight: 'bold',
+    fontSize: 25,
     marginBottom: 5,
     color: '#000000',
   },
