@@ -12,6 +12,8 @@ import SignupScreen from './User/SignupScreen';
 import HomeScreen from './User/HomeScreen';
 import MyTabs from '../navigation/User/UserMainPageBottomNavigation';
 import Validator from '../utils/validator';
+import axios from 'axios';
+import {checkUserRole} from '../services/checkUserRole';
 
 const {width, height} = Dimensions.get('window');
 const imageWidth = width / 3;
@@ -27,31 +29,41 @@ const LoginScreen = ({navigation}) => {
 
   const onPressLogin = async () => {
     if (isValidEmail && isValidPassword) {
-      navigation.navigate('UserMain');
+      const url = 'http://192.168.177.116:3000/login';
+      navigation.navigate('ObserverMain');
+      /* try {
+        const response = await axios.post(url, {
+          email,
+          password,
+        });
+        console.log('response', response.data.token);
+        const data = response.data;
+        const userRole = await checkUserRole(response.data.token);
+        console.log('userRole', userRole);
+        if (userRole === 'user') {
+          navigation.navigate('UserMain');
+        }
+        if (userRole === 'observer') {
+          navigation.navigate('ObserverMain');
+        }
+        setMessage(data.message);
+        //navigation.navigate('UserMain');
+      } catch (error) {
+        if (error.response.status === 401) {
+          //console.error('Giriş hatası:', error.response.data);
+          alert(error.response.data.message);
+        }
+        if (error.response.status === 500) {
+          alert(error.response.data.message);
+        }
+      } */
     } else {
-      alert('Try Again');
+      alert('Please check informations');
     }
-
-    /*  const url = 'http://192.168.1.10:3000/login';
-
-    try {
-      const response = await axios.post(url, {
-        email,
-        password,
-      });
-      console.log('response', response);
-      const data = response.data;
-      setMessage(data.message);
-    } catch (error) {
-      console.error('Giriş hatası:', error.response.data.errors);
-      setErrors(error.response.data.errors);
-      console.log('errors', errors);
-      setMessage('Giriş sırasında hata oluştu');
-    } */
   };
   const onPressForgotPassword = () => {
     // Do something about forgot password operation
-    navigation.navigate('Forgot Password');
+    navigation.navigate('ForgotPassword');
   };
   const onPressSignUp = () => {
     // Do something about signup operation
@@ -91,7 +103,7 @@ const LoginScreen = ({navigation}) => {
         <TextInput
           style={styles.inputText}
           placeholder="Email"
-          placeholderTextColor="#003f5c"
+          placeholderTextColor="#000000"
           onChangeText={text => {
             setEmail(text);
             validateEmail(text);
@@ -104,7 +116,7 @@ const LoginScreen = ({navigation}) => {
           style={styles.inputText}
           secureTextEntry
           placeholder="Password"
-          placeholderTextColor="#003f5c"
+          placeholderTextColor="#000000"
           onChangeText={text => {
             setPassword(text);
             validatePassword(text);
@@ -160,7 +172,7 @@ const styles = StyleSheet.create({
   },
   inputText: {
     height: 50,
-    color: 'white',
+    color: '#000000',
   },
   forgotText: {
     color: '#000000',

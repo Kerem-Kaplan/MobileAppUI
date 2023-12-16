@@ -55,7 +55,7 @@ const PastRequestScreen = () => {
               borderWidth: 1,
               borderRadius: 25,
               margin: 3,
-              backgroundColor: '#bdffc7',
+              backgroundColor: '#9fbca7',
             }}>
             <View
               style={{

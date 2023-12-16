@@ -55,7 +55,7 @@ const PastSuggestionScreen = () => {
               borderWidth: 1,
               borderRadius: 25,
               margin: 3,
-              backgroundColor: '#bdffc7',
+              backgroundColor: '#addaff',
             }}>
             <View
               style={{

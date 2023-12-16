@@ -63,13 +63,17 @@ const SignupScreen = ({navigation}) => {
     navigation.navigate('Login');
   };
 
-  const handleChangeDateOfBirth = selectedDate => {
+  const handleChangeDateOfBirth = (event, selectedDate) => {
     const currentDate = selectedDate || dateOfBirth;
     setShowDatePicker(false);
     setDateOfBirth(currentDate);
-    console.log(currentDate.getFullYear());
+    console.log('currentDate', currentDate);
+    setIsValidDateOfBirth(true);
+
     // Burada seçilen tarih ile istediğiniz işlemi yapabilirsiniz
   };
+
+  //console.log('dateOfBirth', dateOfBirth);
 
   const showDatepicker = () => {
     setShowDatePicker(true);
@@ -106,10 +110,6 @@ const SignupScreen = ({navigation}) => {
       setIsValidNationality(true);
       console.log('Nationality is ', nationality);
     }
-  };
-
-  const validateDateOfBirth = () => {
-    setIsValidDateOfBirth(true);
   };
 
   const validateName = name => {
@@ -200,9 +200,8 @@ const SignupScreen = ({navigation}) => {
                 color: '#ffffff',
                 padding: 1,
               }}>
-              {dateOfBirth.getDate().toString()}-
-              {(dateOfBirth.getMonth() + 1).toString()}-
-              {dateOfBirth.getFullYear().toString()}
+              {dateOfBirth.getDate()}-{dateOfBirth.getMonth() + 1}-
+              {dateOfBirth.getFullYear()}
             </Text>
           </View>
         </View>
@@ -212,10 +211,7 @@ const SignupScreen = ({navigation}) => {
             value={dateOfBirth}
             mode="date"
             display="spinner"
-            onChange={text => {
-              handleChangeDateOfBirth(text);
-              validateDateOfBirth();
-            }}
+            onChange={handleChangeDateOfBirth}
             maximumDate={new Date()}
           />
         )}

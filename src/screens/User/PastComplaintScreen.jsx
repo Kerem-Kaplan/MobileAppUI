@@ -59,7 +59,7 @@ const PastComplaintScreen = () => {
               borderWidth: 1,
               borderRadius: 25,
               margin: 3,
-              backgroundColor: '#bdffc7',
+              backgroundColor: '#ffa8a8',
             }}>
             <View
               style={{

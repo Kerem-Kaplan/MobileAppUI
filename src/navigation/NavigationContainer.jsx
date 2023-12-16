@@ -28,7 +28,7 @@ const Navigation = () => {
           options={{title: 'Signup Screen'}}
         />
         <Stack.Screen
-          name="Forgot Password"
+          name="ForgotPassword"
           component={ForgotPasswordScreen}
           options={{title: 'Forgot Password Screen'}}
         />

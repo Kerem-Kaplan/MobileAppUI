@@ -27,6 +27,11 @@ class Validator {
     const surnameRegex = /^[a-zA-Z]{2,}.*$/;
     return surnameRegex.test(surname);
   }
+
+  static validateAddress(address) {
+    const addressRegex = /^[a-zA-Z]{8,}.*$/;
+    return addressRegex.test(address);
+  }
 }
 
 export default Validator;
