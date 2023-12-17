@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   Image,
   Dimensions,
+  ScrollView,
+  SafeAreaView,
 } from 'react-native';
 import SignupScreen from './User/SignupScreen';
 import HomeScreen from './User/HomeScreen';
@@ -14,6 +16,7 @@ import MyTabs from '../navigation/User/UserMainPageBottomNavigation';
 import Validator from '../utils/validator';
 import axios from 'axios';
 import {checkUserRole} from '../services/checkUserRole';
+import {tokens} from '../constants/tokens';
 
 const {width, height} = Dimensions.get('window');
 const imageWidth = width / 3;
@@ -24,21 +27,21 @@ const LoginScreen = ({navigation}) => {
   const [message, setMessage] = useState('');
   const [errors, setErrors] = useState({});
 
-  const [isValidEmail, setIsValidEmail] = useState(true);
-  const [isValidPassword, setIsValidPassword] = useState(true);
+  const [isValidEmail, setIsValidEmail] = useState(false);
+  const [isValidPassword, setIsValidPassword] = useState(false);
 
   const onPressLogin = async () => {
     if (isValidEmail && isValidPassword) {
-      const url = 'http://192.168.177.116:3000/login';
-      navigation.navigate('ObserverMain');
-      /* try {
+      const url = 'http://192.168.1.10:3000/login';
+      //navigation.navigate('UserMain');
+      try {
         const response = await axios.post(url, {
           email,
           password,
         });
         console.log('response', response.data.token);
         const data = response.data;
-        const userRole = await checkUserRole(response.data.token);
+        const userRole = await checkUserRole(data.token);
         console.log('userRole', userRole);
         if (userRole === 'user') {
           navigation.navigate('UserMain');
@@ -47,7 +50,8 @@ const LoginScreen = ({navigation}) => {
           navigation.navigate('ObserverMain');
         }
         setMessage(data.message);
-        //navigation.navigate('UserMain');
+        //setEmail('');
+        //setPassword('');
       } catch (error) {
         if (error.response.status === 401) {
           //console.error('Giriş hatası:', error.response.data);
@@ -56,7 +60,7 @@ const LoginScreen = ({navigation}) => {
         if (error.response.status === 500) {
           alert(error.response.data.message);
         }
-      } */
+      }
     } else {
       alert('Please check informations');
     }
@@ -93,7 +97,7 @@ const LoginScreen = ({navigation}) => {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Login</Text>
       <Image
         source={require('../assets/appIcon.png')}
@@ -137,7 +141,7 @@ const LoginScreen = ({navigation}) => {
         </TouchableOpacity>
       </View>
       <Text>{message}</Text>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -146,7 +150,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#ffffff',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
   },
   imageStyle: {
     width: imageWidth,
@@ -155,17 +159,17 @@ const styles = StyleSheet.create({
     borderRadius: imageWidth / 4,
   },
   title: {
-    fontWeight: 'bold',
+    fontWeight: '800',
     fontSize: 50,
     color: '#000000',
-    marginBottom: 40,
+    marginBottom: 10,
   },
   inputView: {
     width: '80%',
     backgroundColor: '#a8f098',
     borderRadius: 10,
     borderWidth: 1,
-    height: '7%',
+    height: height / 14,
     marginBottom: 20,
     justifyContent: 'center',
     padding: 20,
@@ -176,7 +180,7 @@ const styles = StyleSheet.create({
   },
   forgotText: {
     color: '#000000',
-    fontSize: 17,
+    fontSize: 20,
     margin: 20,
   },
   loginText: {
@@ -184,7 +188,7 @@ const styles = StyleSheet.create({
   },
   signupText: {
     color: '#000000',
-    fontSize: 17,
+    fontSize: 20,
     margin: 20,
   },
   containerSignup: {
@@ -197,7 +201,7 @@ const styles = StyleSheet.create({
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 40,
+    marginTop: 20,
     marginBottom: 10,
   },
   invalidInput: {

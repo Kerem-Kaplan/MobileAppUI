@@ -7,6 +7,9 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import Validator from '../utils/validator';
+import axios from 'axios';
+
+const url = 'http://192.168.1.10:3000/user/forgot-password';
 
 const ForgotPasswordScreen = () => {
   const [email, setEmail] = useState('');
@@ -23,18 +26,27 @@ const ForgotPasswordScreen = () => {
       setIsValidEmail(false);
     }
   };
-  const onPressForgotPassword = () => {
-    alert('Forgot Password');
+  const onPressForgotPassword = async () => {
+    if (isValidEmail) {
+      const response = await axios.post(url, {email});
+      const data = response.data;
+      console.log(response.data);
+
+      alert(data.message);
+      setEmail('');
+    } else {
+      alert('Try again');
+    }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Forgot Password</Text>
+      <Text style={styles.title}>Forgot Password Screen</Text>
       <View style={[styles.inputView, !isValidEmail && styles.invalidInput]}>
         <TextInput
           style={styles.inputText}
           placeholder="Email"
-          placeholderTextColor="#003f5c"
+          placeholderTextColor="#000000"
           onChangeText={text => {
             setEmail(text);
             validateEmail(text);
@@ -45,7 +57,7 @@ const ForgotPasswordScreen = () => {
       <TouchableOpacity
         onPress={onPressForgotPassword}
         style={styles.forgotPasswordButton}>
-        <Text style={styles.loginText}>FORGOT PASSWORD </Text>
+        <Text style={styles.forgotPasswordText}>FORGOT PASSWORD </Text>
       </TouchableOpacity>
     </View>
   );
@@ -54,20 +66,20 @@ const ForgotPasswordScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#ffffff',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
   },
 
   title: {
     fontWeight: 'bold',
     fontSize: 50,
-    color: '#ffffff',
-    marginBottom: 40,
+    color: '#000000',
+    marginBottom: 20,
   },
   inputView: {
-    width: '80%',
-    backgroundColor: '#a8f098',
+    width: '85%',
+    backgroundColor: '#d1d1d1',
     borderRadius: 10,
     borderWidth: 1,
     height: 50,
@@ -77,12 +89,15 @@ const styles = StyleSheet.create({
   },
   inputText: {
     height: 50,
-    color: 'white',
+    color: '#000000',
+  },
+  forgotPasswordText: {
+    color: '#ffffff',
   },
   forgotPasswordButton: {
-    width: '80%',
-    backgroundColor: '#56e236',
-    borderRadius: 25,
+    width: '85%',
+    backgroundColor: '#616161',
+    borderRadius: 10,
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',

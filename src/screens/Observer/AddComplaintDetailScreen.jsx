@@ -43,7 +43,7 @@ const AddComplaintDetailScreen = () => {
           <TextInput
             style={styles.inputText}
             placeholder="Add Demands"
-            placeholderTextColor="#ffffff"
+            placeholderTextColor="#000000"
             onChangeText={setDemand}
             value={demand}
           />
@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
   title: {
     fontWeight: 'bold',
     fontSize: 50,
-    color: '#7d7d7d',
+    color: '#ffd6d6',
     marginBottom: 20,
   },
 
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
   },
   inputView: {
     width: '85%',
-    backgroundColor: '#7d7d7d',
+    backgroundColor: '#ffd6d6',
     borderWidth: 1,
     borderRadius: 10,
     marginBottom: 20,
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
   },
   inputText: {
     height: 50,
-    color: '#ffffff',
+    color: '#000000',
   },
   name: {
     fontSize: 30,
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
   },
   addButton: {
     width: '10%',
-    backgroundColor: '#525252',
+    backgroundColor: '#ffa8a8',
     borderRadius: 25,
     height: 50,
     alignItems: 'center',
@@ -207,8 +207,8 @@ const styles = StyleSheet.create({
   },
   signupButton: {
     width: '80%',
-    backgroundColor: '#525252',
-    borderRadius: 25,
+    backgroundColor: '#ffa8a8',
+    borderRadius: 10,
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',
@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
   backButton: {
     width: '80%',
     backgroundColor: '#ff0000',
-    borderRadius: 25,
+    borderRadius: 10,
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',

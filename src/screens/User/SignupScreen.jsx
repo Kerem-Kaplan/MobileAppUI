@@ -14,21 +14,24 @@ import RNPickerSelect from 'react-native-picker-select';
 import {countryList} from '../../constants/countryList';
 import {genders} from '../../constants/genders';
 import Validator from '../../utils/validator';
+import axios from 'axios';
 
 const {width} = Dimensions.get('window');
 const imageWidth = width / 2;
 
+const url = 'http://192.168.1.10:3000/user/sign-up';
+
 const SignupScreen = ({navigation}) => {
   const [name, setName] = useState('');
   const [surname, setSurname] = useState('');
-  const [identityNumberOrPassportNumber, setIdentityNumberOrPassportNumber] =
-    useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [gender, setGender] = useState(null);
   const [dateOfBirth, setDateOfBirth] = useState(new Date());
   const [nationality, setNationality] = useState(null);
+  const [identityNumberOrPassportNumber, setIdentityNumberOrPassportNumber] =
+    useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
 
   const [showDatePicker, setShowDatePicker] = useState(false);
 
@@ -42,7 +45,7 @@ const SignupScreen = ({navigation}) => {
   const [isValidPassword, setIsValidPassword] = useState(false);
   const [isValidPhoneNumber, setIsValidPhoneNumber] = useState(false);
 
-  const onPressSignup = () => {
+  const onPressSignup = async () => {
     if (
       isValidEmail &&
       isValidIdentity &&
@@ -54,9 +57,37 @@ const SignupScreen = ({navigation}) => {
       isValidName &&
       isValidSurname
     ) {
-      alert('Sign Up');
+      try {
+        const response = await axios.post(url, {
+          name,
+          surname,
+          gender,
+          dateOfBirth,
+          nationality,
+          identityNumberOrPassportNumber,
+          email,
+          password,
+          phoneNumber,
+        });
+
+        console.log('Response Signup', response);
+        const data = response.data;
+        console.log('Message Signup:', data.message);
+        alert(data.message);
+        setDateOfBirth(new Date());
+        setGender(null);
+        setNationality(null);
+        setName('');
+        setSurname('');
+        setIdentityNumberOrPassportNumber('');
+        setPhoneNumber('');
+        setEmail('');
+        setPassword('');
+      } catch (error) {
+        alert(error.response.data.message);
+      }
     } else {
-      alert('Try again');
+      alert('Please Check Information');
     }
   };
   const onPressBack = () => {
@@ -407,18 +438,18 @@ const styles = StyleSheet.create({
     color: '#ffffff',
   },
   signupButton: {
-    width: '80%',
+    width: '85%',
     backgroundColor: '#56e236',
-    borderRadius: 25,
+    borderRadius: 10,
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',
     margin: 10,
   },
   backButton: {
-    width: '80%',
+    width: '85%',
     backgroundColor: '#ff0000',
-    borderRadius: 25,
+    borderRadius: 10,
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',

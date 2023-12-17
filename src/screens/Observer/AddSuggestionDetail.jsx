@@ -37,13 +37,13 @@ const AddSuggestionDetailScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollView}>
-        <Text style={styles.title}>Add Request Demands</Text>
+        <Text style={styles.title}>Add Suggestion Demands</Text>
 
         <View style={styles.inputView}>
           <TextInput
             style={styles.inputText}
             placeholder="Add Demands"
-            placeholderTextColor="#ffffff"
+            placeholderTextColor="#000000"
             onChangeText={setDemand}
             value={demand}
           />
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
   },
   inputView: {
     width: '85%',
-    backgroundColor: '#7d7d7d',
+    backgroundColor: '#d6edff',
     borderWidth: 1,
     borderRadius: 10,
     marginBottom: 20,
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
   },
   inputText: {
     height: 50,
-    color: '#ffffff',
+    color: '#000000',
   },
   name: {
     fontSize: 30,
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
   },
   addButton: {
     width: '10%',
-    backgroundColor: '#525252',
+    backgroundColor: '#addaff',
     borderRadius: 25,
     height: 50,
     alignItems: 'center',
@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
   },
   signupButton: {
     width: '80%',
-    backgroundColor: '#525252',
+    backgroundColor: '#addaff',
     borderRadius: 25,
     height: 50,
     alignItems: 'center',

@@ -123,7 +123,7 @@ const HomeScreen = ({navigation}) => {
                   borderWidth: 1,
                   borderRadius: 10,
                   margin: 3,
-                  backgroundColor: '#bdffc7',
+                  backgroundColor: '#d2f4d2',
                 }}>
                 <View
                   style={{
