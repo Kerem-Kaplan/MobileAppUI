@@ -1,4 +1,5 @@
-import React, {useState} from 'react';
+import axios from 'axios';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -10,6 +11,7 @@ import {
   Dimensions,
   TextInput,
 } from 'react-native';
+import {tokens} from '../../constants/tokens';
 
 const {width, height} = Dimensions.get('window');
 const imageWidth = width / 3;
@@ -83,8 +85,31 @@ const businesses = [
   },
 ];
 
+const url = 'http://192.168.1.10:3000/user/homepage';
+
 const HomeScreen = ({navigation}) => {
   const [selectedCategory, setSelectedCategory] = React.useState(1);
+  const [observers, setObservers] = useState([]);
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    getObservers();
+  }, []);
+
+  const getObservers = async () => {
+    try {
+      const response = await axios.get(url);
+      console.log('response', response.data.observers.observers);
+      setObservers(response.data.observers.observers);
+      setCategories(response.data.categories.categories);
+
+      console.log('response', response.data.categories.categories);
+      console.log(typeof categories);
+      return;
+    } catch (error) {
+      console.log('Error', error.response.data);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -95,25 +120,27 @@ const HomeScreen = ({navigation}) => {
           contentContainerStyle={styles.categoryContainer}>
           {categories.map(category => (
             <TouchableOpacity
-              key={category.id}
+              key={category._id}
               style={[
                 styles.categoryItem,
-                selectedCategory === category.id
+                selectedCategory === category._id
                   ? styles.selectedCategory
                   : null,
               ]}
-              onPress={() => setSelectedCategory(category.id)}>
-              <Text style={styles.categoryText}>{category.name}</Text>
+              onPress={() => setSelectedCategory(category._id)}>
+              <Text style={styles.categoryText}>
+                {category.observerCategory}
+              </Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
       </View>
       <View style={styles.flatListView}>
         <FlatList
-          data={businesses.filter(
-            business => business.categoryId === selectedCategory,
+          data={observers.filter(
+            observers => observers.observerCategory === selectedCategory,
           )}
-          keyExtractor={item => item.id.toString()}
+          keyExtractor={item => item._id.toString()}
           renderItem={({item}) => (
             <>
               <View

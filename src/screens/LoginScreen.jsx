@@ -27,14 +27,14 @@ const LoginScreen = ({navigation}) => {
   const [message, setMessage] = useState('');
   const [errors, setErrors] = useState({});
 
-  const [isValidEmail, setIsValidEmail] = useState(false);
-  const [isValidPassword, setIsValidPassword] = useState(false);
+  const [isValidEmail, setIsValidEmail] = useState(true);
+  const [isValidPassword, setIsValidPassword] = useState(true);
 
   const onPressLogin = async () => {
     if (isValidEmail && isValidPassword) {
       const url = 'http://192.168.1.10:3000/login';
-      //navigation.navigate('UserMain');
-      try {
+      navigation.navigate('UserMain');
+      /* try {
         const response = await axios.post(url, {
           email,
           password,
@@ -60,7 +60,7 @@ const LoginScreen = ({navigation}) => {
         if (error.response.status === 500) {
           alert(error.response.data.message);
         }
-      }
+      } */
     } else {
       alert('Please check informations');
     }
