@@ -89,10 +89,10 @@ const url = 'http://192.168.1.10:3000/user/homepage';
 
 const HomeScreen = ({navigation}) => {
   const [selectedCategory, setSelectedCategory] = React.useState(1);
-  const [observers, setObservers] = useState([]);
+  /* const [observers, setObservers] = useState([]);
   const [categories, setCategories] = useState([]);
-
-  useEffect(() => {
+ */
+  /* useEffect(() => {
     getObservers();
   }, []);
 
@@ -109,7 +109,7 @@ const HomeScreen = ({navigation}) => {
     } catch (error) {
       console.log('Error', error.response.data);
     }
-  };
+  }; */
 
   return (
     <View style={styles.container}>
@@ -120,27 +120,25 @@ const HomeScreen = ({navigation}) => {
           contentContainerStyle={styles.categoryContainer}>
           {categories.map(category => (
             <TouchableOpacity
-              key={category._id}
+              key={category.id}
               style={[
                 styles.categoryItem,
-                selectedCategory === category._id
+                selectedCategory === category.id
                   ? styles.selectedCategory
                   : null,
               ]}
-              onPress={() => setSelectedCategory(category._id)}>
-              <Text style={styles.categoryText}>
-                {category.observerCategory}
-              </Text>
+              onPress={() => setSelectedCategory(category.id)}>
+              <Text style={styles.categoryText}>{category.name}</Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
       </View>
       <View style={styles.flatListView}>
         <FlatList
-          data={observers.filter(
-            observers => observers.observerCategory === selectedCategory,
+          data={businesses.filter(
+            observers => observers.id === selectedCategory,
           )}
-          keyExtractor={item => item._id.toString()}
+          keyExtractor={item => item.id}
           renderItem={({item}) => (
             <>
               <View

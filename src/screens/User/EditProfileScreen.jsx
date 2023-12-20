@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   TextInput,
@@ -9,11 +9,16 @@ import {
   Image,
   ScrollView,
   SafeAreaView,
+  PermissionsAndroid,
 } from 'react-native';
 import {countryList} from '../../constants/countryList';
 import RNPickerSelect from 'react-native-picker-select';
 import {genders} from '../../constants/genders';
 import Validator from '../../utils/validator';
+import {launchImageLibrary} from 'react-native-image-picker';
+import axios from 'axios';
+
+const url = 'http://192.168.1.10:3000/user/upload-profile-photo';
 
 const EditProfileScreen = ({navigation}) => {
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -25,6 +30,9 @@ const EditProfileScreen = ({navigation}) => {
   const [isValidPhoneNumber, setIsValidPhoneNumber] = useState(false);
   const [isValidGender, setIsValidGender] = useState(false);
   const [isValidNationality, setIsValidNationality] = useState(false);
+
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imageUri, setImageUri] = useState('');
 
   const validateEmail = email => {
     console.log(email);
@@ -98,6 +106,70 @@ const EditProfileScreen = ({navigation}) => {
     navigation.navigate('ProfilePage');
   };
 
+  useEffect(() => {
+    requestCameraPermission();
+  }, []);
+
+  const requestCameraPermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.CAMERA,
+        {
+          title: 'Permission to access camera',
+          message: 'App needs access to your camera.',
+          buttonPositive: 'OK',
+        },
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('Camera permission granted');
+      } else {
+        console.log('Camera permission denied');
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
+  const selectImageHandler = () => {
+    const options = {
+      title: 'Select Photo',
+      type: 'file',
+      options: {
+        maxHeight: 200,
+        maxWidth: 200,
+        selectionLimit: 1,
+        mediaType: 'photo',
+        includeBase64: false,
+      },
+    };
+    launchImageLibrary(options, async response => {
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.error) {
+        console.log('ImagePicker Error: ', response.error);
+      } else {
+        console.log(response.assets[0].uri);
+        setImageUri(response.assets[0].uri);
+
+        const formData = new FormData();
+        formData.append('photo', {
+          name: "keremm@gmail.com" + '_profile.jpg',
+          uri: imageUri,
+          type: 'image/jpg',
+        });
+        try {
+          const result = await axios.post(url, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          });
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    });
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollView}>
@@ -112,11 +184,8 @@ const EditProfileScreen = ({navigation}) => {
             borderBottomWidth: 2,
             width: '90%',
           }}>
-          <Image
-            source={require('../../assets/appIcon.png')}
-            style={styles.profilePic}
-          />
-          <TouchableOpacity style={styles.button}>
+          <Image source={{uri: imageUri}} style={styles.profilePic} />
+          <TouchableOpacity onPress={selectImageHandler} style={styles.button}>
             <Text style={styles.buttonText}>Change Photo</Text>
           </TouchableOpacity>
         </View>

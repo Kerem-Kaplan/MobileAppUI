@@ -21,6 +21,8 @@ const ProfileScreen = ({navigation}) => {
     phoneNumber: '05555555555',
     profilePic: require('../../assets/appIcon.png'), // Profil fotoğrafı
   };
+
+  
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollView}>
