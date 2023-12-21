@@ -10,6 +10,7 @@ import {
   ScrollView,
   SafeAreaView,
   PermissionsAndroid,
+  ActivityIndicator,
 } from 'react-native';
 import {countryList} from '../../constants/countryList';
 import RNPickerSelect from 'react-native-picker-select';
@@ -17,6 +18,8 @@ import {genders} from '../../constants/genders';
 import Validator from '../../utils/validator';
 import {launchImageLibrary} from 'react-native-image-picker';
 import axios from 'axios';
+import {getToken} from '../../helpers/tokens';
+import {getUserEmail} from '../../services/getUserEmail';
 
 const url = 'http://192.168.1.10:3000/user/upload-profile-photo';
 
@@ -31,8 +34,10 @@ const EditProfileScreen = ({navigation}) => {
   const [isValidGender, setIsValidGender] = useState(false);
   const [isValidNationality, setIsValidNationality] = useState(false);
 
-  const [selectedImage, setSelectedImage] = useState(null);
+  const [profilePhoto, setProfilePhoto] = useState('');
   const [imageUri, setImageUri] = useState('');
+
+  const [loading, setLoading] = useState(true);
 
   const validateEmail = email => {
     console.log(email);
@@ -89,7 +94,28 @@ const EditProfileScreen = ({navigation}) => {
     // Seçilen ülkeyle ilgili işlemleri burada yapabilirsiniz
   };
 
-  const onPressSave = () => {
+  const onPressSave = async () => {
+    try {
+      await getToken().then(async token => {
+        await getUserEmail(token).then(async email => {
+          const formData = new FormData();
+          formData.append('photo', {
+            name: email + '_profile.jpg',
+            uri: imageUri,
+            type: 'image/jpg',
+          });
+          const result = await axios.post(url, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              Authorization: `Bearer ${token}`,
+            },
+          });
+        });
+      });
+    } catch (error) {
+      console.log(error);
+    }
+    console.log(formData._parts);
     if (
       isValidEmail &&
       isValidGender &&
@@ -106,8 +132,31 @@ const EditProfileScreen = ({navigation}) => {
     navigation.navigate('ProfilePage');
   };
 
+  const getProfilePhoto = async () => {
+    try {
+      await getToken().then(async token => {
+        const result = await axios.get(
+          'http://192.168.1.10:3000/user/get-profile-photo',
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+        setLoading(false);
+        const uri = `data:image/jpeg;base64,${result.data.photoData}`;
+        setProfilePhoto(uri);
+        //console.log('Resultttttt', result.data.photoData);
+      });
+    } catch (error) {
+      setLoading(false);
+      console.log('Error', error);
+    }
+  };
+
   useEffect(() => {
     requestCameraPermission();
+    getProfilePhoto();
   }, []);
 
   const requestCameraPermission = async () => {
@@ -148,114 +197,115 @@ const EditProfileScreen = ({navigation}) => {
       } else if (response.error) {
         console.log('ImagePicker Error: ', response.error);
       } else {
-        console.log(response.assets[0].uri);
+        console.log(response.assets[0]);
         setImageUri(response.assets[0].uri);
 
-        const formData = new FormData();
-        formData.append('photo', {
-          name: "keremm@gmail.com" + '_profile.jpg',
-          uri: imageUri,
-          type: 'image/jpg',
-        });
-        try {
-          const result = await axios.post(url, formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
-          });
-        } catch (error) {
-          console.log(error);
-        }
+        //setFormData(formData);
       }
     });
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollView}>
-        <Text style={styles.title}>Edit Profile</Text>
-        <View
-          style={{
-            alignItems: 'center',
-            margin: 5,
-            flex: 0.5,
-            flexDirection: 'column',
-            justifyContent: 'center',
-            borderBottomWidth: 2,
-            width: '90%',
-          }}>
-          <Image source={{uri: imageUri}} style={styles.profilePic} />
-          <TouchableOpacity onPress={selectImageHandler} style={styles.button}>
-            <Text style={styles.buttonText}>Change Photo</Text>
+      {loading ? (
+        <ActivityIndicator
+          style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}
+          size="large"
+          color="#000000"
+        />
+      ) : (
+        <ScrollView contentContainerStyle={styles.scrollView}>
+          <Text style={styles.title}>Edit Profile</Text>
+          <View
+            style={{
+              alignItems: 'center',
+              margin: 5,
+              flex: 0.5,
+              flexDirection: 'column',
+              justifyContent: 'center',
+              borderBottomWidth: 2,
+              width: '90%',
+            }}>
+            <Image
+              source={{uri: imageUri === '' ? profilePhoto : imageUri}}
+              style={styles.profilePic}
+            />
+            <TouchableOpacity
+              onPress={selectImageHandler}
+              style={styles.button}>
+              <Text style={styles.buttonText}>Change Photo</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View
+            style={[
+              styles.inputView,
+              !isValidNationality && styles.invalidInput,
+            ]}>
+            <RNPickerSelect
+              placeholder={{label: 'Select a country', value: null}}
+              style={{placeholder: {color: '#ffffff'}}}
+              items={countryList}
+              onValueChange={text => {
+                handleCountryChange(text);
+                validateNationality(text);
+              }}
+              value={nationality}
+            />
+          </View>
+          <View
+            style={[styles.inputView, !isValidGender && styles.invalidInput]}>
+            <RNPickerSelect
+              placeholder={{label: 'Select a Gender', value: null}}
+              style={{placeholder: {color: '#ffffff'}}}
+              items={genders}
+              onValueChange={text => {
+                handleGenderChange(text);
+                validateGender(text);
+              }}
+              value={gender}
+            />
+          </View>
+          <View
+            style={[
+              styles.inputView,
+              !isValidPhoneNumber && styles.invalidInput,
+            ]}>
+            <TextInput
+              maxLength={11}
+              style={styles.inputText}
+              placeholder="Phone Number"
+              keyboardType="number-pad"
+              placeholderTextColor="#ffffff"
+              onChangeText={text => {
+                setPhoneNumber(text);
+                validatePhoneNumber(text);
+              }}
+              value={phoneNumber}
+            />
+          </View>
+          <View
+            style={[styles.inputView, !isValidEmail && styles.invalidInput]}>
+            <TextInput
+              style={styles.inputText}
+              placeholder="Email"
+              placeholderTextColor="#ffffff"
+              onChangeText={text => {
+                setEmail(text);
+                validateEmail(text);
+              }}
+              value={email}
+            />
+          </View>
+
+          <TouchableOpacity onPress={onPressSave} style={styles.signupButton}>
+            <Text style={styles.editText}>SAVE</Text>
           </TouchableOpacity>
-        </View>
-
-        <View
-          style={[
-            styles.inputView,
-            !isValidNationality && styles.invalidInput,
-          ]}>
-          <RNPickerSelect
-            placeholder={{label: 'Select a country', value: null}}
-            style={{placeholder: {color: '#ffffff'}}}
-            items={countryList}
-            onValueChange={text => {
-              handleCountryChange(text);
-              validateNationality(text);
-            }}
-            value={nationality}
-          />
-        </View>
-        <View style={[styles.inputView, !isValidGender && styles.invalidInput]}>
-          <RNPickerSelect
-            placeholder={{label: 'Select a Gender', value: null}}
-            style={{placeholder: {color: '#ffffff'}}}
-            items={genders}
-            onValueChange={text => {
-              handleGenderChange(text);
-              validateGender(text);
-            }}
-            value={gender}
-          />
-        </View>
-        <View
-          style={[
-            styles.inputView,
-            !isValidPhoneNumber && styles.invalidInput,
-          ]}>
-          <TextInput
-            maxLength={11}
-            style={styles.inputText}
-            placeholder="Phone Number"
-            keyboardType="number-pad"
-            placeholderTextColor="#ffffff"
-            onChangeText={text => {
-              setPhoneNumber(text);
-              validatePhoneNumber(text);
-            }}
-            value={phoneNumber}
-          />
-        </View>
-        <View style={[styles.inputView, !isValidEmail && styles.invalidInput]}>
-          <TextInput
-            style={styles.inputText}
-            placeholder="Email"
-            placeholderTextColor="#ffffff"
-            onChangeText={text => {
-              setEmail(text);
-              validateEmail(text);
-            }}
-            value={email}
-          />
-        </View>
-
-        <TouchableOpacity onPress={onPressSave} style={styles.signupButton}>
-          <Text style={styles.editText}>SAVE</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={onPressBack} style={styles.backButton}>
-          <Text style={styles.backText}>BACK </Text>
-        </TouchableOpacity>
-      </ScrollView>
+          <TouchableOpacity onPress={onPressBack} style={styles.backButton}>
+            <Text style={styles.backText}>BACK </Text>
+          </TouchableOpacity>
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 };

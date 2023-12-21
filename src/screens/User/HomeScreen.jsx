@@ -11,7 +11,7 @@ import {
   Dimensions,
   TextInput,
 } from 'react-native';
-import {tokens} from '../../constants/tokens';
+import {getToken} from '../../helpers/tokens';
 
 const {width, height} = Dimensions.get('window');
 const imageWidth = width / 3;
@@ -89,6 +89,12 @@ const url = 'http://192.168.1.10:3000/user/homepage';
 
 const HomeScreen = ({navigation}) => {
   const [selectedCategory, setSelectedCategory] = React.useState(1);
+
+  /* useEffect(async () => {
+    const result = await getToken();
+    console.log('result', result);
+    return '';
+  }); */
   /* const [observers, setObservers] = useState([]);
   const [categories, setCategories] = useState([]);
  */

@@ -16,7 +16,7 @@ import MyTabs from '../navigation/User/UserMainPageBottomNavigation';
 import Validator from '../utils/validator';
 import axios from 'axios';
 import {checkUserRole} from '../services/checkUserRole';
-import {tokens} from '../constants/tokens';
+import {saveToken} from '../helpers/tokens';
 
 const {width, height} = Dimensions.get('window');
 const imageWidth = width / 3;
@@ -33,8 +33,9 @@ const LoginScreen = ({navigation}) => {
   const onPressLogin = async () => {
     if (isValidEmail && isValidPassword) {
       const url = 'http://192.168.1.10:3000/login';
-      navigation.navigate('UserMain');
-      /* try {
+
+      //navigation.navigate('UserMain');
+      try {
         const response = await axios.post(url, {
           email,
           password,
@@ -42,6 +43,7 @@ const LoginScreen = ({navigation}) => {
         console.log('response', response.data.token);
         const data = response.data;
         const userRole = await checkUserRole(data.token);
+        saveToken(data.token);
         console.log('userRole', userRole);
         if (userRole === 'user') {
           navigation.navigate('UserMain');
@@ -60,7 +62,7 @@ const LoginScreen = ({navigation}) => {
         if (error.response.status === 500) {
           alert(error.response.data.message);
         }
-      } */
+      }
     } else {
       alert('Please check informations');
     }

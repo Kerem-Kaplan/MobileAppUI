@@ -6,6 +6,7 @@ import {BackHandler, Alert} from 'react-native';
 import MenuPageNavigation from './MenuPageNavigation';
 import ProfilePageNavigation from './ProfilePageNavigation';
 import HomePageNavigation from './HomePageNavigation';
+import {removeToken} from '../../helpers/tokens';
 const Tab = createBottomTabNavigator();
 
 const UserMainPageBottomNavigation = ({navigation}) => {
@@ -19,7 +20,10 @@ const UserMainPageBottomNavigation = ({navigation}) => {
         },
         {
           text: 'Evet',
-          onPress: () => navigation.navigate('Login'), // Uygulamadan çıkış yap
+          onPress: async () => {
+            navigation.navigate('Login');
+            await removeToken();
+          }, // Uygulamadan çıkış yap
         },
       ]);
       return true;
