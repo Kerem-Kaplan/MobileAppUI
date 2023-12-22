@@ -1,8 +1,9 @@
 import {configureStore} from '@reduxjs/toolkit';
-import rootReducer from '../reducer/index'; // root reducer dosyasının yolunu belirtin
-
+import profilePhotoReducer from '../slice/profilePhotoSlice';
 const store = configureStore({
-  reducer: rootReducer,
+  reducer: {
+    profilePhoto: profilePhotoReducer,
+  },
   // middleware, devTools ve diğer ayarlar burada belirtilebilir
 });
 

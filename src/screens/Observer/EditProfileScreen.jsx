@@ -11,8 +11,9 @@ import {
   SafeAreaView,
 } from 'react-native';
 import Validator from '../../utils/validator';
+import {useNavigation} from '@react-navigation/native';
 
-const EditProfileScreen = ({navigation}) => {
+const EditProfileScreen = () => {
   const [address, setAddress] = useState('');
   const [phoneNumber, setPhoneNumber] = useState(null);
   const [email, setEmail] = useState('');
@@ -20,6 +21,8 @@ const EditProfileScreen = ({navigation}) => {
   const [isValidAddress, setIsValidAddress] = useState(false);
   const [isValidEmail, setIsValidEmail] = useState(false);
   const [isValidPhoneNumber, setIsValidPhoneNumber] = useState(false);
+
+  const navigation = useNavigation();
 
   const validateEmail = email => {
     console.log(email);

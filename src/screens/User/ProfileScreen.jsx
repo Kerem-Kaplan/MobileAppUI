@@ -11,10 +11,13 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import {getToken} from '../../helpers/tokens';
+import {useDispatch, useSelector} from 'react-redux';
+import {setProfilePhoto} from '../../redux/slice/profilePhotoSlice';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
 
 const url = 'http://192.168.1.10:3000/user/profile';
 
-const ProfileScreen = ({navigation}) => {
+const ProfileScreen = () => {
   const user = {
     name: 'Halil İbrahim Kaan ',
     username: 'Yıldız',
@@ -27,11 +30,13 @@ const ProfileScreen = ({navigation}) => {
     profilePic: require('../../assets/appIcon.png'), // Profil fotoğrafı
   };
 
-  const [profile, setProfile] = useState([]);
-  const [token, setToken] = useState('');
-  const [loading, setLoading] = useState(true);
+  const navigation = useNavigation();
 
-  const [profilePhoto, setProfilePhoto] = useState('');
+  const dispatch = useDispatch();
+  const profilePhoto = useSelector(state => state.profilePhoto.profilePhotoUri);
+
+  const [profile, setProfile] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const getProfile = async () => {
     try {
@@ -43,15 +48,14 @@ const ProfileScreen = ({navigation}) => {
         });
         setProfile(result.data[0]);
         console.log('Result', result.data[0]);
-        setLoading(false);
       });
     } catch (error) {
-      setLoading(false);
       console.log('Error', error);
     }
   };
 
   const getProfilePhoto = async () => {
+    console.log('Getting');
     try {
       await getToken().then(async token => {
         const result = await axios.get(
@@ -62,19 +66,22 @@ const ProfileScreen = ({navigation}) => {
             },
           },
         );
+        //console.log('Resuşlt photo', result);
         const uri = `data:image/jpeg;base64,${result.data.photoData}`;
-        setProfilePhoto(uri);
+        dispatch(setProfilePhoto(uri));
+        setLoading(false);
         //console.log('Resultttttt', result.data.photoData);
       });
     } catch (error) {
+      setLoading(false);
       console.log('Error', error);
     }
   };
-
+  console.log(useIsFocused());
   useEffect(() => {
     getProfile();
     getProfilePhoto();
-  }, []);
+  }, [useIsFocused() === true]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -138,7 +145,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#ffffff',
     color: '#000000',
-    backgroundColor: '#e0ffe6',
   },
 
   profilePic: {
@@ -148,6 +154,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     borderWidth: 5,
     borderColor: '#93a994',
+  },
+  scrollView: {
+    backgroundColor: '#ffffff',
   },
   name: {
     fontSize: 25,

@@ -12,6 +12,7 @@ import {
   TextInput,
 } from 'react-native';
 import {getToken} from '../../helpers/tokens';
+import {useNavigation} from '@react-navigation/native';
 
 const {width, height} = Dimensions.get('window');
 const imageWidth = width / 3;
@@ -87,8 +88,9 @@ const businesses = [
 
 const url = 'http://192.168.1.10:3000/user/homepage';
 
-const HomeScreen = ({navigation}) => {
+const HomeScreen = () => {
   const [selectedCategory, setSelectedCategory] = React.useState(1);
+  const navigation = useNavigation();
 
   /* useEffect(async () => {
     const result = await getToken();

@@ -1,7 +1,8 @@
+import {useNavigation} from '@react-navigation/native';
 import React from 'react';
 import {View, Text, Image, TouchableOpacity, StyleSheet} from 'react-native';
 
-const ProfileScreen = ({navigation}) => {
+const ProfileScreen = () => {
   const observer = {
     name: 'IZBAN',
     phoneNumber: '02332222',
@@ -9,6 +10,8 @@ const ProfileScreen = ({navigation}) => {
     emailForContact: 'izban@info.com.tr',
     profilePic: require('../../assets/appIcon.png'), // Profil fotoğrafı
   };
+
+  const navigation = useNavigation();
 
   return (
     <View style={styles.container}>

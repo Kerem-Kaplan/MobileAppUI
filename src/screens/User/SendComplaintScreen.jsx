@@ -1,3 +1,4 @@
+import {useNavigation} from '@react-navigation/native';
 import React, {useState} from 'react';
 import {
   View,
@@ -14,9 +15,11 @@ import {
 import RNPickerSelect from 'react-native-picker-select';
 import {AirbnbRating, Rating} from 'react-native-ratings';
 
-const SendComplaintScreen = ({navigation}) => {
+const SendComplaintScreen = () => {
   const [vote, setVote] = useState(0);
   const [subject, setSubject] = useState('');
+
+  const navigation = useNavigation();
 
   //databaseden ilgili gözlemcinin istekleri alınacak
   const [demands, setDemands] = useState({

@@ -17,11 +17,12 @@ import Validator from '../utils/validator';
 import axios from 'axios';
 import {checkUserRole} from '../services/checkUserRole';
 import {saveToken} from '../helpers/tokens';
+import {useNavigation} from '@react-navigation/native';
 
 const {width, height} = Dimensions.get('window');
 const imageWidth = width / 3;
 
-const LoginScreen = ({navigation}) => {
+const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
@@ -29,6 +30,8 @@ const LoginScreen = ({navigation}) => {
 
   const [isValidEmail, setIsValidEmail] = useState(true);
   const [isValidPassword, setIsValidPassword] = useState(true);
+
+  const navigation = useNavigation();
 
   const onPressLogin = async () => {
     if (isValidEmail && isValidPassword) {

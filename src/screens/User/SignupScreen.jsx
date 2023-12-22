@@ -15,13 +15,14 @@ import {countryList} from '../../constants/countryList';
 import {genders} from '../../constants/genders';
 import Validator from '../../utils/validator';
 import axios from 'axios';
+import {useNavigation} from '@react-navigation/native';
 
 const {width} = Dimensions.get('window');
 const imageWidth = width / 2;
 
 const url = 'http://192.168.1.10:3000/user/sign-up';
 
-const SignupScreen = ({navigation}) => {
+const SignupScreen = () => {
   const [name, setName] = useState('');
   const [surname, setSurname] = useState('');
   const [gender, setGender] = useState(null);
@@ -44,6 +45,8 @@ const SignupScreen = ({navigation}) => {
   const [isValidIdentity, setIsValidIdentity] = useState(false);
   const [isValidPassword, setIsValidPassword] = useState(false);
   const [isValidPhoneNumber, setIsValidPhoneNumber] = useState(false);
+
+  const navigation = useNavigation();
 
   const onPressSignup = async () => {
     if (
@@ -83,6 +86,7 @@ const SignupScreen = ({navigation}) => {
         setPhoneNumber('');
         setEmail('');
         setPassword('');
+        navigation.navigate('Login');
       } catch (error) {
         alert(error.response.data.message);
       }

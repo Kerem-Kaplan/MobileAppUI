@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, Text, Button} from 'react-native';
 import {useSelector, useDispatch} from 'react-redux';
-import {increment, decrement, incrementByAmount} from '../redux/slice/slice'; // counterSlice'ın yolu
+import {increment, decrement, incrementByAmount} from '../redux/slice/profilePhotoSlice'; // counterSlice'ın yolu
 
 const CounterComponent = () => {
   const count = useSelector(state => state.counter.count);

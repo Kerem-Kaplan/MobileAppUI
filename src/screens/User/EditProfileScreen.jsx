@@ -4,7 +4,6 @@ import {
   TextInput,
   TouchableOpacity,
   Text,
-  Alert,
   StyleSheet,
   Image,
   ScrollView,
@@ -20,44 +19,50 @@ import {launchImageLibrary} from 'react-native-image-picker';
 import axios from 'axios';
 import {getToken} from '../../helpers/tokens';
 import {getUserEmail} from '../../services/getUserEmail';
+import {useDispatch, useSelector} from 'react-redux';
+import {setProfilePhoto} from '../../redux/slice/profilePhotoSlice';
+import {useNavigation} from '@react-navigation/native';
 
 const url = 'http://192.168.1.10:3000/user/upload-profile-photo';
+const url2 = 'http://192.168.1.10:3000/user/update-profile';
 
-const EditProfileScreen = ({navigation}) => {
+const EditProfileScreen = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [gender, setGender] = useState(null);
   const [nationality, setNationality] = useState(null);
-  const [email, setEmail] = useState('');
 
-  const [isValidEmail, setIsValidEmail] = useState(false);
   const [isValidPhoneNumber, setIsValidPhoneNumber] = useState(false);
   const [isValidGender, setIsValidGender] = useState(false);
   const [isValidNationality, setIsValidNationality] = useState(false);
 
-  const [profilePhoto, setProfilePhoto] = useState('');
+  const [uploadProfileData, setUploadProfileData] = useState({});
+
+  //const [profilePhoto, setProfilePhoto] = useState('');
   const [imageUri, setImageUri] = useState('');
 
   const [loading, setLoading] = useState(true);
 
-  const validateEmail = email => {
-    console.log(email);
-    if (Validator.validateGmail(email)) {
-      console.log('Geçerli');
-      setIsValidEmail(true);
-    } else {
-      console.log('Geçersiz');
-      setIsValidEmail(false);
-    }
-  };
+  const navigation = useNavigation();
+
+  const dispatch = useDispatch();
+  const profilePhoto = useSelector(state => state.profilePhoto.profilePhotoUri);
 
   const validatePhoneNumber = phoneNumber => {
     console.log(phoneNumber);
     if (Validator.validatePhoneNumber(phoneNumber)) {
       setIsValidPhoneNumber(true);
-      console.log('Geçerli ', isValidEmail);
+      console.log('Geçerli ', isValidPhoneNumber);
+
+      const newObject = {...uploadProfileData, phoneNumber: phoneNumber};
+      setUploadProfileData(newObject);
+      console.log('Upload', uploadProfileData);
     } else {
       setIsValidPhoneNumber(false);
       console.log('Geçersiz ', isValidPhoneNumber);
+
+      const {phoneNumber, ...newObject} = uploadProfileData;
+      setUploadProfileData(newObject);
+      console.log('Upload', uploadProfileData);
     }
   };
 
@@ -66,9 +71,17 @@ const EditProfileScreen = ({navigation}) => {
     if (gender === null) {
       setIsValidGender(false);
       console.log('Gender is Empty ', gender);
+
+      const {gender, ...newObject} = uploadProfileData;
+      setUploadProfileData(newObject);
+      console.log('Upload', uploadProfileData);
     } else {
       setIsValidGender(true);
       console.log('Gender is ', gender);
+
+      const newObject = {...uploadProfileData, gender: gender};
+      setUploadProfileData(newObject);
+      console.log('Upload', uploadProfileData);
     }
   };
 
@@ -77,9 +90,17 @@ const EditProfileScreen = ({navigation}) => {
     if (nationality === null) {
       setIsValidNationality(false);
       console.log('Nationality is Empty ', nationality);
+
+      const {nationality, ...newObject} = uploadProfileData;
+      setUploadProfileData(newObject);
+      console.log('Upload', uploadProfileData);
     } else {
       setIsValidNationality(true);
       console.log('Nationality is ', nationality);
+
+      const newObject = {...uploadProfileData, nationality: nationality};
+      setUploadProfileData(newObject);
+      console.log('Upload', uploadProfileData);
     }
   };
 
@@ -95,44 +116,59 @@ const EditProfileScreen = ({navigation}) => {
   };
 
   const onPressSave = async () => {
-    try {
-      await getToken().then(async token => {
-        await getUserEmail(token).then(async email => {
-          const formData = new FormData();
-          formData.append('photo', {
-            name: email + '_profile.jpg',
-            uri: imageUri,
-            type: 'image/jpg',
+    setLoading(true);
+
+    if (imageUri !== '') {
+      try {
+        await getToken().then(async token => {
+          await getUserEmail(token).then(async email => {
+            const formData = new FormData();
+            formData.append('photo', {
+              name: email + '_profile.jpg',
+              uri: imageUri,
+              type: 'image/jpg',
+            });
+            const result = await axios.post(url, formData, {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+                Authorization: `Bearer ${token}`,
+              },
+            });
           });
-          const result = await axios.post(url, formData, {
+          setLoading(false);
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      setLoading(false);
+    }
+
+    if (Object.entries(uploadProfileData).length !== 0) {
+      console.log(uploadProfileData);
+      try {
+        await getToken().then(async token => {
+          const result = await axios.post(url2, uploadProfileData, {
             headers: {
-              'Content-Type': 'multipart/form-data',
               Authorization: `Bearer ${token}`,
             },
           });
+          console.log('Result', result.data);
+          setLoading(false);
+          alert(result.data.message);
         });
-      });
-    } catch (error) {
-      console.log(error);
-    }
-    console.log(formData._parts);
-    if (
-      isValidEmail &&
-      isValidGender &&
-      isValidNationality &&
-      isValidPhoneNumber
-    ) {
-      alert('Succesfully');
-    } else {
-      alert('Try again');
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 
   const onPressBack = () => {
-    navigation.navigate('ProfilePage');
+    navigation.goBack();
   };
 
   const getProfilePhoto = async () => {
+    setLoading(true);
     try {
       await getToken().then(async token => {
         const result = await axios.get(
@@ -143,9 +179,9 @@ const EditProfileScreen = ({navigation}) => {
             },
           },
         );
-        setLoading(false);
         const uri = `data:image/jpeg;base64,${result.data.photoData}`;
-        setProfilePhoto(uri);
+        dispatch(setProfilePhoto(uri));
+        setLoading(false);
         //console.log('Resultttttt', result.data.photoData);
       });
     } catch (error) {
@@ -180,6 +216,7 @@ const EditProfileScreen = ({navigation}) => {
   };
 
   const selectImageHandler = () => {
+    setLoading(true);
     const options = {
       title: 'Select Photo',
       type: 'file',
@@ -199,8 +236,7 @@ const EditProfileScreen = ({navigation}) => {
       } else {
         console.log(response.assets[0]);
         setImageUri(response.assets[0].uri);
-
-        //setFormData(formData);
+        setLoading(false);
       }
     });
   };
@@ -282,19 +318,6 @@ const EditProfileScreen = ({navigation}) => {
                 validatePhoneNumber(text);
               }}
               value={phoneNumber}
-            />
-          </View>
-          <View
-            style={[styles.inputView, !isValidEmail && styles.invalidInput]}>
-            <TextInput
-              style={styles.inputText}
-              placeholder="Email"
-              placeholderTextColor="#ffffff"
-              onChangeText={text => {
-                setEmail(text);
-                validateEmail(text);
-              }}
-              value={email}
             />
           </View>
 

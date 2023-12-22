@@ -1,14 +1,17 @@
+import {useNavigation} from '@react-navigation/native';
 import React from 'react';
 import {View, FlatList, Text, StyleSheet} from 'react-native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 
-const MenuScreen = ({navigation}) => {
+const MenuScreen = () => {
   const menuItems = [
     {id: '1', title: 'Past Complaints', screen: 'Past Complaints'},
     {id: '2', title: 'Past Requests', screen: 'Past Requests'},
     {id: '3', title: 'Past Suggestions', screen: 'Past Suggestions'},
-    {id: '4', title: 'Log Out', screen: 'Login'}, 
+    {id: '4', title: 'Log Out', screen: 'Login'},
   ];
+
+  const navigation = useNavigation();
 
   const renderMenuItem = ({item}) => {
     return (
