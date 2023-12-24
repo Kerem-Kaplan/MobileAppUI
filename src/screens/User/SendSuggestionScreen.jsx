@@ -1,4 +1,4 @@
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import React, {useState} from 'react';
 import {
   View,
@@ -18,6 +18,10 @@ const SendSuggestionScreen = () => {
   const [subject, setSubject] = useState('');
 
   const navigation = useNavigation();
+
+  const route = useRoute();
+  const observerEmail = route.params?.observerEmail;
+  console.log(observerEmail);
 
   //databaseden ilgili gözlemcinin istekleri alınacak
   const [demands, setDemands] = useState({

@@ -1,60 +1,130 @@
-import {useNavigation} from '@react-navigation/native';
-import React from 'react';
-import {View, Text, Image, TouchableOpacity, StyleSheet} from 'react-native';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
+import React, {useEffect, useState} from 'react';
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+  SafeAreaView,
+} from 'react-native';
+import {serverUrl} from '../../constants/serverUrl';
+import {getToken} from '../../helpers/tokens';
+import axios from 'axios';
+import {ScrollView} from 'react-native-gesture-handler';
+import {setObserverProfilePhoto} from '../../redux/slice/observerProfilePhotoSlice';
+import {useDispatch, useSelector} from 'react-redux';
+
+const urlProfile = serverUrl + '/observer/profile';
+const urlGetProfilePhoto = serverUrl + '/observer/get-profile-photo';
 
 const ProfileScreen = () => {
-  const observer = {
-    name: 'IZBAN',
-    phoneNumber: '02332222',
-    address: 'Observer Address',
-    emailForContact: 'izban@info.com.tr',
-    profilePic: require('../../assets/appIcon.png'), // Profil fotoğrafı
-  };
+  const [profile, setProfile] = useState([]);
+  const [publicInfo, setPublicInfo] = useState([]); 
+  const [loading, setLoading] = useState(true);
+
+  const dispatch = useDispatch();
+  const profilePhoto = useSelector(
+    state => state.observerProfilePhoto.observerProfilePhotoUri,
+  );
 
   const navigation = useNavigation();
 
+  const getProfile = async () => {
+    try {
+      await getToken().then(async token => {
+        const result = await axios.get(urlProfile, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        console.log('result', result.data.user[0]);
+        setProfile(result.data.user[0]);
+        setPublicInfo(result.data.publicInfo[0]);
+        setLoading(false);
+      });
+    } catch (error) {
+      setLoading(false);
+      console.log('Error', error);
+    }
+  };
+
+  const getProfilePhoto = async () => {
+    console.log('Getting');
+    try {
+      await getToken().then(async token => {
+        const result = await axios.get(urlGetProfilePhoto, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        //console.log('Resuşlt photo', result);
+        const uri = `data:image/jpeg;base64,${result.data.photoData}`;
+        dispatch(setObserverProfilePhoto(uri));
+        setLoading(false);
+        //console.log('Resultttttt', result.data.photoData);
+      });
+    } catch (error) {
+      setLoading(false);
+      console.log('Error', error);
+    }
+  };
+
+  useEffect(() => {
+    getProfile();
+    getProfilePhoto();
+  }, [useIsFocused()]);
+
   return (
-    <View style={styles.container}>
-      <View
-        style={{
-          alignItems: 'center',
-          margin: 5,
-          flex: 0.5,
-          flexDirection: 'column',
-          justifyContent: 'center',
-          borderBottomWidth: 2,
-        }}>
-        <Image source={observer.profilePic} style={styles.profilePic} />
+    <SafeAreaView style={styles.container}>
+      {loading ? (
+        <ActivityIndicator
+          style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}
+          size="large"
+          color="#000000"
+        />
+      ) : (
+        <ScrollView contentContainerStyle={styles.scrollView}>
+          <View
+            style={{
+              alignItems: 'center',
+              margin: 20,
+              flexDirection: 'column',
+              borderBottomWidth: 3,
+            }}>
+            <Image source={{uri: profilePhoto}} style={styles.profilePic} />
 
-        <Text style={styles.name}>
-          {observer.name}
-          {observer.username}
-        </Text>
-      </View>
-      <View style={styles.content}>
-        <Text style={styles.nationality}>
-          <Text style={{fontWeight: 'bold'}}>Phone Number :</Text>{' '}
-          {observer.phoneNumber}
-        </Text>
-        <Text style={styles.id}>
-          <Text style={{fontWeight: 'bold'}}>Email :</Text>{' '}
-          {observer.emailForContact}
-        </Text>
-        <Text style={styles.email}>
-          <Text style={{fontWeight: 'bold'}}>Address :</Text> {observer.address}
-        </Text>
+            <Text style={styles.name}>{profile.observerName}</Text>
+          </View>
+          <View style={styles.content}>
+            <Text style={styles.nationality}>
+              <Text style={{fontWeight: 'bold'}}>Phone Number :</Text>{' '}
+              {publicInfo.phoneNumber}
+            </Text>
+            <Text style={styles.id}>
+              <Text style={{fontWeight: 'bold'}}>Email :</Text>{' '}
+              {profile.emailForContact}
+            </Text>
+            <Text style={styles.email}>
+              <Text style={{fontWeight: 'bold'}}>Address :</Text>{' '}
+              {publicInfo.address}
+            </Text>
 
-        {/* Profil içeriği */}
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => {
-            navigation.navigate('Edit Profile');
-          }}>
-          <Text style={styles.buttonText}>Profili Düzenle</Text>
-        </TouchableOpacity>
-        {/* Diğer profil içeriği */}
-      </View>
-    </View>
+            {/* Profil içeriği */}
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => {
+                navigation.navigate('Edit Profile');
+              }}>
+              <Text style={styles.buttonText}>Profili Düzenle</Text>
+            </TouchableOpacity>
+            {/* Diğer profil içeriği */}
+          </View>
+        </ScrollView>
+      )}
+    </SafeAreaView>
   );
 };
 
@@ -63,12 +133,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#ffffff',
     color: '#000000',
-    backgroundColor: '#e0ffe6',
   },
   header: {
     alignItems: 'center',
     padding: 20,
     color: '#000000',
+  },
+  scrollView: {
+    backgroundColor: '#ffffff',
   },
   profilePic: {
     width: 130,

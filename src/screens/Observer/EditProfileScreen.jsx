@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   TextInput,
@@ -9,40 +9,59 @@ import {
   Image,
   ScrollView,
   SafeAreaView,
+  PermissionsAndroid,
+  ActivityIndicator,
 } from 'react-native';
 import Validator from '../../utils/validator';
-import {useNavigation} from '@react-navigation/native';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
+import {launchImageLibrary} from 'react-native-image-picker';
+import {setObserverProfilePhoto} from '../../redux/slice/observerProfilePhotoSlice';
+import {useDispatch, useSelector} from 'react-redux';
+import axios from 'axios';
+import {serverUrl} from '../../constants/serverUrl';
+import {getToken} from '../../helpers/tokens';
+import {getUserEmail} from '../../services/getUserEmail';
+
+const urlGetProfilePhoto = serverUrl + '/observer/get-profile-photo';
+const urlUploadProfilePhoto = serverUrl + '/observer/upload-profile-photo';
+const urlUpdateProfile = serverUrl + '/observer/update-profile';
 
 const EditProfileScreen = () => {
   const [address, setAddress] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState(null);
-  const [email, setEmail] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
 
   const [isValidAddress, setIsValidAddress] = useState(false);
-  const [isValidEmail, setIsValidEmail] = useState(false);
   const [isValidPhoneNumber, setIsValidPhoneNumber] = useState(false);
+
+  const [uploadProfileData, setUploadProfileData] = useState({});
+
+  const [loading, setLoading] = useState(true);
+
+  const [imageUri, setImageUri] = useState('');
 
   const navigation = useNavigation();
 
-  const validateEmail = email => {
-    console.log(email);
-    if (Validator.validateGmail(email)) {
-      console.log('Geçerli', isValidEmail);
-      setIsValidEmail(true);
-    } else {
-      console.log('Geçersiz', isValidEmail);
-      setIsValidEmail(false);
-    }
-  };
+  const dispatch = useDispatch();
+  const profilePhoto = useSelector(
+    state => state.observerProfilePhoto.observerProfilePhotoUri,
+  );
 
   const validatePhoneNumber = phoneNumber => {
     console.log(phoneNumber);
     if (Validator.validatePhoneNumber(phoneNumber)) {
       setIsValidPhoneNumber(true);
       console.log('Geçerli ', isValidPhoneNumber);
+
+      const newObject = {...uploadProfileData, phoneNumber: phoneNumber};
+      setUploadProfileData(newObject);
+      console.log('Upload', uploadProfileData);
     } else {
       setIsValidPhoneNumber(false);
       console.log('Geçersiz ', isValidPhoneNumber);
+
+      const {phoneNumber, ...newObject} = uploadProfileData;
+      setUploadProfileData(newObject);
+      console.log('Upload', uploadProfileData);
     }
   };
 
@@ -51,17 +70,17 @@ const EditProfileScreen = () => {
     if (Validator.validateAddress(address)) {
       setIsValidAddress(true);
       console.log('Geçerli ', isValidAddress);
+
+      const newObject = {...uploadProfileData, address: address};
+      setUploadProfileData(newObject);
+      console.log('Upload', uploadProfileData);
     } else {
       setIsValidAddress(false);
       console.log('Geçersiz ', isValidAddress);
-    }
-  };
 
-  const onPressSave = () => {
-    if (isValidEmail && isValidAddress && isValidPhoneNumber) {
-      alert('Succesfully');
-    } else {
-      alert('Try again');
+      const {address, ...newObject} = uploadProfileData;
+      setUploadProfileData(newObject);
+      console.log('Upload', uploadProfileData);
     }
   };
 
@@ -69,81 +88,203 @@ const EditProfileScreen = () => {
     navigation.navigate('ProfilePage');
   };
 
+  const getProfilePhoto = async () => {
+    setLoading(true);
+    try {
+      await getToken().then(async token => {
+        const result = await axios.get(urlGetProfilePhoto, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const uri = `data:image/jpeg;base64,${result.data.photoData}`;
+        dispatch(setObserverProfilePhoto(uri));
+        setLoading(false);
+        //console.log('Resultttttt', result.data.photoData);
+      });
+    } catch (error) {
+      setLoading(false);
+      console.log('Error', error);
+    }
+  };
+
+  useEffect(() => {
+    requestCameraPermission();
+    getProfilePhoto();
+  }, [useIsFocused()]);
+
+  const requestCameraPermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.CAMERA,
+        {
+          title: 'Permission to access camera',
+          message: 'App needs access to your camera.',
+          buttonPositive: 'OK',
+        },
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('Camera permission granted');
+      } else {
+        console.log('Camera permission denied');
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
+  const selectImageHandler = () => {
+    setLoading(true);
+    const options = {
+      title: 'Select Photo',
+      type: 'file',
+      options: {
+        maxHeight: 200,
+        maxWidth: 200,
+        selectionLimit: 1,
+        mediaType: 'photo',
+        includeBase64: false,
+      },
+    };
+    launchImageLibrary(options, async response => {
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.error) {
+        console.log('ImagePicker Error: ', response.error);
+      } else {
+        console.log(response.assets[0]);
+        setImageUri(response.assets[0].uri);
+        setLoading(false);
+      }
+    });
+  };
+
+  const postProfilePhoto = async () => {
+    try {
+      await getToken().then(async token => {
+        await getUserEmail(token).then(async email => {
+          const formData = new FormData();
+          formData.append('photo', {
+            name: email + '_profile.jpg',
+            uri: imageUri,
+            type: 'image/jpg',
+          });
+          const result = await axios.post(urlUploadProfilePhoto, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              Authorization: `Bearer ${token}`,
+            },
+          });
+        });
+        setLoading(false);
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const onPressSave = async () => {
+    setLoading(true);
+
+    if (imageUri !== '') {
+      await postProfilePhoto();
+    } else {
+      setLoading(false);
+    }
+
+    if (Object.entries(uploadProfileData).length !== 0) {
+      console.log(uploadProfileData);
+      try {
+        await getToken().then(async token => {
+          const result = await axios.post(urlUpdateProfile, uploadProfileData, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          console.log('Result', result.data);
+          setLoading(false);
+          alert(result.data.message);
+        });
+      } catch (error) {
+        setLoading(false);
+        console.log(error);
+      }
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollView}>
-        <Text style={styles.title}>Edit Profile</Text>
-        <View
-          style={{
-            alignItems: 'center',
-            margin: 5,
-            flex: 0.5,
-            flexDirection: 'column',
-            justifyContent: 'center',
-            borderBottomWidth: 2,
-            width: '90%',
-          }}>
-          <Image
-            source={require('../../assets/appIcon.png')}
-            style={styles.profilePic}
-          />
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>Change Photo</Text>
-          </TouchableOpacity>
-        </View>
+      {loading ? (
+        <ActivityIndicator
+          style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}
+          size="large"
+          color="#000000"
+        />
+      ) : (
+        <ScrollView contentContainerStyle={styles.scrollView}>
+          <Text style={styles.title}>Edit Profile</Text>
+          <View
+            style={{
+              alignItems: 'center',
+              margin: 5,
+              flex: 0.5,
+              flexDirection: 'column',
+              justifyContent: 'center',
+              borderBottomWidth: 2,
+              width: '90%',
+            }}>
+            <Image
+              source={{uri: imageUri === '' ? profilePhoto : imageUri}}
+              style={styles.profilePic}
+            />
+            <TouchableOpacity
+              onPress={selectImageHandler}
+              style={styles.button}>
+              <Text style={styles.buttonText}>Change Photo</Text>
+            </TouchableOpacity>
+          </View>
 
-        <View
-          style={[
-            styles.inputView,
-            !isValidPhoneNumber && styles.invalidInput,
-          ]}>
-          <TextInput
-            maxLength={11}
-            style={styles.inputText}
-            placeholder="Phone Number"
-            keyboardType="number-pad"
-            placeholderTextColor="#ffffff"
-            onChangeText={text => {
-              setPhoneNumber(text);
-              validatePhoneNumber(text);
-            }}
-            value={phoneNumber}
-          />
-        </View>
-        <View style={[styles.inputView, !isValidEmail && styles.invalidInput]}>
-          <TextInput
-            style={styles.inputText}
-            placeholder="Email"
-            placeholderTextColor="#ffffff"
-            onChangeText={text => {
-              setEmail(text);
-              validateEmail(text);
-            }}
-            value={email}
-          />
-        </View>
-        <View
-          style={[styles.inputView, !isValidAddress && styles.invalidInput]}>
-          <TextInput
-            style={styles.inputText}
-            multiline={true}
-            numberOfLines={3}
-            placeholder="Address"
-            placeholderTextColor="#ffffff"
-            onChangeText={text => {
-              setAddress(text);
-              validateAddress(text);
-            }}
-            value={address}
-          />
-        </View>
-        <TouchableOpacity onPress={onPressSave} style={styles.signupButton}>
-          <Text style={styles.editText}>SAVE</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={onPressBack} style={styles.backButton}>
-          <Text style={styles.backText}>BACK </Text>
-        </TouchableOpacity>
-      </ScrollView>
+          <View
+            style={[
+              styles.inputView,
+              !isValidPhoneNumber && styles.invalidInput,
+            ]}>
+            <TextInput
+              maxLength={11}
+              style={styles.inputText}
+              placeholder="Phone Number"
+              keyboardType="number-pad"
+              placeholderTextColor="#ffffff"
+              onChangeText={text => {
+                setPhoneNumber(text);
+                validatePhoneNumber(text);
+              }}
+              value={phoneNumber}
+            />
+          </View>
+          <View
+            style={[styles.inputView, !isValidAddress && styles.invalidInput]}>
+            <TextInput
+              style={styles.inputText}
+              multiline={true}
+              numberOfLines={3}
+              placeholder="Address"
+              placeholderTextColor="#ffffff"
+              onChangeText={text => {
+                setAddress(text);
+                validateAddress(text);
+              }}
+              value={address}
+            />
+          </View>
+          <TouchableOpacity onPress={onPressSave} style={styles.signupButton}>
+            <Text style={styles.editText}>SAVE</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={onPressBack} style={styles.backButton}>
+            <Text style={styles.backText}>BACK </Text>
+          </TouchableOpacity>
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 };

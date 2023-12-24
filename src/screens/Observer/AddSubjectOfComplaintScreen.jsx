@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -11,81 +11,92 @@ import {
 
 import {faTrash} from '@fortawesome/free-solid-svg-icons';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
-import {useNavigation} from '@react-navigation/native';
 import {getToken} from '../../helpers/tokens';
 import {serverUrl} from '../../constants/serverUrl';
 import axios from 'axios';
 
-const urlAdd = serverUrl + '/observer/add-complaint-demand';
+const urlAdd = serverUrl + '/observer/add-subject-of-complaint';
+const urlget = serverUrl + '/observer/get-subject-of-complaint';
 
-const AddComplaintDetailScreen = () => {
-  const [demand, setDemand] = useState('');
-  const [demands, setDemands] = useState({});
-
-  const navigation = useNavigation();
+const AddSubjectOfComplaintScreen = () => {
+  const [subject, setSubject] = useState('');
+  const [subjects, setSubjects] = useState([]);
 
   const onPressAdd = () => {
-    if (demand.length > 2) {
-      const updateData = {...demands, [demand]: ''};
-      setDemands(updateData);
-      setDemand('');
+    if (subject.length > 2) {
+      const updateData = {label: subject, value: subject};
+      setSubjects([...subjects, updateData]);
+      setSubject('');
     } else {
       alert('Low character');
     }
-    console.log('demands', demands);
+    console.log('demands', subjects);
   };
 
   const onPressDeleteIcon = key => {
-    const updateData = {...demands};
-    delete updateData[key];
-    setDemands(updateData);
-    console.log('demands', demands);
+    const updateData = subjects.filter(obj => obj.label !== key);
+    console.log(updateData);
+    setSubjects(updateData);
+    console.log('demands', subjects);
   };
 
-  const onPressAddSubjectButton = () => {
-    navigation.navigate('Add Subject Of Complaint');
-  };
-
-  const onPressAddSave = async () => {
+  const getSubjectOfComplaint = async () => {
     await getToken().then(async token => {
-      console.log(token);
+      const result = await axios.get(urlget, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log(result.data.subjectOfComplaint);
+      setSubjects(result.data.subjectOfComplaint);
+      console.log(typeof subjects);
+    });
+  };
+
+  const onPressSave = async () => {
+    console.log(typeof subjects);
+    await getToken().then(async token => {
       const result = await axios.post(
         urlAdd,
-        {optionalDemands: demands},
+        {subjectOfComplaint: subjects},
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         },
       );
-      console.log(result);
+      console.log(result.data);
     });
   };
+
+  useEffect(() => {
+    getSubjectOfComplaint();
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollView}>
-        <Text style={styles.title}>Add Complaint Demands</Text>
+        <Text style={styles.title}>Add subject of complaint Demands</Text>
 
         <View style={styles.inputView}>
           <TextInput
             style={styles.inputText}
             placeholder="Add Demands"
             placeholderTextColor="#000000"
-            onChangeText={setDemand}
-            value={demand}
+            onChangeText={setSubject}
+            value={subject}
           />
         </View>
 
-        {Object.entries(demands).map(([key, value]) => (
-          <View key={key + 'View'} style={{flexDirection: 'row', margin: 10}}>
-            <Text style={{color: '#000000', fontSize: 15}} key={key + 'value'}>
-              {key.toString()}:{value.toString()}
+        {subjects.map(object => (
+          <View key={object.label} style={{flexDirection: 'row', margin: 10}}>
+            <Text style={{color: '#000000', fontSize: 15}} key={object.label}>
+              {object.label.toString()}:{object.label.toString()}
             </Text>
             <TouchableOpacity
-              onPress={() => onPressDeleteIcon(key)}
+              onPress={() => onPressDeleteIcon(object.label)}
               style={{marginLeft: 50, borderWidth: 1, justifyContent: 'center'}}
-              key={key + 'Delete'}>
+              key={object.label + 'Button'}>
               <FontAwesomeIcon icon={faTrash} size={15} color="#ff0000" />
             </TouchableOpacity>
           </View>
@@ -94,12 +105,8 @@ const AddComplaintDetailScreen = () => {
         <TouchableOpacity onPress={onPressAdd} style={styles.addButton}>
           <Text style={styles.addText}>+</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={onPressAddSubjectButton}
-          style={styles.addSubjectButton}>
-          <Text style={styles.editText}>ADD SUBJECT OF COMPLAINTS</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={onPressAddSave} style={styles.signupButton}>
+
+        <TouchableOpacity onPress={onPressSave} style={styles.signupButton}>
           <Text style={styles.editText}>SAVE</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.backButton}>
@@ -119,7 +126,7 @@ const styles = StyleSheet.create({
   title: {
     fontWeight: 'bold',
     fontSize: 50,
-    color: '#ffd6d6',
+    color: '#7d7d7d',
     marginBottom: 20,
   },
 
@@ -138,7 +145,7 @@ const styles = StyleSheet.create({
   },
   inputView: {
     width: '85%',
-    backgroundColor: '#ffd6d6',
+    backgroundColor: '#d6edff',
     borderWidth: 1,
     borderRadius: 10,
     marginBottom: 20,
@@ -230,7 +237,7 @@ const styles = StyleSheet.create({
   },
   addButton: {
     width: '10%',
-    backgroundColor: '#ffa8a8',
+    backgroundColor: '#addaff',
     borderRadius: 25,
     height: 50,
     alignItems: 'center',
@@ -239,17 +246,8 @@ const styles = StyleSheet.create({
   },
   signupButton: {
     width: '80%',
-    backgroundColor: '#ffa8a8',
-    borderRadius: 10,
-    height: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
-    margin: 10,
-  },
-  addSubjectButton: {
-    width: '80%',
-    backgroundColor: '#00ff00',
-    borderRadius: 10,
+    backgroundColor: '#addaff',
+    borderRadius: 25,
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',
@@ -258,7 +256,7 @@ const styles = StyleSheet.create({
   backButton: {
     width: '80%',
     backgroundColor: '#ff0000',
-    borderRadius: 10,
+    borderRadius: 25,
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',
@@ -269,4 +267,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AddComplaintDetailScreen;
+export default AddSubjectOfComplaintScreen;

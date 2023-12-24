@@ -29,8 +29,12 @@ class Validator {
   }
 
   static validateAddress(address) {
-    const addressRegex = /^[a-zA-Z]{8,}.*$/;
-    return addressRegex.test(address);
+    console.log(address.length);
+    if (address.length >= 10) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }
 

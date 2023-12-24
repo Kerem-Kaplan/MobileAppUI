@@ -16,11 +16,12 @@ import {genders} from '../../constants/genders';
 import Validator from '../../utils/validator';
 import axios from 'axios';
 import {useNavigation} from '@react-navigation/native';
+import {serverUrl} from '../../constants/serverUrl';
 
 const {width} = Dimensions.get('window');
 const imageWidth = width / 2;
 
-const url = 'http://192.168.1.10:3000/user/sign-up';
+const url = serverUrl + '/user/sign-up';
 
 const SignupScreen = () => {
   const [name, setName] = useState('');

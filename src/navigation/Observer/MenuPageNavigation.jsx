@@ -6,6 +6,7 @@ import AddSuggestionDetailScreen from '../../screens/Observer/AddSuggestionDetai
 import ComplaintsScreen from '../../screens/Observer/ComplaintsScreen';
 import RequestsScreen from '../../screens/Observer/RequestsScreen';
 import SuggestionsScreen from '../../screens/Observer/SuggestionsScreen';
+import AddComplaintScreenNavigation from './AddComplaintScreenNavigation';
 
 const Stack = createStackNavigator();
 const MenuPageNavigation = () => {
@@ -23,7 +24,13 @@ const MenuPageNavigation = () => {
       />
       <Stack.Screen
         name="Add Complaint Detail"
-        component={AddComplaintDetailScreen}
+        component={AddComplaintScreenNavigation}
+        options={{
+          headerLeft: null,
+          headerStyle: {
+            height: 0,
+          },
+        }}
       />
       <Stack.Screen
         name="Add Request Detail"

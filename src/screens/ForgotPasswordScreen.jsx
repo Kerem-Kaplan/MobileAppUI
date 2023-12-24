@@ -8,8 +8,9 @@ import {
 } from 'react-native';
 import Validator from '../utils/validator';
 import axios from 'axios';
+import {serverUrl} from '../constants/serverUrl';
 
-const url = 'http://192.168.1.10:3000/user/forgot-password';
+const url = serverUrl + '/user/forgot-password';
 
 const ForgotPasswordScreen = () => {
   const [email, setEmail] = useState('');

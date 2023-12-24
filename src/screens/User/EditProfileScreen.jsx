@@ -20,11 +20,13 @@ import axios from 'axios';
 import {getToken} from '../../helpers/tokens';
 import {getUserEmail} from '../../services/getUserEmail';
 import {useDispatch, useSelector} from 'react-redux';
-import {setProfilePhoto} from '../../redux/slice/profilePhotoSlice';
+import {setUserProfilePhoto} from '../../redux/slice/userProfilePhotoSlice';
 import {useNavigation} from '@react-navigation/native';
+import {serverUrl} from '../../constants/serverUrl';
 
-const url = 'http://192.168.1.10:3000/user/upload-profile-photo';
-const url2 = 'http://192.168.1.10:3000/user/update-profile';
+const urlUploadProfilePhoto = serverUrl + '/user/upload-profile-photo';
+const urlUpdateProfile = serverUrl + '/user/update-profile';
+const urlGetProfilePhoto = serverUrl + '/user/get-profile-photo';
 
 const EditProfileScreen = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -45,7 +47,9 @@ const EditProfileScreen = () => {
   const navigation = useNavigation();
 
   const dispatch = useDispatch();
-  const profilePhoto = useSelector(state => state.profilePhoto.profilePhotoUri);
+  const profilePhoto = useSelector(
+    state => state.userProfilePhoto.userProfilePhotoUri,
+  );
 
   const validatePhoneNumber = phoneNumber => {
     console.log(phoneNumber);
@@ -128,7 +132,7 @@ const EditProfileScreen = () => {
               uri: imageUri,
               type: 'image/jpg',
             });
-            const result = await axios.post(url, formData, {
+            const result = await axios.post(urlUploadProfilePhoto, formData, {
               headers: {
                 'Content-Type': 'multipart/form-data',
                 Authorization: `Bearer ${token}`,
@@ -148,7 +152,7 @@ const EditProfileScreen = () => {
       console.log(uploadProfileData);
       try {
         await getToken().then(async token => {
-          const result = await axios.post(url2, uploadProfileData, {
+          const result = await axios.post(urlUpdateProfile, uploadProfileData, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -158,6 +162,7 @@ const EditProfileScreen = () => {
           alert(result.data.message);
         });
       } catch (error) {
+        setLoading(false);
         console.log(error);
       }
     }
@@ -171,16 +176,13 @@ const EditProfileScreen = () => {
     setLoading(true);
     try {
       await getToken().then(async token => {
-        const result = await axios.get(
-          'http://192.168.1.10:3000/user/get-profile-photo',
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+        const result = await axios.get(urlGetProfilePhoto, {
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
-        );
+        });
         const uri = `data:image/jpeg;base64,${result.data.photoData}`;
-        dispatch(setProfilePhoto(uri));
+        dispatch(setUserProfilePhoto(uri));
         setLoading(false);
         //console.log('Resultttttt', result.data.photoData);
       });

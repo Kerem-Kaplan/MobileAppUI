@@ -1,6 +1,7 @@
 import axios from 'axios';
+import {serverUrl} from '../constants/serverUrl';
 
-const url = 'http://192.168.1.10:3000/decode-token';
+const url = serverUrl + '/decode-token';
 
 export const getUserEmail = async token => {
   console.log('tokennnnnn', token);
@@ -11,6 +12,6 @@ export const getUserEmail = async token => {
 
     return response.data.decodedToken.email;
   } catch (error) {
-    console.log('response decode error', error);
+    console.log('response decode error email', error);
   }
 };

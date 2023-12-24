@@ -67,10 +67,13 @@ const complaints = [
 const SuggestionsScreen = () => {
   return (
     <View style={styles.container}>
+      <View style={{alignItems: 'center', margin: 10}}>
+        <Text style={{color: '#000000', fontSize: 20}}>Suggestions</Text>
+      </View>
       <View style={styles.flatListView}>
         <FlatList
           data={complaints}
-          keyExtractor={item => item.id.toString()}
+          keyExtractor={item => item.id.toString()} 
           renderItem={({item}) => (
             <>
               <View style={styles.flatListViewContent}>

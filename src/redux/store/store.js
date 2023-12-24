@@ -1,8 +1,10 @@
 import {configureStore} from '@reduxjs/toolkit';
-import profilePhotoReducer from '../slice/profilePhotoSlice';
+import userProfilePhotoReducer from '../slice/userProfilePhotoSlice';
+import observerProfilePhotoReducer from '../slice/observerProfilePhotoSlice';
 const store = configureStore({
   reducer: {
-    profilePhoto: profilePhotoReducer,
+    userProfilePhoto: userProfilePhotoReducer,
+    observerProfilePhoto: observerProfilePhotoReducer,
   },
   // middleware, devTools ve diğer ayarlar burada belirtilebilir
 });

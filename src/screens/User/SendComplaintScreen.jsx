@@ -1,5 +1,5 @@
 import {useNavigation} from '@react-navigation/native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   TextInput,
@@ -14,19 +14,24 @@ import {
 } from 'react-native';
 import RNPickerSelect from 'react-native-picker-select';
 import {AirbnbRating, Rating} from 'react-native-ratings';
+import {useRoute} from '@react-navigation/native';
+import {serverUrl} from '../../constants/serverUrl';
+import axios from 'axios';
+import {getToken} from '../../helpers/tokens';
+
+const url = serverUrl + '/user/get-complaint-demands';
 
 const SendComplaintScreen = () => {
   const [vote, setVote] = useState(0);
   const [subject, setSubject] = useState('');
 
+  const [observerSubject, setObserverSubject] = useState([]);
+
   const navigation = useNavigation();
+  const route = useRoute();
 
   //databaseden ilgili gözlemcinin istekleri alınacak
-  const [demands, setDemands] = useState({
-    demand1: '',
-    demand2: '',
-    demand3: '',
-  });
+  const [demands, setDemands] = useState([]);
 
   const handleChange = (key, value) => {
     console.log('Key:', key, 'Index:', value);
@@ -52,11 +57,45 @@ const SendComplaintScreen = () => {
     {label: 'Subject2', value: 'Subject2'},
   ];
 
+  //console.log('subjects', subjects);
+
   const onStarRatingPress = rating => {
     setVote(rating); // Kullanıcının seçtiği yıldız sayısı
     console.log(rating);
     // Burada, seçilen yıldız sayısını işleyebilirsiniz (örneğin, bir API'ye göndermek)
   };
+
+  const observerName = route.params?.observerName;
+
+  const getComplaintDemands = async () => {
+    const observerEmail = route.params?.observerEmail;
+    console.log('observerEmail', observerEmail);
+    await getToken().then(async token => {
+      console.log(token);
+      const response = await axios.post(
+        url,
+        {observerEmail: observerEmail},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      console.log(response.data.data[0]);
+
+      //setObserverSubject(response.data.data[0].subjectOfComplaint);
+      /* setObserverSubject([
+        
+      ]); */
+      setObserverSubject(response.data.data[0].subjectOfComplaint);
+      setDemands(response.data.data[0].optionalDemands);
+      //console.log(observerSubject);
+    });
+  };
+
+  useEffect(() => {
+    getComplaintDemands();
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -83,7 +122,7 @@ const SendComplaintScreen = () => {
               borderColor: 'black',
               margin: 5,
             }}>
-            <Text style={styles.observerName}>Observer A</Text>
+            <Text style={styles.observerName}>{observerName}</Text>
           </View>
         </View>
 
@@ -123,7 +162,7 @@ const SendComplaintScreen = () => {
               value: null,
             }}
             style={{placeholder: {color: '#000000', margin: -15}}}
-            items={subjects}
+            items={observerSubject}
             onValueChange={handleSubjectChange}
             value={subject}
           />

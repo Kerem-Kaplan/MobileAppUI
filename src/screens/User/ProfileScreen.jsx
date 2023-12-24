@@ -12,28 +12,20 @@ import {
 } from 'react-native';
 import {getToken} from '../../helpers/tokens';
 import {useDispatch, useSelector} from 'react-redux';
-import {setProfilePhoto} from '../../redux/slice/profilePhotoSlice';
+import {setUserProfilePhoto} from '../../redux/slice/userProfilePhotoSlice';
 import {useIsFocused, useNavigation} from '@react-navigation/native';
+import {serverUrl} from '../../constants/serverUrl';
 
-const url = 'http://192.168.1.10:3000/user/profile';
+const urlProfile = serverUrl + '/user/profile';
+const urlGetProfilePhoto = serverUrl + '/user/get-profile-photo';
 
 const ProfileScreen = () => {
-  const user = {
-    name: 'Halil İbrahim Kaan ',
-    username: 'Yıldız',
-    gender: 'Male',
-    dateOfBirth: 2002,
-    nationality: 'Turk',
-    identity: '1111111111',
-    email: 'john@gmail.com',
-    phoneNumber: '05555555555',
-    profilePic: require('../../assets/appIcon.png'), // Profil fotoğrafı
-  };
-
   const navigation = useNavigation();
 
   const dispatch = useDispatch();
-  const profilePhoto = useSelector(state => state.profilePhoto.profilePhotoUri);
+  const profilePhoto = useSelector(
+    state => state.userProfilePhoto.userProfilePhotoUri,
+  );
 
   const [profile, setProfile] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -41,7 +33,7 @@ const ProfileScreen = () => {
   const getProfile = async () => {
     try {
       await getToken().then(async token => {
-        const result = await axios.get(url, {
+        const result = await axios.get(urlProfile, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -58,17 +50,14 @@ const ProfileScreen = () => {
     console.log('Getting');
     try {
       await getToken().then(async token => {
-        const result = await axios.get(
-          'http://192.168.1.10:3000/user/get-profile-photo',
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+        const result = await axios.get(urlGetProfilePhoto, {
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
-        );
+        });
         //console.log('Resuşlt photo', result);
         const uri = `data:image/jpeg;base64,${result.data.photoData}`;
-        dispatch(setProfilePhoto(uri));
+        dispatch(setUserProfilePhoto(uri));
         setLoading(false);
         //console.log('Resultttttt', result.data.photoData);
       });
@@ -78,10 +67,11 @@ const ProfileScreen = () => {
     }
   };
   console.log(useIsFocused());
+  
   useEffect(() => {
     getProfile();
     getProfilePhoto();
-  }, [useIsFocused() === true]);
+  }, [useIsFocused()]);
 
   return (
     <SafeAreaView style={styles.container}>

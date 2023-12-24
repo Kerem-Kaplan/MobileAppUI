@@ -18,6 +18,7 @@ import axios from 'axios';
 import {checkUserRole} from '../services/checkUserRole';
 import {saveToken} from '../helpers/tokens';
 import {useNavigation} from '@react-navigation/native';
+import {serverUrl} from '../constants/serverUrl';
 
 const {width, height} = Dimensions.get('window');
 const imageWidth = width / 3;
@@ -35,7 +36,7 @@ const LoginScreen = () => {
 
   const onPressLogin = async () => {
     if (isValidEmail && isValidPassword) {
-      const url = 'http://192.168.1.10:3000/login';
+      const url = serverUrl + '/login';
 
       //navigation.navigate('UserMain');
       try {
