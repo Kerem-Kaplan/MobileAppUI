@@ -67,7 +67,7 @@ const ProfileScreen = () => {
     }
   };
   console.log(useIsFocused());
-  
+
   useEffect(() => {
     getProfile();
     getProfilePhoto();

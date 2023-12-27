@@ -9,6 +9,7 @@ const AddComplaintScreenNavigation = () => {
     <Stack.Navigator>
       <Stack.Screen
         name="Add Complaint Detail Screen"
+        
         component={AddComplaintDetailScreen}
       />
       <Stack.Screen

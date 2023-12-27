@@ -12,14 +12,14 @@ import {
 import {faTrash} from '@fortawesome/free-solid-svg-icons';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {useNavigation} from '@react-navigation/native';
-import {getToken} from '../../helpers/tokens';
 import {serverUrl} from '../../constants/serverUrl';
 import axios from 'axios';
+import {getToken} from '../../helpers/tokens';
 
-const urlAdd = serverUrl + '/observer/add-complaint-demand';
-const urlget = serverUrl + '/observer/get-complaint-demand';
+const urlAdd = serverUrl + '/observer/add-request-demand';
 
-const AddComplaintDetailScreen = () => {
+const urlGet = serverUrl + '/observer/get-request-demand';
+const AddRequestDetailScreen = () => {
   const [demand, setDemand] = useState('');
   const [demands, setDemands] = useState({});
 
@@ -44,7 +44,7 @@ const AddComplaintDetailScreen = () => {
   };
 
   const onPressAddSubjectButton = () => {
-    navigation.navigate('Add Subject Of Complaint');
+    navigation.navigate('Add Subject Of Request');
   };
 
   const onPressAddSave = async () => {
@@ -63,33 +63,27 @@ const AddComplaintDetailScreen = () => {
     });
   };
 
-  const getComplaintDemand = async () => {
+  const getRequestDemand = async () => {
     await getToken().then(async token => {
-      const result = await axios
-        .get(urlget, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then(result => {
-          console.log(result.data.optionalDemands);
-          setDemands(result.data.optionalDemands);
-          console.log(typeof subjects);
-        })
-        .catch(error => {
-          setDemands({});
-        });
+      const result = await axios.get(urlGet, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log(result.data.optionalDemands);
+      setDemands(result.data.optionalDemands);
+      console.log(typeof subjects);
     });
   };
 
   useEffect(() => {
-    getComplaintDemand();
+    getRequestDemand();
   }, []);
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollView}>
-        <Text style={styles.title}>Add Complaint Demands</Text>
+        <Text style={styles.title}>Add Request Demands</Text>
 
         <View style={styles.inputView}>
           <TextInput
@@ -121,7 +115,7 @@ const AddComplaintDetailScreen = () => {
         <TouchableOpacity
           onPress={onPressAddSubjectButton}
           style={styles.addSubjectButton}>
-          <Text style={styles.editText}>ADD SUBJECT OF COMPLAINTS</Text>
+          <Text style={styles.editText}>ADD SUBJECT OF REQUESTS</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={onPressAddSave} style={styles.signupButton}>
           <Text style={styles.editText}>SAVE</Text>
@@ -143,7 +137,7 @@ const styles = StyleSheet.create({
   title: {
     fontWeight: 'bold',
     fontSize: 50,
-    color: '#ffd6d6',
+    color: '#7d7d7d',
     marginBottom: 20,
   },
 
@@ -162,7 +156,7 @@ const styles = StyleSheet.create({
   },
   inputView: {
     width: '85%',
-    backgroundColor: '#ffd6d6',
+    backgroundColor: '#c3d5c8',
     borderWidth: 1,
     borderRadius: 10,
     marginBottom: 20,
@@ -254,7 +248,7 @@ const styles = StyleSheet.create({
   },
   addButton: {
     width: '10%',
-    backgroundColor: '#ffa8a8',
+    backgroundColor: '#9fbca7',
     borderRadius: 25,
     height: 50,
     alignItems: 'center',
@@ -263,7 +257,7 @@ const styles = StyleSheet.create({
   },
   signupButton: {
     width: '80%',
-    backgroundColor: '#ffa8a8',
+    backgroundColor: '#9fbca7',
     borderRadius: 10,
     height: 50,
     alignItems: 'center',
@@ -293,4 +287,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AddComplaintDetailScreen;
+export default AddRequestDetailScreen;

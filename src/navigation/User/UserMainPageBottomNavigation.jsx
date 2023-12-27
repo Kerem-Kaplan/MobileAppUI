@@ -10,7 +10,7 @@ import {removeToken} from '../../helpers/tokens';
 const Tab = createBottomTabNavigator();
 
 const UserMainPageBottomNavigation = ({navigation}) => {
-  useEffect(() => {
+ /*  useEffect(() => {
     const backAction = () => {
       Alert.alert('Uygulamadan çıkmak istediğinize emin misiniz?', '', [
         {
@@ -35,7 +35,7 @@ const UserMainPageBottomNavigation = ({navigation}) => {
     );
 
     return () => backHandler.remove();
-  }, []);
+  }, []); */
 
   return (
     <Tab.Navigator

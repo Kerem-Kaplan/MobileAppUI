@@ -28,6 +28,7 @@ const LoginScreen = () => {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const [isValidEmail, setIsValidEmail] = useState(true);
   const [isValidPassword, setIsValidPassword] = useState(true);
@@ -35,6 +36,7 @@ const LoginScreen = () => {
   const navigation = useNavigation();
 
   const onPressLogin = async () => {
+    setLoading(true);
     if (isValidEmail && isValidPassword) {
       const url = serverUrl + '/login';
 
@@ -50,9 +52,11 @@ const LoginScreen = () => {
         saveToken(data.token);
         console.log('userRole', userRole);
         if (userRole === 'user') {
+          setLoading(false);
           navigation.navigate('UserMain');
         }
         if (userRole === 'observer') {
+          setLoading(false);
           navigation.navigate('ObserverMain');
         }
         setMessage(data.message);
@@ -61,13 +65,16 @@ const LoginScreen = () => {
       } catch (error) {
         if (error.response.status === 401) {
           //console.error('Giriş hatası:', error.response.data);
+          setLoading(false);
           alert(error.response.data.message);
         }
         if (error.response.status === 500) {
+          setLoading(false);
           alert(error.response.data.message);
         }
       }
     } else {
+      setLoading(false);
       alert('Please check informations');
     }
   };
@@ -146,7 +153,6 @@ const LoginScreen = () => {
           <Text style={styles.forgotText}>Forgot Password?</Text>
         </TouchableOpacity>
       </View>
-      <Text>{message}</Text>
     </SafeAreaView>
   );
 };
@@ -156,7 +162,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#ffffff',
     alignItems: 'center',
-    justifyContent: 'flex-start',
   },
   imageStyle: {
     width: imageWidth,
@@ -188,6 +193,9 @@ const styles = StyleSheet.create({
     color: '#000000',
     fontSize: 20,
     margin: 20,
+  },
+  scrollView: {
+    backgroundColor: '#ffffff',
   },
   loginText: {
     color: '#000000',

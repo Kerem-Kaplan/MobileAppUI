@@ -6,12 +6,17 @@ import {
   Image,
   StyleSheet,
   Dimensions,
+  ActivityIndicator,
 } from 'react-native';
+import {serverUrl} from '../../constants/serverUrl';
+import {useEffect, useState} from 'react';
+import {getToken} from '../../helpers/tokens';
+import axios from 'axios';
 
 const {width, height} = Dimensions.get('window');
 const imageWidth = width / 3;
 
-const complaints = [
+/* const allComplaints = [
   {
     username: 'John',
     userSurname: 'Doe',
@@ -77,56 +82,160 @@ const complaints = [
       content2: 'Content10',
     },
   },
-];
+]; */
+
+const url = serverUrl + '/observer/get-complaints';
 
 const ComplaintsScreen = () => {
+  const [complaints, setComplaints] = useState([]);
+
+  const [loading, setLoading] = useState(true);
+  const [resultLength, setResultLength] = useState(0);
+  const [error, setError] = useState('');
+
+  const getComplaints = async () => {
+    await getToken()
+      .then(async token => {
+        await axios
+          .get(url, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
+          .then(result => {
+            console.log('result.data.complaintContent', result.data);
+            setComplaints(result.data);
+            setResultLength(result.data.length);
+            console.log('complaint', complaints.length);
+            console.log('length', resultLength);
+            setLoading(false);
+          })
+          .catch(error => {
+            console.log(error);
+            if (error.response.status === 404) {
+              setResultLength(0);
+            }
+            setLoading(false);
+          });
+      })
+      .catch(error => {
+        console.log(error);
+        setLoading(false);
+      });
+  };
+
+  useEffect(() => {
+    getComplaints();
+  }, []);
+
   return (
     <View style={styles.container}>
-      <View style={{alignItems: 'center', margin: 10}}>
-        <Text style={{color: '#000000', fontSize: 20}}>Complaints</Text>
-      </View>
-      <View style={styles.flatListView}>
-        <FlatList
-          data={complaints}
-          keyExtractor={item => item.userEmail}
-          renderItem={({item}) => (
-            <View style={styles.flatListViewContent}>
-              <View style={styles.flatListViewContentItems}>
-                {Object.keys(item).map(key =>
-                  key === 'complaintContent' ? (
-                    ''
-                  ) : (
+      {loading ? (
+        <ActivityIndicator
+          style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}
+          size="large"
+          color="#000000"
+        />
+      ) : (
+        <View>
+          <View style={{alignItems: 'center', margin: 10}}>
+            <Text style={{color: '#000000', fontSize: 20}}>Complaints</Text>
+          </View>
+          <View style={styles.flatListView}>
+            <FlatList
+              data={complaints}
+              keyExtractor={item => item._id}
+              renderItem={({item}) => (
+                <View style={styles.flatListViewContent}>
+                  <View style={styles.flatListViewContentItems}>
                     <Text
-                      key={key}
                       style={{
                         color: 'black',
                         marginTop: 10,
                       }}>
-                      <Text key={key} style={{fontWeight: 'bold'}}>
-                        {key.toUpperCase()}:
+                      <Text style={{fontWeight: 'bold'}}>User Name :</Text>
+                      {item.userName}
+                    </Text>
+                    <Text
+                      style={{
+                        color: 'black',
+                        marginTop: 10,
+                      }}>
+                      <Text style={{fontWeight: 'bold'}}>User Surname :</Text>
+                      {item.userSurname}
+                    </Text>
+                    <Text
+                      style={{
+                        color: 'black',
+                        marginTop: 10,
+                      }}>
+                      <Text style={{fontWeight: 'bold'}}>User Gender :</Text>
+                      {item.userGender}
+                    </Text>
+                    <Text
+                      style={{
+                        color: 'black',
+                        marginTop: 10,
+                      }}>
+                      <Text style={{fontWeight: 'bold'}}>
+                        User Nationality :
                       </Text>
-                      {item[key]}
+                      {item.userNationality}
                     </Text>
-                  ),
-                )}
-                {Object.keys(item.complaintContent).map(key => (
-                  <Text
-                    key={key}
-                    style={{
-                      color: 'black',
-                      marginTop: 10,
-                    }}>
-                    <Text key={key} style={{fontWeight: 'bold'}}>
-                      {key.toUpperCase()}:
+                    <Text
+                      style={{
+                        color: 'black',
+                        marginTop: 10,
+                      }}>
+                      <Text style={{fontWeight: 'bold'}}>User Email :</Text>
+                      {item.userEmail}
                     </Text>
-                    {item.complaintContent[key]}
-                  </Text>
-                ))}
-              </View>
-            </View>
-          )}
-        />
-      </View>
+                    <Text
+                      style={{
+                        color: 'black',
+                        marginTop: 10,
+                      }}>
+                      <Text style={{fontWeight: 'bold'}}>
+                        User Phone Number :
+                      </Text>
+                      {item.userPhoneNumber}
+                    </Text>
+                    <Text
+                      style={{
+                        color: 'black',
+                        marginTop: 10,
+                      }}>
+                      <Text style={{fontWeight: 'bold'}}>Subject :</Text>
+                      {item.complaintContent.subject}
+                    </Text>
+                    <Text
+                      style={{
+                        color: 'black',
+                        marginTop: 10,
+                      }}>
+                      <Text style={{fontWeight: 'bold'}}>Vote :</Text>
+                      {item.vote}
+                    </Text>
+                    {Object.keys(item.complaintContent.demands).map(key => (
+                      <Text
+                        key={key}
+                        style={{
+                          color: 'black',
+                          marginTop: 10,
+                        }}>
+                        <Text key={key} style={{fontWeight: 'bold'}}>
+                          {key.toUpperCase()}:
+                        </Text>
+                        {item.complaintContent.demands[key]}
+                      </Text>
+                    ))}
+                  </View>
+                </View>
+              )}
+            />
+          </View>
+        </View>
+      )}
     </View>
   );
 };

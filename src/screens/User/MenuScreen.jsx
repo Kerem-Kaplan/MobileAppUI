@@ -1,7 +1,8 @@
 import {useNavigation} from '@react-navigation/native';
-import React from 'react';
+import React, {useEffect} from 'react';
 import {View, FlatList, Text, StyleSheet} from 'react-native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
+import { removeToken } from '../../helpers/tokens';
 
 const MenuScreen = () => {
   const menuItems = [
@@ -17,7 +18,13 @@ const MenuScreen = () => {
     return (
       <View style={styles.container}>
         <View style={styles.menuItem}>
-          <TouchableOpacity onPress={() => navigation.navigate(item.screen)}>
+          <TouchableOpacity
+            onPress={async () => {
+              navigation.navigate(item.screen);
+              if (item.screen === 'Login') {
+                await removeToken();
+              }
+            }}>
             <Text style={styles.menuItemText}>{item.title}</Text>
           </TouchableOpacity>
         </View>

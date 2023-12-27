@@ -11,10 +11,13 @@ import {
   Dimensions,
   TextInput,
   ActivityIndicator,
+  BackHandler,
+  Alert,
 } from 'react-native';
 import {getToken} from '../../helpers/tokens';
 import {useNavigation} from '@react-navigation/native';
 import {serverUrl} from '../../constants/serverUrl';
+import {AirbnbRating} from 'react-native-ratings';
 
 const {width, height} = Dimensions.get('window');
 const imageWidth = width / 3;
@@ -87,8 +90,36 @@ const businesses = [
 const url = serverUrl + '/user/homepage';
 
 const HomeScreen = () => {
-  const [selectedCategory, setSelectedCategory] = React.useState(1);
   const navigation = useNavigation();
+
+  useEffect(() => {
+    const backAction = () => {
+      Alert.alert('Uygulamadan çıkmak istediğinize emin misiniz?', '', [
+        {
+          text: 'Hayır',
+          onPress: () => null,
+          style: 'cancel',
+        },
+        {
+          text: 'Evet',
+          onPress: async () => {
+            navigation.navigate('Login');
+            await removeToken();
+          }, // Uygulamadan çıkış yap
+        },
+      ]);
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction,
+    );
+
+    return () => backHandler.remove();
+  }, []);
+
+  const [selectedCategory, setSelectedCategory] = React.useState(1);
 
   const [observers, setObservers] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -199,13 +230,14 @@ const HomeScreen = () => {
                           borderRadius: imageWidth / 5,
                         }}
                       />
-                      <View>
-                        <Text style={{color: '#000000'}}>
-                          <Text style={{fontWeight: 'bold'}}>
-                            Oy Ortalaması :
-                          </Text>{' '}
-                          {item.voteAverage} / 5
-                        </Text>
+                      <View style={[styles.vote]}>
+                        <AirbnbRating
+                          count={5}
+                          reviews={['Terrible', 'Bad', 'Meh', 'OK', 'Good']}
+                          defaultRating={3}
+                          size={25}
+                          isDisabled={true}
+                        />
                       </View>
                     </View>
                     <View
@@ -287,7 +319,7 @@ const HomeScreen = () => {
                       onPress={() => {
                         navigation.navigate('Send Complaint', {
                           observerEmail: item.email,
-                          observerName: item.observerName,
+                          observerName: item.name,
                         });
                       }}>
                       <Text style={{color: '#000000', fontWeight: '500'}}>
@@ -309,7 +341,7 @@ const HomeScreen = () => {
                       onPress={() => {
                         navigation.navigate('Send Request', {
                           observerEmail: item.email,
-                          observerName: item.observerName,
+                          observerName: item.name,
                         });
                       }}>
                       <Text style={{color: '#000000', fontWeight: '500'}}>
@@ -331,6 +363,7 @@ const HomeScreen = () => {
                       onPress={() => {
                         navigation.navigate('Send Suggestion', {
                           observerEmail: item.email,
+                          observerName: item.name,
                         });
                       }}>
                       <Text style={{color: '#000000', fontWeight: '500'}}>
@@ -364,6 +397,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     paddingVertical: 10,
+  },
+  vote: {
+    width: '60%',
   },
   categoryItem: {
     padding: 10,

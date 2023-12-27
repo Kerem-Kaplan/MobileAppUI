@@ -21,7 +21,7 @@ const urlGetProfilePhoto = serverUrl + '/observer/get-profile-photo';
 
 const ProfileScreen = () => {
   const [profile, setProfile] = useState([]);
-  const [publicInfo, setPublicInfo] = useState([]); 
+  const [publicInfo, setPublicInfo] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const dispatch = useDispatch();
