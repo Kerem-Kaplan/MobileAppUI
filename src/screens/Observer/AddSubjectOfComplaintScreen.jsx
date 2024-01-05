@@ -21,12 +21,21 @@ const urlget = serverUrl + '/observer/get-subject-of-complaint';
 const AddSubjectOfComplaintScreen = () => {
   const [subject, setSubject] = useState('');
   const [subjects, setSubjects] = useState([]);
+  const [firstSubjects, setFirstSubjects] = useState([]);
 
   const onPressAdd = () => {
     if (subject.length > 2) {
       const updateData = {label: subject, value: subject};
-      setSubjects([...subjects, updateData]);
-      setSubject('');
+      const foundedItem = subjects.find(
+        item => item.label === updateData.label,
+      );
+      console.log('foundedItem', foundedItem);
+      if (foundedItem) {
+        alert('You have that demand!');
+      } else {
+        setSubjects([...subjects, updateData]);
+        setSubject('');
+      }
     } else {
       alert('Low character');
     }
@@ -42,31 +51,41 @@ const AddSubjectOfComplaintScreen = () => {
 
   const getSubjectOfComplaint = async () => {
     await getToken().then(async token => {
-      const result = await axios.get(urlget, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      console.log(result.data.subjectOfComplaint);
-      setSubjects(result.data.subjectOfComplaint);
-      console.log(typeof subjects);
+      const result = await axios
+        .get(urlget, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then(result => {
+          console.log(result.data.subjectOfComplaint);
+          setSubjects(result.data.subjectOfComplaint);
+          setFirstSubjects(result.data.subjectOfComplaint);
+        })
+        .catch(error => {
+          console.log(error);
+          alert(error.response.data.message);
+        });
     });
   };
 
   const onPressSave = async () => {
-    console.log(typeof subjects);
-    await getToken().then(async token => {
-      const result = await axios.post(
-        urlAdd,
-        {subjectOfComplaint: subjects},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
+    if (firstSubjects !== subjects) {
+      await getToken().then(async token => {
+        const result = await axios.post(
+          urlAdd,
+          {subjectOfComplaint: subjects},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           },
-        },
-      );
-      console.log(result.data);
-    });
+        );
+        console.log(result.data);
+      });
+    } else {
+      alert('Please Change Something!');
+    }
   };
 
   useEffect(() => {
@@ -76,38 +95,51 @@ const AddSubjectOfComplaintScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollView}>
-        <Text style={styles.title}>Add subject of complaint Demands</Text>
-
-        <View style={styles.inputView}>
-          <TextInput
-            style={styles.inputText}
-            placeholder="Add Demands"
-            placeholderTextColor="#000000"
-            onChangeText={setSubject}
-            value={subject}
-          />
+        <View style={{flexDirection: 'row', margin: 10, width: '85%'}}>
+          <View style={styles.inputView}>
+            <TextInput
+              style={styles.inputText}
+              placeholder="Add Demands"
+              placeholderTextColor="#000000"
+              onChangeText={setSubject}
+              value={subject}
+            />
+          </View>
+          <TouchableOpacity onPress={onPressAdd} style={styles.addButton}>
+            <Text style={styles.addText}>+</Text>
+          </TouchableOpacity>
         </View>
 
         {subjects.map(object => (
-          <View key={object.label} style={{flexDirection: 'row', margin: 10}}>
-            <Text style={{color: '#000000', fontSize: 15}} key={object.label}>
-              {object.label.toString()}:{object.label.toString()}
-            </Text>
-            <TouchableOpacity
-              onPress={() => onPressDeleteIcon(object.label)}
-              style={{marginLeft: 50, borderWidth: 1, justifyContent: 'center'}}
-              key={object.label + 'Button'}>
-              <FontAwesomeIcon icon={faTrash} size={15} color="#ff0000" />
-            </TouchableOpacity>
+          <View
+            key={object.label}
+            style={{
+              flexDirection: 'row',
+              margin: 15,
+              width: '80%',
+              borderBottomWidth: 0.5,
+            }}>
+            <View style={{width: '80%'}}>
+              <Text style={{color: '#000000', fontSize: 18}} key={object.label}>
+                {object.label.toString()}
+              </Text>
+            </View>
+            <View style={{width: '20%'}}>
+              <TouchableOpacity
+                onPress={() => onPressDeleteIcon(object.label)}
+                style={{
+                  marginLeft: 50,
+                  justifyContent: 'center',
+                }}
+                key={object.label + 'Button'}>
+                <FontAwesomeIcon icon={faTrash} size={20} color="#ff4d4d" />
+              </TouchableOpacity>
+            </View>
           </View>
         ))}
 
-        <TouchableOpacity onPress={onPressAdd} style={styles.addButton}>
-          <Text style={styles.addText}>+</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={onPressSave} style={styles.signupButton}>
-          <Text style={styles.editText}>SAVE</Text>
+        <TouchableOpacity onPress={onPressSave} style={styles.saveButton}>
+          <Text style={styles.saveText}>SAVE</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.backButton}>
           <Text style={styles.backText}>BACK </Text>
@@ -120,32 +152,15 @@ const AddSubjectOfComplaintScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    color: '#000000',
     backgroundColor: '#ffffff',
-  },
-  title: {
-    fontWeight: 'bold',
-    fontSize: 50,
-    color: '#7d7d7d',
-    marginBottom: 20,
-  },
-
-  profilePic: {
-    width: 130,
-    height: 130,
-    borderRadius: 50,
-    marginBottom: 10,
-    borderWidth: 5,
-    borderColor: '#7d7d7d',
   },
   scrollView: {
-    backgroundColor: '#ffffff',
     alignItems: 'center',
     justifyContent: 'center',
   },
   inputView: {
     width: '85%',
-    backgroundColor: '#d6edff',
+    backgroundColor: '#f0fff3',
     borderWidth: 1,
     borderRadius: 10,
     marginBottom: 20,
@@ -156,114 +171,46 @@ const styles = StyleSheet.create({
     height: 50,
     color: '#000000',
   },
-  name: {
-    fontSize: 30,
-    fontWeight: 'bold',
-    marginBottom: 5,
-    color: '#000000',
-  },
-  username: {
-    color: 'gray',
-    marginBottom: 10,
-    color: '#000000',
-    fontSize: 17,
-  },
-  nationality: {
-    color: 'gray',
-    marginBottom: 10,
-    color: '#000000',
-    fontSize: 22,
-  },
-  id: {
-    color: 'gray',
-    marginBottom: 10,
-    color: '#000000',
-    fontSize: 22,
-  },
-  email: {
-    color: 'gray',
-    marginBottom: 10,
-    color: '#000000',
-    fontSize: 22,
-  },
-  phoneNumber: {
-    color: 'gray',
-    marginBottom: 10,
-    color: '#000000',
-    fontSize: 22,
-  },
-  dateOfBirth: {
-    color: 'gray',
-    marginBottom: 10,
-    color: '#000000',
-    fontSize: 17,
-  },
-  bio: {
-    textAlign: 'center',
-    paddingHorizontal: 40,
-    marginBottom: 20,
-    color: '#000000',
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 20,
-    color: '#000000',
-    margin: 5,
-  },
-  button: {
-    backgroundColor: '#c1c7c2',
-    padding: 10,
-    borderRadius: 5,
-    alignItems: 'center',
-    marginBottom: 20,
-    color: '#000000',
-  },
-  buttonText: {
-    fontWeight: 'bold',
-    color: '#000000',
-  },
-  editText: {
-    fontWeight: 'bold',
-    color: '#ffffff',
-  },
+
   addText: {
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: '#000000',
     fontSize: 20,
   },
   backText: {
     fontWeight: 'bold',
     color: '#ffffff',
   },
+  saveText: {
+    fontWeight: 'bold',
+    color: '#000000',
+  },
   addButton: {
     width: '10%',
-    backgroundColor: '#addaff',
-    borderRadius: 25,
+    backgroundColor: '#ccffd7',
+    borderRadius: 10,
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',
-    margin: 10,
+    margin: 15,
   },
-  signupButton: {
+  saveButton: {
     width: '80%',
-    backgroundColor: '#addaff',
-    borderRadius: 25,
+    backgroundColor: '#b8ffc7',
+    borderRadius: 10,
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',
-    margin: 10,
+    margin: 15,
   },
   backButton: {
     width: '80%',
     backgroundColor: '#ff0000',
-    borderRadius: 25,
+    borderRadius: 10,
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',
-    margin: 10,
-  },
-  invalidInput: {
-    borderColor: '#ff0000',
+    margin: 15,
   },
 });
 

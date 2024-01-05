@@ -120,6 +120,7 @@ const ComplaintsScreen = () => {
       })
       .catch(error => {
         console.log(error);
+        alert(error.response.data.message);
         setLoading(false);
       });
   };
@@ -137,11 +138,8 @@ const ComplaintsScreen = () => {
           color="#000000"
         />
       ) : (
-        <View>
-          <View style={{alignItems: 'center', margin: 10}}>
-            <Text style={{color: '#000000', fontSize: 20}}>Complaints</Text>
-          </View>
-          <View style={styles.flatListView}>
+        <View style={styles.flatListView}>
+          <View>
             <FlatList
               data={complaints}
               keyExtractor={item => item._id}
@@ -153,7 +151,15 @@ const ComplaintsScreen = () => {
                         color: 'black',
                         marginTop: 10,
                       }}>
-                      <Text style={{fontWeight: 'bold'}}>User Name :</Text>
+                      <Text style={{fontWeight: 'bold'}}>DATE SENT :</Text>
+                      {item.createdAt.replace(/[TZ]/g, ' ')}
+                    </Text>
+                    <Text
+                      style={{
+                        color: 'black',
+                        marginTop: 10,
+                      }}>
+                      <Text style={{fontWeight: 'bold'}}>USER NAME :</Text>
                       {item.userName}
                     </Text>
                     <Text
@@ -161,7 +167,7 @@ const ComplaintsScreen = () => {
                         color: 'black',
                         marginTop: 10,
                       }}>
-                      <Text style={{fontWeight: 'bold'}}>User Surname :</Text>
+                      <Text style={{fontWeight: 'bold'}}>USER SURNAME :</Text>
                       {item.userSurname}
                     </Text>
                     <Text
@@ -169,7 +175,7 @@ const ComplaintsScreen = () => {
                         color: 'black',
                         marginTop: 10,
                       }}>
-                      <Text style={{fontWeight: 'bold'}}>User Gender :</Text>
+                      <Text style={{fontWeight: 'bold'}}>USER GENDER :</Text>
                       {item.userGender}
                     </Text>
                     <Text
@@ -178,7 +184,7 @@ const ComplaintsScreen = () => {
                         marginTop: 10,
                       }}>
                       <Text style={{fontWeight: 'bold'}}>
-                        User Nationality :
+                        USER NATIONALITY :
                       </Text>
                       {item.userNationality}
                     </Text>
@@ -187,7 +193,7 @@ const ComplaintsScreen = () => {
                         color: 'black',
                         marginTop: 10,
                       }}>
-                      <Text style={{fontWeight: 'bold'}}>User Email :</Text>
+                      <Text style={{fontWeight: 'bold'}}>USER EMAIL :</Text>
                       {item.userEmail}
                     </Text>
                     <Text
@@ -196,7 +202,7 @@ const ComplaintsScreen = () => {
                         marginTop: 10,
                       }}>
                       <Text style={{fontWeight: 'bold'}}>
-                        User Phone Number :
+                        USER PHONE NUMBER :
                       </Text>
                       {item.userPhoneNumber}
                     </Text>
@@ -205,7 +211,7 @@ const ComplaintsScreen = () => {
                         color: 'black',
                         marginTop: 10,
                       }}>
-                      <Text style={{fontWeight: 'bold'}}>Subject :</Text>
+                      <Text style={{fontWeight: 'bold'}}>SUBJECT :</Text>
                       {item.complaintContent.subject}
                     </Text>
                     <Text
@@ -213,7 +219,7 @@ const ComplaintsScreen = () => {
                         color: 'black',
                         marginTop: 10,
                       }}>
-                      <Text style={{fontWeight: 'bold'}}>Vote :</Text>
+                      <Text style={{fontWeight: 'bold'}}>VOTE :</Text>
                       {item.vote}
                     </Text>
                     {Object.keys(item.complaintContent.demands).map(key => (
@@ -229,6 +235,26 @@ const ComplaintsScreen = () => {
                         {item.complaintContent.demands[key]}
                       </Text>
                     ))}
+                    {item.file === ' ' ? (
+                      <View style={{marginBottom: 10}}></View>
+                    ) : (
+                      <View
+                        style={{
+                          flex: 1,
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          margin: 2,
+                        }}>
+                        <Image
+                          source={{uri: `data:image/jpeg;base64,${item.file}`}}
+                          style={{
+                            width: imageWidth / 1.2,
+                            height: imageWidth / 1.2,
+                            margin: '5%',
+                            borderRadius: imageWidth / 20,
+                          }}></Image>
+                      </View>
+                    )}
                   </View>
                 </View>
               )}
@@ -252,7 +278,6 @@ const styles = StyleSheet.create({
     margin: 2,
   },
   flatListViewContent: {
-    flex: 1,
     flexDirection: 'column',
     borderWidth: 1,
     borderRadius: 10,
@@ -260,7 +285,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#ededed',
   },
   flatListViewContentItems: {
-    flex: 1,
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
     borderColor: 'black',

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   StyleSheet,
   Text,
@@ -9,6 +9,7 @@ import {
   Dimensions,
   ScrollView,
   SafeAreaView,
+  ActivityIndicator,
 } from 'react-native';
 import SignupScreen from './User/SignupScreen';
 import HomeScreen from './User/HomeScreen';
@@ -23,20 +24,40 @@ import {serverUrl} from '../constants/serverUrl';
 const {width, height} = Dimensions.get('window');
 const imageWidth = width / 3;
 
+const url = serverUrl + '/get-app-icon';
+
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [appIcon, setAppIcon] = useState('');
 
-  const [isValidEmail, setIsValidEmail] = useState(true);
-  const [isValidPassword, setIsValidPassword] = useState(true);
+  const [isValidEmail, setIsValidEmail] = useState(false);
+  const [isValidPassword, setIsValidPassword] = useState(false);
 
   const navigation = useNavigation();
 
+  const getAppIcon = async () => {
+    await axios
+      .get(url)
+      .then(response => {
+        console.log(response.data.appIcon);
+        setAppIcon(response.data.appIcon);
+        setLoading(false);
+      })
+      .catch(error => {
+        console.log(error);
+        setLoading(false);
+      });
+  };
+
+  useEffect(() => {
+    getAppIcon();
+  }, []);
+
   const onPressLogin = async () => {
-    setLoading(true);
     if (isValidEmail && isValidPassword) {
       const url = serverUrl + '/login';
 
@@ -111,48 +132,62 @@ const LoginScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Login</Text>
-      <Image
-        source={require('../assets/appIcon.png')}
-        style={styles.imageStyle}
-      />
-      <View style={[styles.inputView, !isValidEmail && styles.invalidInput]}>
-        <TextInput
-          style={styles.inputText}
-          placeholder="Email"
-          placeholderTextColor="#000000"
-          onChangeText={text => {
-            setEmail(text);
-            validateEmail(text);
-          }}
-          value={email}
+      {loading ? (
+        <ActivityIndicator
+          style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}
+          size="large"
+          color="#000000"
         />
-      </View>
-      <View style={[styles.inputView, !isValidPassword && styles.invalidInput]}>
-        <TextInput
-          style={styles.inputText}
-          secureTextEntry
-          placeholder="Password"
-          placeholderTextColor="#000000"
-          onChangeText={text => {
-            setPassword(text);
-            validatePassword(text);
-          }}
-          value={password}
-        />
-      </View>
+      ) : (
+        <>
+          <Text style={{color: '#000000', margin: 50, fontSize: 25}}>
+            Welcome Complaint App
+          </Text>
+          <Image
+            source={{uri: `data:image/jpeg;base64,${appIcon}`}}
+            style={styles.imageStyle}
+          />
+          <View
+            style={[styles.inputView, !isValidEmail && styles.invalidInput]}>
+            <TextInput
+              style={styles.inputText}
+              placeholder="Email"
+              placeholderTextColor="#000000"
+              onChangeText={text => {
+                setEmail(text);
+                validateEmail(text);
+              }}
+              value={email}
+            />
+          </View>
+          <View
+            style={[styles.inputView, !isValidPassword && styles.invalidInput]}>
+            <TextInput
+              style={styles.inputText}
+              secureTextEntry
+              placeholder="Password"
+              placeholderTextColor="#000000"
+              onChangeText={text => {
+                setPassword(text);
+                validatePassword(text);
+              }}
+              value={password}
+            />
+          </View>
 
-      <TouchableOpacity onPress={onPressLogin} style={styles.loginButton}>
-        <Text style={styles.loginText}>LOGIN </Text>
-      </TouchableOpacity>
-      <View style={styles.containerSignup}>
-        <TouchableOpacity onPress={onPressSignUp}>
-          <Text style={styles.signupText}>Signup</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={onPressForgotPassword}>
-          <Text style={styles.forgotText}>Forgot Password?</Text>
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity onPress={onPressLogin} style={styles.loginButton}>
+            <Text style={styles.loginText}>LOGIN </Text>
+          </TouchableOpacity>
+          <View style={styles.containerSignup}>
+            <TouchableOpacity onPress={onPressSignUp}>
+              <Text style={styles.signupText}>Signup</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={onPressForgotPassword}>
+              <Text style={styles.forgotText}>Forgot Password?</Text>
+            </TouchableOpacity>
+          </View>
+        </>
+      )}
     </SafeAreaView>
   );
 };
@@ -162,6 +197,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#ffffff',
     alignItems: 'center',
+    justifyContent: 'flex-start',
   },
   imageStyle: {
     width: imageWidth,
@@ -193,6 +229,8 @@ const styles = StyleSheet.create({
     color: '#000000',
     fontSize: 20,
     margin: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#56e236',
   },
   scrollView: {
     backgroundColor: '#ffffff',
@@ -204,6 +242,8 @@ const styles = StyleSheet.create({
     color: '#000000',
     fontSize: 20,
     margin: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#56e236',
   },
   containerSignup: {
     flexDirection: 'row',

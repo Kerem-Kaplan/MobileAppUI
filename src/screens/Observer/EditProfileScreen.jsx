@@ -29,9 +29,11 @@ const urlUpdateProfile = serverUrl + '/observer/update-profile';
 const EditProfileScreen = () => {
   const [address, setAddress] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [emailForContact, setEmailForContact] = useState('');
 
   const [isValidAddress, setIsValidAddress] = useState(false);
   const [isValidPhoneNumber, setIsValidPhoneNumber] = useState(false);
+  const [isValidEmail, setIsValidEmail] = useState(false);
 
   const [uploadProfileData, setUploadProfileData] = useState({});
 
@@ -46,18 +48,39 @@ const EditProfileScreen = () => {
     state => state.observerProfilePhoto.observerProfilePhotoUri,
   );
 
+  const validateEmail = emailForContact => {
+    console.log(emailForContact);
+    if (Validator.validateEmailForContact(emailForContact)) {
+      setIsValidEmail(true);
+      console.log('Geçerli', emailForContact);
+
+      const newObject = {
+        ...uploadProfileData,
+        emailForContact: emailForContact,
+      };
+      setUploadProfileData(newObject);
+      console.log('Upload', uploadProfileData);
+    } else {
+      setIsValidEmail(false);
+      console.log('Geçersiz', emailForContact);
+
+      const {emailForContact, ...newObject} = uploadProfileData;
+      setUploadProfileData(newObject);
+      console.log('Upload', uploadProfileData);
+    }
+  };
   const validatePhoneNumber = phoneNumber => {
     console.log(phoneNumber);
     if (Validator.validatePhoneNumber(phoneNumber)) {
       setIsValidPhoneNumber(true);
-      console.log('Geçerli ', isValidPhoneNumber);
+      console.log('Geçerli ', phoneNumber);
 
       const newObject = {...uploadProfileData, phoneNumber: phoneNumber};
       setUploadProfileData(newObject);
       console.log('Upload', uploadProfileData);
     } else {
       setIsValidPhoneNumber(false);
-      console.log('Geçersiz ', isValidPhoneNumber);
+      console.log('Geçersiz ', phoneNumber);
 
       const {phoneNumber, ...newObject} = uploadProfileData;
       setUploadProfileData(newObject);
@@ -69,14 +92,14 @@ const EditProfileScreen = () => {
     console.log(address);
     if (Validator.validateAddress(address)) {
       setIsValidAddress(true);
-      console.log('Geçerli ', isValidAddress);
+      console.log('Geçerli ', address);
 
       const newObject = {...uploadProfileData, address: address};
       setUploadProfileData(newObject);
       console.log('Upload', uploadProfileData);
     } else {
       setIsValidAddress(false);
-      console.log('Geçersiz ', isValidAddress);
+      console.log('Geçersiz ', address);
 
       const {address, ...newObject} = uploadProfileData;
       setUploadProfileData(newObject);
@@ -149,8 +172,10 @@ const EditProfileScreen = () => {
     launchImageLibrary(options, async response => {
       if (response.didCancel) {
         console.log('User cancelled image picker');
+        setLoading(false);
       } else if (response.error) {
         console.log('ImagePicker Error: ', response.error);
+        setLoading(false);
       } else {
         console.log(response.assets[0]);
         setImageUri(response.assets[0].uri);
@@ -222,11 +247,10 @@ const EditProfileScreen = () => {
         />
       ) : (
         <ScrollView contentContainerStyle={styles.scrollView}>
-          <Text style={styles.title}>Edit Profile</Text>
           <View
             style={{
               alignItems: 'center',
-              margin: 5,
+              margin: 15,
               flex: 0.5,
               flexDirection: 'column',
               justifyContent: 'center',
@@ -242,6 +266,20 @@ const EditProfileScreen = () => {
               style={styles.button}>
               <Text style={styles.buttonText}>Change Photo</Text>
             </TouchableOpacity>
+          </View>
+
+          <View
+            style={[styles.inputView, !isValidEmail && styles.invalidInput]}>
+            <TextInput
+              style={styles.inputText}
+              placeholder="Email"
+              placeholderTextColor="#ffffff"
+              onChangeText={text => {
+                setEmailForContact(text);
+                validateEmail(text);
+              }}
+              value={emailForContact}
+            />
           </View>
 
           <View
@@ -277,7 +315,7 @@ const EditProfileScreen = () => {
               value={address}
             />
           </View>
-          <TouchableOpacity onPress={onPressSave} style={styles.signupButton}>
+          <TouchableOpacity onPress={onPressSave} style={styles.saveButton}>
             <Text style={styles.editText}>SAVE</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={onPressBack} style={styles.backButton}>
@@ -402,19 +440,19 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#ffffff',
   },
-  signupButton: {
-    width: '80%',
+  saveButton: {
+    width: '85%',
     backgroundColor: '#525252',
-    borderRadius: 25,
+    borderRadius: 10,
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',
     margin: 10,
   },
   backButton: {
-    width: '80%',
+    width: '85%',
     backgroundColor: '#ff0000',
-    borderRadius: 25,
+    borderRadius: 10,
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',

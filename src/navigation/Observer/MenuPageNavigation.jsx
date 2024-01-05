@@ -15,7 +15,7 @@ const MenuPageNavigation = () => {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="Menu Page"
+        name="MenuPage"
         component={MenuScreen}
         options={{
           headerLeft: null,
@@ -25,38 +25,71 @@ const MenuPageNavigation = () => {
         }}
       />
       <Stack.Screen
-        name="Add Complaint Detail"
+        name="AddComplaintDetail"
         component={AddComplaintScreenNavigation}
         options={{
           headerLeft: null,
+          headerTitle: 'Add Complaint Detail',
           headerStyle: {
             height: 0,
+            backgroundColor: '#c8f9cd',
           },
         }}
       />
       <Stack.Screen
-        name="Add Request Detail"
+        name="AddRequestDetail"
         component={AddRequestScreenNavigation}
         options={{
           headerLeft: null,
+          headerTitle: 'Add Request Detail',
           headerStyle: {
             height: 0,
+            backgroundColor: '#c8f9cd',
           },
         }}
       />
       <Stack.Screen
-        name="Add Suggestion Detail"
+        name="AddSuggestionDetail"
         component={AddSuggestionScreenNavigation}
         options={{
           headerLeft: null,
+          headerTitle: 'Edit Profile',
           headerStyle: {
             height: 0,
+            backgroundColor: '#c8f9cd',
           },
         }}
       />
-      <Stack.Screen name="Complaints" component={ComplaintsScreen} />
-      <Stack.Screen name="Requests" component={RequestsScreen} />
-      <Stack.Screen name="Suggestions" component={SuggestionsScreen} />
+      <Stack.Screen
+        name="Complaints"
+        component={ComplaintsScreen}
+        options={{
+          headerTitle: 'Complaints',
+          headerStyle: {
+            backgroundColor: '#c8f9cd',
+          },
+        }}
+      />
+      <Stack.Screen
+        name="Requests"
+        component={RequestsScreen}
+        options={{
+          headerTitle: 'Requests',
+          headerStyle: {
+            backgroundColor: '#c8f9cd',
+          },
+        }}
+      />
+      <Stack.Screen
+        name="Suggestions"
+        component={SuggestionsScreen}
+        options={{
+          headerTitle: 'Suggestions',
+          headerStyle: {
+            backgroundColor: '#c8f9cd',
+          },
+        }}
+      />
     </Stack.Navigator>
   );
 };

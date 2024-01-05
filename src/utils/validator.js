@@ -4,6 +4,11 @@ class Validator {
     return gmailRegex.test(email);
   }
 
+  static validateEmailForContact(emailforContact) {
+    const gmailRegex = /^[a-zA-Z0-9._%+-]+@info\.com$/;
+    return gmailRegex.test(emailforContact);
+  }
+
   static validatePhoneNumber(phoneNumber) {
     const phoneRegex = /^\d{11}$/;
     return phoneRegex.test(phoneNumber);

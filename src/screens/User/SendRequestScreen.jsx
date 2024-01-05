@@ -24,6 +24,7 @@ import {launchImageLibrary} from 'react-native-image-picker';
 const urlGetRequestDemands = serverUrl + '/user/get-request-demands';
 const urlSendRequest = serverUrl + '/user/send-request';
 const urlGetUserInfo = serverUrl + '/user/profile';
+const urlGetObserverPhoto = serverUrl + '/user/get-observer-photo';
 
 const SendRequestScreen = () => {
   const [subject, setSubject] = useState('');
@@ -32,6 +33,7 @@ const SendRequestScreen = () => {
   const [observerSubject, setObserverSubject] = useState([]);
   const [imageUri, setImageUri] = useState('');
   const [loading, setLoading] = useState(true);
+  const [observerPhoto, setObserverPhoto] = useState('');
 
   const [demands, setDemands] = useState([]);
 
@@ -112,7 +114,7 @@ const SendRequestScreen = () => {
     });
   };
   const onPressBack = () => {
-    navigation.navigate('Home Page');
+    navigation.navigate('HomePage');
   };
 
   const handleSubjectChange = subject => {
@@ -196,6 +198,33 @@ const SendRequestScreen = () => {
     }
   };
 
+  const getObserverImage = async () => {
+    try {
+      await getToken()
+        .then(async token => {
+          await axios
+            .post(
+              urlGetObserverPhoto,
+              {observer: observerEmail},
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              },
+            )
+            .then(result => {
+              console.log(result.data.observerPhoto);
+              setObserverPhoto(result.data.observerPhoto);
+            });
+        })
+        .catch(error => {
+          console.log('errorrrrr', error);
+        });
+    } catch (error) {
+      console.log('error', error);
+    }
+  };
+
   const getRequestDemands = async () => {
     const observerEmail = route.params?.observerEmail;
     console.log('observerEmail', observerEmail);
@@ -236,6 +265,7 @@ const SendRequestScreen = () => {
     getUserInfo();
     getRequestDemands();
     requestCameraPermission();
+    getObserverImage();
   }, []);
 
   return (
@@ -258,7 +288,7 @@ const SendRequestScreen = () => {
               justifyContent: 'space-between',
             }}>
             <Image
-              source={require('../../assets/appIcon.png')}
+              source={{uri: `data:image/jpeg;base64,${observerPhoto}`}}
               style={styles.profilePic}
             />
             <View

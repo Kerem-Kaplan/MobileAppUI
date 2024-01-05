@@ -98,6 +98,7 @@ const RequestsScreen = () => {
           .catch(error => {
             console.log(error);
 
+            alert(error.response.data.message);
             setLoading(false);
           });
       })
@@ -120,93 +121,124 @@ const RequestsScreen = () => {
           color="#000000"
         />
       ) : (
-        <View>
-          <View style={{alignItems: 'center', margin: 10}}>
-            <Text style={{color: '#000000', fontSize: 20}}>Requests</Text>
-          </View>
-          <View style={styles.flatListView}>
-            <FlatList
-              data={requests}
-              keyExtractor={item => item._id}
-              renderItem={({item}) => (
-                <View style={styles.flatListViewContent}>
-                  <View style={styles.flatListViewContentItems}>
-                    <Text
-                      style={{
-                        color: 'black',
-                        marginTop: 10,
-                      }}>
-                      <Text style={{fontWeight: 'bold'}}>User Name :</Text>
-                      {item.userName}
+        <View style={styles.flatListView}>
+          <FlatList
+            data={requests}
+            keyExtractor={item => item._id}
+            renderItem={({item}) => (
+              <View style={styles.flatListViewContent}>
+                <View
+                  style={{
+                    flex: 1,
+                    justifyContent: 'flex-start',
+                    alignItems: 'flex-start',
+                    borderColor: 'black',
+                    margin: 5,
+                  }}>
+                  <Text
+                    style={{
+                      color: 'black',
+                      marginTop: 10,
+                    }}>
+                    <Text style={{fontWeight: 'bold'}}>DATE SENT :</Text>
+                    {item.createdAt.replace(/[TZ]/g, ' ')}
+                  </Text>
+                  <Text
+                    style={{
+                      color: 'black',
+                      marginTop: 10,
+                    }}>
+                    <Text style={{fontWeight: 'bold'}}>USER NAME :</Text>
+                    {item.userName}
+                  </Text>
+                  <Text
+                    style={{
+                      color: 'black',
+                      marginTop: 10,
+                    }}>
+                    <Text style={{fontWeight: 'bold'}}>USER SURNAME :</Text>{' '}
+                    {item.userSurname}
+                  </Text>
+                  <Text
+                    style={{
+                      color: 'black',
+                      marginTop: 10,
+                    }}>
+                    <Text style={{fontWeight: 'bold'}}>USER GENDER :</Text>
+                    {item.userGender}
+                  </Text>
+                  <Text
+                    style={{
+                      color: 'black',
+                      marginTop: 10,
+                    }}>
+                    <Text style={{fontWeight: 'bold'}}>USER NATIONALITY :</Text>
+                    {item.userNationality}
+                  </Text>
+                  <Text
+                    style={{
+                      color: 'black',
+                      marginTop: 10,
+                    }}>
+                    <Text style={{fontWeight: 'bold'}}>USER EMAIL :</Text>
+                    {item.userEmail}
+                  </Text>
+                  <Text
+                    style={{
+                      color: 'black',
+                      marginTop: 10,
+                    }}>
+                    <Text style={{fontWeight: 'bold'}}>
+                      USER PHONE NUMBER :
                     </Text>
+                    {item.userPhoneNumber}
+                  </Text>
+                  <Text
+                    style={{
+                      color: 'black',
+                      marginTop: 10,
+                    }}>
+                    <Text style={{fontWeight: 'bold'}}>SUBJECT :</Text>
+                    {item.requestContent.subject}
+                  </Text>
+                  {Object.keys(item.requestContent.demands).map(key => (
                     <Text
+                      key={key}
                       style={{
                         color: 'black',
                         marginTop: 10,
                       }}>
-                      <Text style={{fontWeight: 'bold'}}>User Surname :</Text>{' '}
-                      {item.userSurname}
-                    </Text>
-                    <Text
-                      style={{
-                        color: 'black',
-                        marginTop: 10,
-                      }}>
-                      <Text style={{fontWeight: 'bold'}}>User Gender :</Text>
-                      {item.userGender}
-                    </Text>
-                    <Text
-                      style={{
-                        color: 'black',
-                        marginTop: 10,
-                      }}>
-                      <Text style={{fontWeight: 'bold'}}>
-                        User Nationality :
+                      <Text key={key} style={{fontWeight: 'bold'}}>
+                        {key.toUpperCase()}:
                       </Text>
-                      {item.userNationality}
+                      {item.requestContent.demands[key]}
                     </Text>
-                    <Text
+                  ))}
+
+                  {item.file === ' ' ? (
+                    <View style={{marginBottom: 10}}></View>
+                  ) : (
+                    <View
                       style={{
-                        color: 'black',
-                        marginTop: 10,
+                        flex: 1,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        margin: 2,
                       }}>
-                      <Text style={{fontWeight: 'bold'}}>User Email :</Text>
-                      {item.userEmail}
-                    </Text>
-                    <Text
-                      style={{
-                        color: 'black',
-                        marginTop: 10,
-                      }}>
-                      <Text style={{fontWeight: 'bold'}}>User Phone :</Text>
-                      {item.userPhoneNumber}
-                    </Text>
-                    <Text
-                      style={{
-                        color: 'black',
-                        marginTop: 10,
-                      }}>
-                      <Text style={{fontWeight: 'bold'}}>Subject :</Text>
-                      {item.requestContent.subject}
-                    </Text>
-                    {Object.keys(item.requestContent.demands).map(key => (
-                      <Text
-                        key={key}
+                      <Image
+                        source={{uri: `data:image/jpeg;base64,${item.file}`}}
                         style={{
-                          color: 'black',
-                          marginTop: 10,
-                        }}>
-                        <Text key={key} style={{fontWeight: 'bold'}}>
-                          {key.toUpperCase()}:
-                        </Text>
-                        {item.requestContent.demands[key]}
-                      </Text>
-                    ))}
-                  </View>
+                          width: imageWidth / 1.2,
+                          height: imageWidth / 1.2,
+                          margin: '5%',
+                          borderRadius: imageWidth / 20,
+                        }}></Image>
+                    </View>
+                  )}
                 </View>
-              )}
-            />
-          </View>
+              </View>
+            )}
+          />
         </View>
       )}
     </View>

@@ -38,6 +38,7 @@ const ProfileScreen = () => {
             Authorization: `Bearer ${token}`,
           },
         });
+        result.data[0].dateOfBirth = result.data[0].dateOfBirth.substring(0, 4);
         setProfile(result.data[0]);
         console.log('Result', result.data[0]);
       });
@@ -71,7 +72,7 @@ const ProfileScreen = () => {
   useEffect(() => {
     getProfile();
     getProfilePhoto();
-  }, [useIsFocused()]);
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -101,7 +102,7 @@ const ProfileScreen = () => {
             </Text>
             <Text style={styles.dateOfBirth}>
               <Text style={{fontWeight: 'bold'}}>Date Of Birth : </Text>
-              {profile.dateOfBirth.substring(0, 4)}
+              {profile.dateOfBirth}
             </Text>
           </View>
           <View style={styles.content}>

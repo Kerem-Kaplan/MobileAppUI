@@ -9,18 +9,47 @@ const MenuPageNavigation = () => {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="Menu Page"
+        name="MenuPage"
         component={MenuScreen}
         options={{
           headerLeft: null,
+          headerTitle: 'Menu Page',
           headerStyle: {
             height: 0,
+            backgroundColor: '#c8f9cd',
           },
         }}
       />
-      <Stack.Screen name="Past Complaints" component={PastComplaintScreen} />
-      <Stack.Screen name="Past Requests" component={PastRequestScreen} />
-      <Stack.Screen name="Past Suggestions" component={PastSuggestionScreen} />
+      <Stack.Screen
+        name="PastComplaints"
+        component={PastComplaintScreen}
+        options={{
+          headerTitle: 'Past Complaints',
+          headerStyle: {
+            backgroundColor: '#c8f9cd',
+          },
+        }}
+      />
+      <Stack.Screen
+        name="PastRequests"
+        component={PastRequestScreen}
+        options={{
+          headerTitle: 'Past Requests',
+          headerStyle: {
+            backgroundColor: '#c8f9cd',
+          },
+        }}
+      />
+      <Stack.Screen
+        name="PastSuggestions"
+        component={PastSuggestionScreen}
+        options={{
+          headerTitle: 'Past Suggestions',
+          headerStyle: {
+            backgroundColor: '#c8f9cd',
+          },
+        }}
+      />
     </Stack.Navigator>
   );
 };

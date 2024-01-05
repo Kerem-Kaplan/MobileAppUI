@@ -22,14 +22,22 @@ const urlGet = serverUrl + '/observer/get-request-demand';
 const AddRequestDetailScreen = () => {
   const [demand, setDemand] = useState('');
   const [demands, setDemands] = useState({});
+  const [firstDemands, setFirstDemands] = useState({});
 
   const navigation = useNavigation();
 
   const onPressAdd = () => {
     if (demand.length > 2) {
-      const updateData = {...demands, [demand]: ''};
-      setDemands(updateData);
-      setDemand('');
+      console.log(demand);
+      const keyExists = demands.hasOwnProperty(demand);
+      console.log('keyExists', keyExists);
+      if (keyExists === true) {
+        alert('You have that demand!');
+      } else {
+        const updateData = {...demands, [demand]: ''};
+        setDemands(updateData);
+        setDemand('');
+      }
     } else {
       alert('Low character');
     }
@@ -44,35 +52,47 @@ const AddRequestDetailScreen = () => {
   };
 
   const onPressAddSubjectButton = () => {
-    navigation.navigate('Add Subject Of Request');
+    navigation.navigate('AddSubjectOfRequest');
   };
 
   const onPressAddSave = async () => {
-    await getToken().then(async token => {
-      console.log(token);
-      const result = await axios.post(
-        urlAdd,
-        {optionalDemands: demands},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
+    if (firstDemands !== demands) {
+      await getToken().then(async token => {
+        console.log(token);
+        const result = await axios.post(
+          urlAdd,
+          {optionalDemands: demands},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           },
-        },
-      );
-      console.log(result);
-    });
+        );
+        console.log(result);
+      });
+    } else {
+      alert('Please Change Something!');
+    }
   };
 
   const getRequestDemand = async () => {
     await getToken().then(async token => {
-      const result = await axios.get(urlGet, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      console.log(result.data.optionalDemands);
-      setDemands(result.data.optionalDemands);
-      console.log(typeof subjects);
+      await axios
+        .get(urlGet, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then(result => {
+          console.log(result.data.optionalDemands);
+          setDemands(result.data.optionalDemands);
+          setFirstDemands(result.data.optionalDemands);
+        })
+        .catch(error => {
+          //setDemands({});
+          console.log(error);
+          alert(error.response.data.message);
+        });
     });
   };
 
@@ -83,35 +103,51 @@ const AddRequestDetailScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollView}>
-        <Text style={styles.title}>Add Request Demands</Text>
-
-        <View style={styles.inputView}>
-          <TextInput
-            style={styles.inputText}
-            placeholder="Add Demands"
-            placeholderTextColor="#000000"
-            onChangeText={setDemand}
-            value={demand}
-          />
+        <View style={{flexDirection: 'row', margin: 10, width: '85%'}}>
+          <View style={styles.inputView}>
+            <TextInput
+              style={styles.inputText}
+              placeholder="Add Demands"
+              placeholderTextColor="#000000"
+              onChangeText={setDemand}
+              value={demand}
+            />
+          </View>
+          <TouchableOpacity onPress={onPressAdd} style={styles.addButton}>
+            <Text style={styles.addText}>+</Text>
+          </TouchableOpacity>
         </View>
 
         {Object.entries(demands).map(([key, value]) => (
-          <View key={key + 'View'} style={{flexDirection: 'row', margin: 10}}>
-            <Text style={{color: '#000000', fontSize: 15}} key={key + 'value'}>
-              {key.toString()}:{value.toString()}
-            </Text>
-            <TouchableOpacity
-              onPress={() => onPressDeleteIcon(key)}
-              style={{marginLeft: 50, borderWidth: 1, justifyContent: 'center'}}
-              key={key + 'Delete'}>
-              <FontAwesomeIcon icon={faTrash} size={15} color="#ff0000" />
-            </TouchableOpacity>
+          <View
+            key={key + 'View'}
+            style={{
+              flexDirection: 'row',
+              margin: 10,
+              width: '80%',
+              borderBottomWidth: 0.5,
+            }}>
+            <View style={{width: '80%'}}>
+              <Text
+                style={{color: '#000000', fontSize: 18}}
+                key={key + 'value'}>
+                {key.toString()}
+              </Text>
+            </View>
+            <View style={{width: '20%'}}>
+              <TouchableOpacity
+                onPress={() => onPressDeleteIcon(key)}
+                style={{
+                  marginLeft: 50,
+                  justifyContent: 'center',
+                }}
+                key={key + 'Delete'}>
+                <FontAwesomeIcon icon={faTrash} size={20} color="#ff0000" />
+              </TouchableOpacity>
+            </View>
           </View>
         ))}
 
-        <TouchableOpacity onPress={onPressAdd} style={styles.addButton}>
-          <Text style={styles.addText}>+</Text>
-        </TouchableOpacity>
         <TouchableOpacity
           onPress={onPressAddSubjectButton}
           style={styles.addSubjectButton}>
@@ -249,7 +285,7 @@ const styles = StyleSheet.create({
   addButton: {
     width: '10%',
     backgroundColor: '#9fbca7',
-    borderRadius: 25,
+    borderRadius: 10,
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',

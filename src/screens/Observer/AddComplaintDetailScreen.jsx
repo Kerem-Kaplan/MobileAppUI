@@ -22,14 +22,21 @@ const urlget = serverUrl + '/observer/get-complaint-demand';
 const AddComplaintDetailScreen = () => {
   const [demand, setDemand] = useState('');
   const [demands, setDemands] = useState({});
+  const [firstDemands, setFirstDemands] = useState({});
 
   const navigation = useNavigation();
 
   const onPressAdd = () => {
     if (demand.length > 2) {
-      const updateData = {...demands, [demand]: ''};
-      setDemands(updateData);
-      setDemand('');
+      const keyExists = demands.hasOwnProperty(demand);
+      console.log('keyExists', keyExists);
+      if (keyExists === true) {
+        alert('You have that demand!');
+      } else {
+        const updateData = {...demands, [demand]: ''};
+        setDemands(updateData);
+        setDemand('');
+      }
     } else {
       alert('Low character');
     }
@@ -44,28 +51,33 @@ const AddComplaintDetailScreen = () => {
   };
 
   const onPressAddSubjectButton = () => {
-    navigation.navigate('Add Subject Of Complaint');
+    navigation.navigate('AddSubjectOfComplaint');
   };
 
   const onPressAddSave = async () => {
-    await getToken().then(async token => {
-      console.log(token);
-      const result = await axios.post(
-        urlAdd,
-        {optionalDemands: demands},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
+    if (firstDemands !== demands) {
+      console.log('not equal');
+      await getToken().then(async token => {
+        console.log(token);
+        const result = await axios.post(
+          urlAdd,
+          {optionalDemands: demands},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           },
-        },
-      );
-      console.log(result);
-    });
+        );
+        console.log(result);
+      });
+    } else {
+      alert('Please Change Something!');
+    }
   };
 
   const getComplaintDemand = async () => {
     await getToken().then(async token => {
-      const result = await axios
+      await axios
         .get(urlget, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -74,10 +86,11 @@ const AddComplaintDetailScreen = () => {
         .then(result => {
           console.log(result.data.optionalDemands);
           setDemands(result.data.optionalDemands);
-          console.log(typeof subjects);
+          setFirstDemands(result.data.optionalDemands);
         })
         .catch(error => {
           setDemands({});
+          alert(error.response.data.message);
         });
     });
   };
@@ -89,41 +102,53 @@ const AddComplaintDetailScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollView}>
-        <Text style={styles.title}>Add Complaint Demands</Text>
-
-        <View style={styles.inputView}>
-          <TextInput
-            style={styles.inputText}
-            placeholder="Add Demands"
-            placeholderTextColor="#000000"
-            onChangeText={setDemand}
-            value={demand}
-          />
+        <View style={{flexDirection: 'row', margin: 10, width: '85%'}}>
+          <View style={styles.inputView}>
+            <TextInput
+              style={styles.inputText}
+              placeholder="Add Demands"
+              placeholderTextColor="#000000"
+              onChangeText={setDemand}
+              value={demand}
+            />
+          </View>
+          <TouchableOpacity onPress={onPressAdd} style={styles.addButton}>
+            <Text style={styles.addText}>+</Text>
+          </TouchableOpacity>
         </View>
-
         {Object.entries(demands).map(([key, value]) => (
-          <View key={key + 'View'} style={{flexDirection: 'row', margin: 10}}>
-            <Text style={{color: '#000000', fontSize: 15}} key={key + 'value'}>
-              {key.toString()}:{value.toString()}
-            </Text>
-            <TouchableOpacity
-              onPress={() => onPressDeleteIcon(key)}
-              style={{marginLeft: 50, borderWidth: 1, justifyContent: 'center'}}
-              key={key + 'Delete'}>
-              <FontAwesomeIcon icon={faTrash} size={15} color="#ff0000" />
-            </TouchableOpacity>
+          <View
+            key={key + 'View'}
+            style={{
+              flexDirection: 'row',
+              margin: 15,
+              width: '80%',
+              borderBottomWidth: 0.5,
+            }}>
+            <View style={{width: '80%'}}>
+              <Text
+                style={{color: '#000000', fontSize: 18}}
+                key={key + 'value'}>
+                {key.toString()}
+              </Text>
+            </View>
+            <View style={{width: '20%'}}>
+              <TouchableOpacity
+                onPress={() => onPressDeleteIcon(key)}
+                style={{marginLeft: 50, justifyContent: 'center'}}
+                key={key + 'Delete'}>
+                <FontAwesomeIcon icon={faTrash} size={20} color="#ff0000" />
+              </TouchableOpacity>
+            </View>
           </View>
         ))}
 
-        <TouchableOpacity onPress={onPressAdd} style={styles.addButton}>
-          <Text style={styles.addText}>+</Text>
-        </TouchableOpacity>
         <TouchableOpacity
           onPress={onPressAddSubjectButton}
           style={styles.addSubjectButton}>
           <Text style={styles.editText}>ADD SUBJECT OF COMPLAINTS</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={onPressAddSave} style={styles.signupButton}>
+        <TouchableOpacity onPress={onPressAddSave} style={styles.saveButton}>
           <Text style={styles.editText}>SAVE</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.backButton}>
@@ -140,25 +165,10 @@ const styles = StyleSheet.create({
     color: '#000000',
     backgroundColor: '#ffffff',
   },
-  title: {
-    fontWeight: 'bold',
-    fontSize: 50,
-    color: '#ffd6d6',
-    marginBottom: 20,
-  },
 
-  profilePic: {
-    width: 130,
-    height: 130,
-    borderRadius: 50,
-    marginBottom: 10,
-    borderWidth: 5,
-    borderColor: '#7d7d7d',
-  },
   scrollView: {
-    backgroundColor: '#ffffff',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
   },
   inputView: {
     width: '85%',
@@ -171,72 +181,6 @@ const styles = StyleSheet.create({
   },
   inputText: {
     height: 50,
-    color: '#000000',
-  },
-  name: {
-    fontSize: 30,
-    fontWeight: 'bold',
-    marginBottom: 5,
-    color: '#000000',
-  },
-  username: {
-    color: 'gray',
-    marginBottom: 10,
-    color: '#000000',
-    fontSize: 17,
-  },
-  nationality: {
-    color: 'gray',
-    marginBottom: 10,
-    color: '#000000',
-    fontSize: 22,
-  },
-  id: {
-    color: 'gray',
-    marginBottom: 10,
-    color: '#000000',
-    fontSize: 22,
-  },
-  email: {
-    color: 'gray',
-    marginBottom: 10,
-    color: '#000000',
-    fontSize: 22,
-  },
-  phoneNumber: {
-    color: 'gray',
-    marginBottom: 10,
-    color: '#000000',
-    fontSize: 22,
-  },
-  dateOfBirth: {
-    color: 'gray',
-    marginBottom: 10,
-    color: '#000000',
-    fontSize: 17,
-  },
-  bio: {
-    textAlign: 'center',
-    paddingHorizontal: 40,
-    marginBottom: 20,
-    color: '#000000',
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 20,
-    color: '#000000',
-    margin: 5,
-  },
-  button: {
-    backgroundColor: '#c1c7c2',
-    padding: 10,
-    borderRadius: 5,
-    alignItems: 'center',
-    marginBottom: 20,
-    color: '#000000',
-  },
-  buttonText: {
-    fontWeight: 'bold',
     color: '#000000',
   },
   editText: {
@@ -255,20 +199,20 @@ const styles = StyleSheet.create({
   addButton: {
     width: '10%',
     backgroundColor: '#ffa8a8',
-    borderRadius: 25,
+    borderRadius: 10,
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',
     margin: 10,
   },
-  signupButton: {
+  saveButton: {
     width: '80%',
     backgroundColor: '#ffa8a8',
     borderRadius: 10,
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',
-    margin: 10,
+    margin: 15,
   },
   addSubjectButton: {
     width: '80%',
@@ -277,7 +221,7 @@ const styles = StyleSheet.create({
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',
-    margin: 10,
+    margin: 15,
   },
   backButton: {
     width: '80%',
@@ -286,10 +230,7 @@ const styles = StyleSheet.create({
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',
-    margin: 10,
-  },
-  invalidInput: {
-    borderColor: '#ff0000',
+    margin: 15,
   },
 });
 

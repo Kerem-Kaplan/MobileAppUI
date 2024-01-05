@@ -14,10 +14,11 @@ import {
   BackHandler,
   Alert,
 } from 'react-native';
-import {getToken} from '../../helpers/tokens';
+import {getToken, removeToken} from '../../helpers/tokens';
 import {useNavigation} from '@react-navigation/native';
 import {serverUrl} from '../../constants/serverUrl';
 import {AirbnbRating} from 'react-native-ratings';
+import {calculateAverageVotes} from '../../utils/calculateAverageVotes';
 
 const {width, height} = Dimensions.get('window');
 const imageWidth = width / 3;
@@ -124,6 +125,8 @@ const HomeScreen = () => {
   const [observers, setObservers] = useState([]);
   const [categories, setCategories] = useState([]);
   const [publicInfo, setPublicInfo] = useState([]);
+  const [averageVote, setAverageVote] = useState([]);
+  const [profilePhotos, setProfilePhotos] = useState([]);
 
   const [loading, setLoading] = useState(true);
 
@@ -143,15 +146,25 @@ const HomeScreen = () => {
       console.log('response.data.categories', response.data.categories);
       console.log('response.data.observers', response.data.observers);
       console.log('response.data.publicInfo', response.data.publicInfo);
-
+      console.log('response.data.observerVote', response.data.observerVote);
+      //console.log('response.data.profilePhotos', response.data.profilePhotos);
       //console.log(response.data);
       setObservers(response.data.observers);
       setCategories(response.data.categories);
       setPublicInfo(response.data.publicInfo);
+      setProfilePhotos(response.data.profilePhotos);
 
+      const result = await calculateAverageVotes(
+        response.data.observerVote,
+        response.data.observers,
+      );
+      setAverageVote(result);
+      console.log('result', result);
       //console.log('response', response.data.categories.categories);
       //const publicInfo = response.data.publicInfo;
       //setObservers([...observers, publicInfo]);
+
+      //console.log(profilePhotos);
 
       setLoading(false);
       ///console.log(observers[4].phoneNumber);
@@ -198,13 +211,14 @@ const HomeScreen = () => {
               keyExtractor={item => item._id}
               renderItem={({item}) => (
                 <View
+                  key={item._id}
                   style={{
                     flex: 1,
                     flexDirection: 'column',
                     borderWidth: 1,
                     borderRadius: 10,
                     margin: 3,
-                    backgroundColor: '#d2f4d2',
+                    backgroundColor: '#f7f7f7',
                   }}>
                   <View
                     style={{
@@ -221,24 +235,52 @@ const HomeScreen = () => {
                         margin: 2,
                         borderBottomWidth: 2,
                       }}>
-                      <Image
-                        source={require('../../assets/appIcon.png')}
-                        style={{
-                          width: imageWidth / 1.5,
-                          height: imageWidth / 1.5,
-                          margin: '5%',
-                          borderRadius: imageWidth / 5,
-                        }}
-                      />
-                      <View style={[styles.vote]}>
-                        <AirbnbRating
-                          count={5}
-                          reviews={['Terrible', 'Bad', 'Meh', 'OK', 'Good']}
-                          defaultRating={3}
-                          size={25}
-                          isDisabled={true}
-                        />
-                      </View>
+                      {profilePhotos.map(photo => {
+                        if (photo.observerEmail === item.email) {
+                          const uri = `data:image/jpeg;base64,${photo.photoData}`;
+                          return (
+                            <Image
+                              key={item.email}
+                              source={{uri: uri}}
+                              style={{
+                                width: imageWidth / 1.2,
+                                height: imageWidth / 1.2,
+                                borderRadius: imageWidth / 5,
+                              }}
+                            />
+                          );
+                        }
+                      })}
+
+                      {averageVote.map(vote => {
+                        if (vote.observer === item.email) {
+                          return (
+                            <View
+                              key={vote.observer}
+                              style={{
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                              }}>
+                              <View style={[styles.vote]}>
+                                <AirbnbRating
+                                  count={5}
+                                  reviews={[]}
+                                  defaultRating={vote.averageVote}
+                                  size={25}
+                                  isDisabled={true}
+                                />
+                              </View>
+                              <Text
+                                key={vote.observer}
+                                style={{color: '#000000'}}>
+                                <Text key={vote.observer}>
+                                  {vote.averageVote} | {vote.voteLength} votes
+                                </Text>
+                              </Text>
+                            </View>
+                          );
+                        }
+                      })}
                     </View>
                     <View
                       style={{
@@ -258,14 +300,22 @@ const HomeScreen = () => {
                         </Text>
                         {item.name}
                       </Text>
-                      <Text
-                        style={{
-                          color: 'black',
-                          marginTop: 10,
-                        }}>
-                        <Text style={{fontWeight: 'bold'}}>Email :</Text>{' '}
-                        {item.emailForContact}
-                      </Text>
+                      {publicInfo.map(info => {
+                        if (info.email === item.email) {
+                          return (
+                            <Text
+                              key={info.emailForContact}
+                              style={{
+                                color: 'black',
+                                marginTop: 10,
+                              }}>
+                              <Text style={{fontWeight: 'bold'}}>Email :</Text>{' '}
+                              {info.emailForContact}
+                            </Text>
+                          );
+                        }
+                      })}
+
                       <Text
                         style={{
                           color: 'black',
@@ -276,7 +326,9 @@ const HomeScreen = () => {
                           if (item.email === info.email) {
                             console.log(info.email);
                             return (
-                              <Text key={info.email}>{info.phoneNumber}</Text>
+                              <Text key={info.phoneNumber}>
+                                {info.phoneNumber}
+                              </Text>
                             );
                           }
                         })}
@@ -290,7 +342,9 @@ const HomeScreen = () => {
                         {publicInfo.map(info => {
                           if (item.email === info.email) {
                             console.log(info.email);
-                            return <Text key={info.email}>{info.address}</Text>;
+                            return (
+                              <Text key={info.address}>{info.address}</Text>
+                            );
                           }
                         })}
                       </Text>
@@ -307,7 +361,7 @@ const HomeScreen = () => {
                     <TouchableOpacity
                       style={{
                         width: '30%',
-                        backgroundColor: '#ffa8a8',
+                        backgroundColor: '#ffcccc',
                         borderWidth: 1,
                         borderRadius: 10,
                         height: height / 20,
@@ -329,7 +383,7 @@ const HomeScreen = () => {
                     <TouchableOpacity
                       style={{
                         width: '30%',
-                        backgroundColor: '#9fbca7',
+                        backgroundColor: '#d5e2d9',
                         borderRadius: 10,
                         borderWidth: 1,
                         height: height / 20,
@@ -351,7 +405,7 @@ const HomeScreen = () => {
                     <TouchableOpacity
                       style={{
                         width: '30%',
-                        backgroundColor: '#addaff',
+                        backgroundColor: '#d1eaff',
                         borderRadius: 10,
                         borderWidth: 1,
                         height: height / 20,
@@ -387,8 +441,8 @@ const styles = StyleSheet.create({
   },
   categoryScrollView: {
     height: '8.5%',
-    backgroundColor: '#c3d5c8',
-    borderBottomWidth: 1,
+    backgroundColor: '#e6e6e6',
+    borderBottomWidth: 2,
   },
   scrollView: {
     backgroundColor: '#ffffff',

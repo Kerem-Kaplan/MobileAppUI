@@ -24,10 +24,12 @@ import {getUserEmail} from '../../services/getUserEmail';
 const urlGetSuggestionDemands = serverUrl + '/user/get-suggestion-demands';
 const urlSendSuggestion = serverUrl + '/user/send-suggestion';
 const urlGetUserInfo = serverUrl + '/user/profile';
+const urlGetObserverPhoto = serverUrl + '/user/get-observer-photo';
 
 const SendSuggestionScreen = () => {
   const [subject, setSubject] = useState('');
   const [userInfo, setUserInfo] = useState([]);
+  const [observerPhoto, setObserverPhoto] = useState('');
 
   const [observerSubject, setObserverSubject] = useState([]);
   const [imageUri, setImageUri] = useState('');
@@ -120,7 +122,7 @@ const SendSuggestionScreen = () => {
   };
 
   const onPressBack = () => {
-    navigation.navigate('Home Page');
+    navigation.navigate('HomePage');
   };
 
   const handleSubjectChange = subject => {
@@ -231,10 +233,38 @@ const SendSuggestionScreen = () => {
     }
   };
 
+  const getObserverImage = async () => {
+    try {
+      await getToken()
+        .then(async token => {
+          await axios
+            .post(
+              urlGetObserverPhoto,
+              {observer: observerEmail},
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              },
+            )
+            .then(result => {
+              console.log(result.data.observerPhoto);
+              setObserverPhoto(result.data.observerPhoto);
+            });
+        })
+        .catch(error => {
+          console.log('errorrrrr', error);
+        });
+    } catch (error) {
+      console.log('error', error);
+    }
+  };
+
   useEffect(() => {
     getUserInfo();
     getSuggestionDemands();
     requestCameraPermission();
+    getObserverImage();
   }, []);
   return (
     <SafeAreaView style={styles.container}>
@@ -256,7 +286,7 @@ const SendSuggestionScreen = () => {
               justifyContent: 'space-between',
             }}>
             <Image
-              source={require('../../assets/appIcon.png')}
+              source={{uri: `data:image/jpeg;base64,${observerPhoto}`}}
               style={styles.profilePic}
             />
             <View

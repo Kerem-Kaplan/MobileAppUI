@@ -253,7 +253,6 @@ const EditProfileScreen = () => {
         />
       ) : (
         <ScrollView contentContainerStyle={styles.scrollView}>
-          <Text style={styles.title}>Edit Profile</Text>
           <View
             style={{
               alignItems: 'center',
@@ -339,7 +338,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     color: '#000000',
-    backgroundColor: '#e0ffe6',
+    backgroundColor: '#ffffff',
   },
   title: {
     fontWeight: 'bold',
@@ -352,7 +351,7 @@ const styles = StyleSheet.create({
     width: 130,
     height: 130,
     borderRadius: 50,
-    marginBottom: 10,
+    margin: 10,
     borderWidth: 5,
     borderColor: '#7d7d7d',
   },

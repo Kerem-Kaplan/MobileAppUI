@@ -6,8 +6,11 @@ import {
   Image,
   StyleSheet,
   Dimensions,
+  Alert,
+  BackHandler,
 } from 'react-native';
 import ComplaintsScreen from './ComplaintsScreen';
+import {useEffect} from 'react';
 
 const {width, height} = Dimensions.get('window');
 const imageWidth = width / 3;
@@ -56,37 +59,40 @@ const complaints = [
 ];
 
 const HomeScreen = () => {
-  return <ComplaintsScreen></ComplaintsScreen>;
-};
+  /*  useEffect(() => {
+    const backAction = () => {
+      Alert.alert('Uygulamadan çıkmak istediğinize emin misiniz?', '', [
+        {
+          text: 'Hayır',
+          onPress: () => null,
+          style: 'cancel',
+        },
+        {
+          text: 'Evet',
+          onPress: async () => {
+            navigation.navigate('Login'); // Uygulamadan çıkış yap
+            await removeToken();
+          },
+        },
+      ]);
+      return true;
+    };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  categoryContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    paddingVertical: 10,
-  },
-  categoryItem: {
-    padding: 10,
-    borderRadius: 50,
-    borderWidth: 1,
-    marginHorizontal: 3,
-    backgroundColor: '#93a994',
-  },
-  categoryText: {
-    color: '#000000',
-    fontSize: imageWidth / 11,
-  },
-  flatListView: {
-    backgroundColor: '#ffffff',
-    height: '100%',
-    flexDirection: 'column',
-  },
-  selectedCategory: {
-    backgroundColor: '#93a994',
-  },
-});
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction,
+    );
+
+    return () => backHandler.remove();
+  }); */
+  return (
+    <>
+      <View style={{alignItems: 'center', margin: 10}}>
+        <Text style={{color: '#000000', fontSize: 20}}>Complaints</Text>
+      </View>
+      <ComplaintsScreen></ComplaintsScreen>
+    </>
+  );
+};
 
 export default HomeScreen;

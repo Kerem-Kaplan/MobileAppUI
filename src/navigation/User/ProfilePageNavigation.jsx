@@ -11,12 +11,23 @@ const ProfilePageNavigation = () => {
         component={ProfileScreen}
         options={{
           headerLeft: null,
+          headerTitle: 'Profile Page',
           headerStyle: {
             height: 0,
+            backgroundColor: '#c8f9cd',
           },
         }}
       />
-      <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+      <Stack.Screen
+        name="EditProfile"
+        component={EditProfileScreen}
+        options={{
+          headerTitle: 'Edit Profile',
+          headerStyle: {
+            backgroundColor: '#c8f9cd',
+          },
+        }}
+      />
     </Stack.Navigator>
   );
 };

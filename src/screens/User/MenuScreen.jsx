@@ -2,32 +2,70 @@ import {useNavigation} from '@react-navigation/native';
 import React, {useEffect} from 'react';
 import {View, FlatList, Text, StyleSheet} from 'react-native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
-import { removeToken } from '../../helpers/tokens';
+import {removeToken} from '../../helpers/tokens';
+import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
+import {
+  faArchive,
+  faDoorOpen,
+  faComment,
+  faPen,
+} from '@fortawesome/free-solid-svg-icons';
+import {
+  withTiming,
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+} from 'react-native-reanimated';
 
 const MenuScreen = () => {
-  const menuItems = [
-    {id: '1', title: 'Past Complaints', screen: 'Past Complaints'},
-    {id: '2', title: 'Past Requests', screen: 'Past Requests'},
-    {id: '3', title: 'Past Suggestions', screen: 'Past Suggestions'},
-    {id: '4', title: 'Log Out', screen: 'Login'},
-  ];
-
   const navigation = useNavigation();
+
+  const menuItems = [
+    {
+      id: '1',
+      title: 'Past Complaints',
+
+      onPress: () => {
+        navigation.navigate('PastComplaints');
+      },
+      icon: faArchive,
+    },
+    {
+      id: '2',
+      title: 'Past Requests',
+      onPress: () => {
+        navigation.navigate('PastRequests');
+      },
+      icon: faComment,
+    },
+    {
+      id: '3',
+      title: 'Past Suggestions',
+      onPress: () => {
+        navigation.navigate('PastSuggestions');
+      },
+      icon: faPen,
+    },
+    {
+      id: '4',
+      title: 'Log Out',
+      onPress: async () => {
+        navigation.navigate('Login');
+        await removeToken();
+      },
+      icon: faDoorOpen,
+    },
+  ];
 
   const renderMenuItem = ({item}) => {
     return (
       <View style={styles.container}>
-        <View style={styles.menuItem}>
-          <TouchableOpacity
-            onPress={async () => {
-              navigation.navigate(item.screen);
-              if (item.screen === 'Login') {
-                await removeToken();
-              }
-            }}>
+        <TouchableOpacity onPress={item.onPress}>
+          <View style={styles.menuItem}>
+            <FontAwesomeIcon icon={item.icon} color={'#000000'} size={20} />
             <Text style={styles.menuItemText}>{item.title}</Text>
-          </TouchableOpacity>
-        </View>
+          </View>
+        </TouchableOpacity>
       </View>
     );
   };
@@ -50,6 +88,8 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 20,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
@@ -57,6 +97,7 @@ const styles = StyleSheet.create({
   menuItemText: {
     fontSize: 18,
     color: '#000000',
+    marginLeft: 5,
   },
 });
 

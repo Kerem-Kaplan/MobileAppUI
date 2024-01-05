@@ -10,14 +10,26 @@ const AddRequestScreenNavigation = () => {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="Add Request Detail Screen"
+        name="AddRequestDetailScreen"
         navigationKey="AddRequestDetailScreen"
         component={AddRequestDetailScreen}
+        options={{
+          headerTitle: 'Add Request Demands',
+          headerStyle: {
+            backgroundColor: '#c4c4c4',
+          },
+        }}
       />
       <Stack.Screen
-        name="Add Subject Of Request"
+        name="AddSubjectOfRequest"
         navigationKey="AddSubjectOfRequest"
         component={AddSubjectOfRequestScreen}
+        options={{
+          headerTitle: 'Add Subject Of Request',
+          headerStyle: {
+            backgroundColor: '#c4c4c4',
+          },
+        }}
       />
     </Stack.Navigator>
   );

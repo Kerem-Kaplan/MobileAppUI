@@ -8,13 +8,24 @@ const AddComplaintScreenNavigation = () => {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="Add Complaint Detail Screen"
-        
+        name="AddComplaintDetailScreen"
         component={AddComplaintDetailScreen}
+        options={{
+          headerTitle: 'Add Complaint Demands',
+          headerStyle: {
+            backgroundColor: '#c4c4c4',
+          },
+        }}
       />
       <Stack.Screen
-        name="Add Subject Of Complaint"
+        name="AddSubjectOfComplaint"
         component={AddSubjectOfComplaintScreen}
+        options={{
+          headerTitle: 'Add Subject Of Complaint',
+          headerStyle: {
+            backgroundColor: '#c4c4c4',
+          },
+        }}
       />
     </Stack.Navigator>
   );

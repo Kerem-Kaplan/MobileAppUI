@@ -69,7 +69,7 @@ const PastComplaintScreen = () => {
             },
           })
           .then(result => {
-            console.log('result.data.complaintContent', result.data.length);
+            console.log('result.data.complaintContent', result.data);
             setComplaints(result.data);
             setResultLength(result.data.length);
             console.log('complaint', complaints.length);
@@ -116,7 +116,7 @@ const PastComplaintScreen = () => {
                   borderWidth: 1,
                   borderRadius: 25,
                   margin: 3,
-                  backgroundColor: '#ffa8a8',
+                  backgroundColor: '#ffcccc',
                 }}>
                 <View
                   style={{
@@ -126,6 +126,14 @@ const PastComplaintScreen = () => {
                     borderColor: 'black',
                     margin: 5,
                   }}>
+                  <Text
+                    style={{
+                      color: 'black',
+                      marginTop: 10,
+                    }}>
+                    <Text style={{fontWeight: 'bold'}}>Date Sent :</Text>
+                    {item.createdAt.replace(/[TZ]/g, ' ')}
+                  </Text>
                   <Text
                     style={{
                       color: 'black',
@@ -161,22 +169,26 @@ const PastComplaintScreen = () => {
                     </Text>
                   ))}
                 </View>
-                <View
-                  style={{
-                    flex: 1,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    margin: 2,
-                  }}>
-                  <Image
-                    source={require('../../assets/appIcon.png')}
+                {item.file === ' ' ? (
+                  <View style={{marginBottom: 10}}></View>
+                ) : (
+                  <View
                     style={{
-                      width: imageWidth / 1.2,
-                      height: imageWidth / 1.2,
-                      margin: '5%',
-                      borderRadius: imageWidth / 20,
-                    }}></Image>
-                </View>
+                      flex: 1,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      margin: 2,
+                    }}>
+                    <Image
+                      source={{uri: `data:image/jpeg;base64,${item.file}`}}
+                      style={{
+                        width: imageWidth / 1.2,
+                        height: imageWidth / 1.2,
+                        margin: '5%',
+                        borderRadius: imageWidth / 20,
+                      }}></Image>
+                  </View>
+                )}
               </View>
             )}
           />
@@ -196,24 +208,10 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     paddingVertical: 10,
   },
-  categoryItem: {
-    padding: 10,
-    borderRadius: 50,
-    borderWidth: 1,
-    marginHorizontal: 3,
-    backgroundColor: '#94e696',
-  },
-  categoryText: {
-    color: '#000000',
-    fontSize: imageWidth / 11,
-  },
   flatListView: {
     backgroundColor: '#ffffff',
     height: '100%',
     flexDirection: 'column',
-  },
-  selectedCategory: {
-    backgroundColor: '#93a994',
   },
 });
 

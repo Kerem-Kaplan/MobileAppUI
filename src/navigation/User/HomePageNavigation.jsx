@@ -9,18 +9,53 @@ const HomePageNavigation = () => {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="Home Page"
+        name="HomePage"
         component={HomeScreen}
         options={{
           headerLeft: null,
+          headerTitle: 'Home Page',
           headerStyle: {
             height: 0,
+            backgroundColor: '#c8f9cd',
           },
         }}
       />
-      <Stack.Screen name="Send Complaint" component={SendComplaintScreen} />
-      <Stack.Screen name="Send Request" component={SendRequestScreen} />
-      <Stack.Screen name="Send Suggestion" component={SendSuggestionScreen} />
+      <Stack.Screen
+        name="SendComplaint"
+        component={SendComplaintScreen}
+        options={{
+          headerLeft: null,
+          headerTitle: 'Send Complaint',
+          headerStyle: {
+            height: 0,
+            backgroundColor: '#c8f9cd',
+          },
+        }}
+      />
+      <Stack.Screen
+        name="SendRequest"
+        component={SendRequestScreen}
+        options={{
+          headerLeft: null,
+          headerTitle: 'Send Request',
+          headerStyle: {
+            height: 0,
+            backgroundColor: '#c8f9cd',
+          },
+        }}
+      />
+      <Stack.Screen
+        name="SendSuggestion"
+        component={SendSuggestionScreen}
+        options={{
+          headerLeft: null,
+          headerTitle: 'Send Suggestion',
+          headerStyle: {
+            height: 0,
+            backgroundColor: '#c8f9cd',
+          },
+        }}
+      />
     </Stack.Navigator>
   );
 };

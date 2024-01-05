@@ -26,11 +26,13 @@ import {getUserEmail} from '../../services/getUserEmail';
 const urlGetComplaintDemands = serverUrl + '/user/get-complaint-demands';
 const urlSendComplaint = serverUrl + '/user/send-complaint';
 const urlGetUserInfo = serverUrl + '/user/profile';
+const urlGetObserverPhoto = serverUrl + '/user/get-observer-photo';
 
 const SendComplaintScreen = () => {
   const [vote, setVote] = useState(0);
   const [subject, setSubject] = useState('');
   const [userInfo, setUserInfo] = useState([]);
+  const [observerPhoto, setObserverPhoto] = useState('');
 
   const [observerSubject, setObserverSubject] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -52,7 +54,7 @@ const SendComplaintScreen = () => {
   };
 
   const onPressBack = () => {
-    navigation.navigate('Home Page');
+    navigation.navigate('HomePage');
   };
 
   const handleSubjectChange = subject => {
@@ -86,6 +88,33 @@ const SendComplaintScreen = () => {
             .then(result => {
               console.log(result.data[0]);
               setUserInfo(result.data[0]);
+            });
+        })
+        .catch(error => {
+          console.log('errorrrrr', error);
+        });
+    } catch (error) {
+      console.log('error', error);
+    }
+  };
+
+  const getObserverImage = async () => {
+    try {
+      await getToken()
+        .then(async token => {
+          await axios
+            .post(
+              urlGetObserverPhoto,
+              {observer: observerEmail},
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              },
+            )
+            .then(result => {
+              console.log(result.data.observerPhoto);
+              setObserverPhoto(result.data.observerPhoto);
             });
         })
         .catch(error => {
@@ -238,6 +267,7 @@ const SendComplaintScreen = () => {
     getUserInfo();
     getComplaintDemands();
     requestCameraPermission();
+    getObserverImage();
   }, []);
 
   return (
@@ -260,7 +290,7 @@ const SendComplaintScreen = () => {
               justifyContent: 'space-between',
             }}>
             <Image
-              source={require('../../assets/appIcon.png')}
+              source={{uri: `data:image/jpeg;base64,${observerPhoto}`}}
               style={styles.profilePic}
             />
             <View

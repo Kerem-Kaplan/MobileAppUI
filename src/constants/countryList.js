@@ -15,5 +15,4 @@ export const countryList = [
   {label: 'Uzbekistan', value: 'Uzbekistan'},
   {label: 'Egypt', value: 'Egypt'},
   {label: 'Other', value: 'Other'},
-  // Diğer ülkeleri buraya ekleyebilirsiniz
 ];

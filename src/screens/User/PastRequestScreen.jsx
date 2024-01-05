@@ -113,7 +113,7 @@ const PastRequestScreen = () => {
                   borderWidth: 1,
                   borderRadius: 25,
                   margin: 3,
-                  backgroundColor: '#9fbca7',
+                  backgroundColor: '#d5e2d9',
                 }}>
                 <View
                   style={{
@@ -123,6 +123,14 @@ const PastRequestScreen = () => {
                     borderColor: 'black',
                     margin: 5,
                   }}>
+                  <Text
+                    style={{
+                      color: 'black',
+                      marginTop: 10,
+                    }}>
+                    <Text style={{fontWeight: 'bold'}}>Date Sent :</Text>
+                    {item.createdAt.replace(/[TZ]/g, ' ')}
+                  </Text>
                   <Text
                     style={{
                       color: 'black',
@@ -151,22 +159,26 @@ const PastRequestScreen = () => {
                     </Text>
                   ))}
                 </View>
-                <View
-                  style={{
-                    flex: 1,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    margin: 2,
-                  }}>
-                  <Image
-                    source={require('../../assets/appIcon.png')}
+                {item.file === ' ' ? (
+                  <View style={{marginBottom: 10}}></View>
+                ) : (
+                  <View
                     style={{
-                      width: imageWidth / 1.2,
-                      height: imageWidth / 1.2,
-                      margin: '5%',
-                      borderRadius: imageWidth / 20,
-                    }}></Image>
-                </View>
+                      flex: 1,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      margin: 2,
+                    }}>
+                    <Image
+                      source={{uri: `data:image/jpeg;base64,${item.file}`}}
+                      style={{
+                        width: imageWidth / 1.2,
+                        height: imageWidth / 1.2,
+                        margin: '5%',
+                        borderRadius: imageWidth / 20,
+                      }}></Image>
+                  </View>
+                )}
               </View>
             )}
           />

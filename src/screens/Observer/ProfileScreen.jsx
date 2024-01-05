@@ -96,19 +96,19 @@ const ProfileScreen = () => {
             }}>
             <Image source={{uri: profilePhoto}} style={styles.profilePic} />
 
-            <Text style={styles.name}>{profile.observerName}</Text>
+            <Text style={styles.name}>{profile.name}</Text>
           </View>
           <View style={styles.content}>
             <Text style={styles.nationality}>
-              <Text style={{fontWeight: 'bold'}}>Phone Number :</Text>{' '}
+              <Text style={{fontWeight: 'bold'}}>Phone Number :</Text>
               {publicInfo.phoneNumber}
             </Text>
             <Text style={styles.id}>
-              <Text style={{fontWeight: 'bold'}}>Email :</Text>{' '}
-              {profile.emailForContact}
+              <Text style={{fontWeight: 'bold'}}>Email :</Text>
+              {publicInfo.emailForContact}
             </Text>
             <Text style={styles.email}>
-              <Text style={{fontWeight: 'bold'}}>Address :</Text>{' '}
+              <Text style={{fontWeight: 'bold'}}>Address :</Text>
               {publicInfo.address}
             </Text>
 
@@ -116,7 +116,7 @@ const ProfileScreen = () => {
             <TouchableOpacity
               style={styles.button}
               onPress={() => {
-                navigation.navigate('Edit Profile');
+                navigation.navigate('EditProfile');
               }}>
               <Text style={styles.buttonText}>Profili Düzenle</Text>
             </TouchableOpacity>
