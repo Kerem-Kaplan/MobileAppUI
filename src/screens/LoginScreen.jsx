@@ -7,13 +7,9 @@ import {
   TouchableOpacity,
   Image,
   Dimensions,
-  ScrollView,
   SafeAreaView,
   ActivityIndicator,
 } from 'react-native';
-import SignupScreen from './User/SignupScreen';
-import HomeScreen from './User/HomeScreen';
-import MyTabs from '../navigation/User/UserMainPageBottomNavigation';
 import Validator from '../utils/validator';
 import axios from 'axios';
 import {checkUserRole} from '../services/checkUserRole';
@@ -30,7 +26,6 @@ const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
-  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(true);
   const [appIcon, setAppIcon] = useState('');
 
@@ -63,26 +58,29 @@ const LoginScreen = () => {
 
       //navigation.navigate('UserMain');
       try {
-        const response = await axios.post(url, {
-          email,
-          password,
-        });
-        console.log('response', response.data.token);
-        const data = response.data;
-        const userRole = await checkUserRole(data.token);
-        saveToken(data.token);
-        console.log('userRole', userRole);
-        if (userRole === 'user') {
-          setLoading(false);
-          navigation.navigate('UserMain');
-        }
-        if (userRole === 'observer') {
-          setLoading(false);
-          navigation.navigate('ObserverMain');
-        }
-        setMessage(data.message);
-        //setEmail('');
-        //setPassword('');
+        await axios
+          .post(url, {
+            email,
+            password,
+          })
+          .then(async result => {
+            console.log('response', result.data.token);
+            const data = result.data;
+            const userRole = await checkUserRole(data.token);
+            saveToken(data.token);
+            console.log('userRole', userRole);
+            if (userRole === 'user') {
+              setLoading(false);
+              navigation.navigate('UserMain');
+            }
+            if (userRole === 'observer') {
+              setLoading(false);
+              navigation.navigate('ObserverMain');
+            }
+            setMessage(data.message);
+            //setEmail('');
+            //setPassword('');
+          });
       } catch (error) {
         if (error.response.status === 401) {
           //console.error('Giriş hatası:', error.response.data);
@@ -100,11 +98,9 @@ const LoginScreen = () => {
     }
   };
   const onPressForgotPassword = () => {
-    // Do something about forgot password operation
     navigation.navigate('ForgotPassword');
   };
   const onPressSignUp = () => {
-    // Do something about signup operation
     navigation.navigate('Signup');
   };
 

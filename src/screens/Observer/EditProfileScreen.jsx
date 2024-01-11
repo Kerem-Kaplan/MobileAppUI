@@ -108,27 +108,26 @@ const EditProfileScreen = () => {
   };
 
   const onPressBack = () => {
-    navigation.navigate('ProfilePage');
+    navigation.goBack();
   };
 
   const getProfilePhoto = async () => {
-    setLoading(true);
-    try {
-      await getToken().then(async token => {
-        const result = await axios.get(urlGetProfilePhoto, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+    const token = await getToken();
+    await axios
+      .get(urlGetProfilePhoto, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(result => {
         const uri = `data:image/jpeg;base64,${result.data.photoData}`;
         dispatch(setObserverProfilePhoto(uri));
         setLoading(false);
-        //console.log('Resultttttt', result.data.photoData);
+      })
+      .catch(error => {
+        setLoading(false);
+        console.log('Error', error);
       });
-    } catch (error) {
-      setLoading(false);
-      console.log('Error', error);
-    }
   };
 
   useEffect(() => {
@@ -186,24 +185,32 @@ const EditProfileScreen = () => {
 
   const postProfilePhoto = async () => {
     try {
-      await getToken().then(async token => {
-        await getUserEmail(token).then(async email => {
-          const formData = new FormData();
-          formData.append('photo', {
-            name: email + '_profile.jpg',
-            uri: imageUri,
-            type: 'image/jpg',
-          });
-          const result = await axios.post(urlUploadProfilePhoto, formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-              Authorization: `Bearer ${token}`,
-            },
-          });
-        });
-        setLoading(false);
+      const token = await getToken();
+      const email = await getUserEmail(token);
+      const formData = new FormData();
+      formData.append('photo', {
+        name: email + '_profile.jpg',
+        uri: imageUri,
+        type: 'image/jpg',
       });
+      await axios
+        .post(urlUploadProfilePhoto, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then(result => {
+          setLoading(false);
+          alert(result.data.message);
+          //setImageUri('');
+        })
+        .catch(error => {
+          console.log(error);
+          setLoading(false);
+        });
     } catch (error) {
+      setLoading(false);
       console.log(error);
     }
   };
@@ -214,13 +221,10 @@ const EditProfileScreen = () => {
     if (imageUri !== '') {
       await postProfilePhoto();
     } else {
-      setLoading(false);
-    }
-
-    if (Object.entries(uploadProfileData).length !== 0) {
-      console.log(uploadProfileData);
-      try {
-        await getToken().then(async token => {
+      if (Object.entries(uploadProfileData).length !== 0) {
+        console.log(uploadProfileData);
+        try {
+          const token = await getToken();
           const result = await axios.post(urlUpdateProfile, uploadProfileData, {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -229,10 +233,13 @@ const EditProfileScreen = () => {
           console.log('Result', result.data);
           setLoading(false);
           alert(result.data.message);
-        });
-      } catch (error) {
+        } catch (error) {
+          setLoading(false);
+          console.log(error);
+        }
+      } else {
         setLoading(false);
-        console.log(error);
+        alert('Please Change Something!');
       }
     }
   };
@@ -333,12 +340,6 @@ const styles = StyleSheet.create({
     color: '#000000',
     backgroundColor: '#ffffff',
   },
-  title: {
-    fontWeight: 'bold',
-    fontSize: 50,
-    color: '#7d7d7d',
-    marginBottom: 20,
-  },
 
   profilePic: {
     width: 130,
@@ -366,60 +367,7 @@ const styles = StyleSheet.create({
     height: 50,
     color: '#ffffff',
   },
-  name: {
-    fontSize: 30,
-    fontWeight: 'bold',
-    marginBottom: 5,
-    color: '#000000',
-  },
-  username: {
-    color: 'gray',
-    marginBottom: 10,
-    color: '#000000',
-    fontSize: 17,
-  },
-  nationality: {
-    color: 'gray',
-    marginBottom: 10,
-    color: '#000000',
-    fontSize: 22,
-  },
-  id: {
-    color: 'gray',
-    marginBottom: 10,
-    color: '#000000',
-    fontSize: 22,
-  },
-  email: {
-    color: 'gray',
-    marginBottom: 10,
-    color: '#000000',
-    fontSize: 22,
-  },
-  phoneNumber: {
-    color: 'gray',
-    marginBottom: 10,
-    color: '#000000',
-    fontSize: 22,
-  },
-  dateOfBirth: {
-    color: 'gray',
-    marginBottom: 10,
-    color: '#000000',
-    fontSize: 17,
-  },
-  bio: {
-    textAlign: 'center',
-    paddingHorizontal: 40,
-    marginBottom: 20,
-    color: '#000000',
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 20,
-    color: '#000000',
-    margin: 5,
-  },
+
   button: {
     backgroundColor: '#c1c7c2',
     padding: 10,

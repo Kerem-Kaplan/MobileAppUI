@@ -5,7 +5,6 @@ import {
   TextInput,
   TouchableOpacity,
   Text,
-  Alert,
   StyleSheet,
   SafeAreaView,
   ScrollView,
@@ -15,7 +14,6 @@ import {
 } from 'react-native';
 import RNPickerSelect from 'react-native-picker-select';
 import {serverUrl} from '../../constants/serverUrl';
-import {AirbnbRating} from 'react-native-ratings';
 import {getToken} from '../../helpers/tokens';
 import axios from 'axios';
 import {getUserEmail} from '../../services/getUserEmail';
@@ -27,7 +25,7 @@ const urlGetUserInfo = serverUrl + '/user/profile';
 const urlGetObserverPhoto = serverUrl + '/user/get-observer-photo';
 
 const SendRequestScreen = () => {
-  const [subject, setSubject] = useState('');
+  const [subject, setSubject] = useState(null);
   const [userInfo, setUserInfo] = useState([]);
 
   const [observerSubject, setObserverSubject] = useState([]);
@@ -53,68 +51,73 @@ const SendRequestScreen = () => {
   };
 
   const onPressSend = async () => {
-    await getToken().then(async token => {
-      await getUserEmail(token).then(async email => {
-        console.log(token);
-        const today = new Date();
-        const day = String(today.getDate()).padStart(2, '0'); // Gün
-        const month = String(today.getMonth() + 1).padStart(2, '0'); // Ay (0'dan başladığı için +1 eklenir)
-        const year = today.getFullYear(); // Yıl
-        const hours = String(today.getHours()).padStart(2, '0'); // Saat
-        const minutes = String(today.getMinutes()).padStart(2, '0'); // Dakika
-        const seconds = String(today.getSeconds()).padStart(2, '0');
+    if (subject === null) {
+      alert('Please Fill Subject!');
+    } else {
+      const token = await getToken();
+      const email = await getUserEmail(token);
+      console.log(token);
+      const today = new Date();
+      const day = String(today.getDate()).padStart(2, '0'); // Gün
+      const month = String(today.getMonth() + 1).padStart(2, '0'); // Ay (0'dan başladığı için +1 eklenir)
+      const year = today.getFullYear(); // Yıl
+      const hours = String(today.getHours()).padStart(2, '0'); // Saat
+      const minutes = String(today.getMinutes()).padStart(2, '0'); // Dakika
+      const seconds = String(today.getSeconds()).padStart(2, '0');
 
-        const formData = new FormData();
-        if (imageUri !== '') {
-          formData.append('photo', {
-            name:
-              email +
-              '_' +
-              observerEmail +
-              '_' +
-              day +
-              month +
-              year +
-              '_' +
-              hours +
-              minutes +
-              seconds +
-              '_suggestion.jpg',
-            uri: imageUri,
-            type: 'image/jpg',
-          });
-        }
+      const formData = new FormData();
+      if (imageUri !== '') {
+        formData.append('photo', {
+          name:
+            email +
+            '_' +
+            observerEmail +
+            '_' +
+            day +
+            month +
+            year +
+            '_' +
+            hours +
+            minutes +
+            seconds +
+            '_suggestion.jpg',
+          uri: imageUri,
+          type: 'image/jpg',
+        });
+      }
 
-        const data = {
-          userName: userInfo.name,
-          userSurname: userInfo.surname,
-          userGender: userInfo.gender,
-          userNationality: userInfo.nationality,
-          userPhoneNumber: userInfo.phoneNumber,
-          observerEmail: observerEmail,
-          observerName: observerName,
-          requestContent: {demands, subject},
-        };
+      const data = {
+        userName: userInfo.name,
+        userSurname: userInfo.surname,
+        userGender: userInfo.gender,
+        userNationality: userInfo.nationality,
+        userPhoneNumber: userInfo.phoneNumber,
+        observerEmail: observerEmail,
+        observerName: observerName,
+        requestContent: {demands, subject},
+      };
 
-        formData.append('data', JSON.stringify(data));
-        await axios
-          .post(urlSendRequest, formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-              Authorization: `Bearer ${token}`,
-            },
-          })
-          .then(response => {
-            console.log(response);
-          })
-          .catch(error => {
-            console.log('error', error);
-          });
-      });
-    });
+      formData.append('data', JSON.stringify(data));
+      await axios
+        .post(urlSendRequest, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then(response => {
+          console.log(response);
+          setSubject(null);
+          navigation.goBack();
+          alert(response.data.message);
+        })
+        .catch(error => {
+          console.log('error', error);
+        });
+    }
   };
-  const onPressBack = () => {
-    navigation.navigate('HomePage');
+  const onPressBackButton = () => {
+    navigation.goBack();
   };
 
   const handleSubjectChange = subject => {
@@ -177,21 +180,19 @@ const SendRequestScreen = () => {
 
   const getUserInfo = async () => {
     try {
-      await getToken()
-        .then(async token => {
-          await axios
-            .get(urlGetUserInfo, {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            })
-            .then(result => {
-              console.log(result.data[0]);
-              setUserInfo(result.data[0]);
-            });
+      const token = await getToken();
+      await axios
+        .get(urlGetUserInfo, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then(result => {
+          console.log(result.data[0]);
+          setUserInfo(result.data[0]);
         })
         .catch(error => {
-          console.log('errorrrrr', error);
+          console.log(error);
         });
     } catch (error) {
       console.log('error', error);
@@ -200,25 +201,25 @@ const SendRequestScreen = () => {
 
   const getObserverImage = async () => {
     try {
-      await getToken()
-        .then(async token => {
-          await axios
-            .post(
-              urlGetObserverPhoto,
-              {observer: observerEmail},
-              {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
-              },
-            )
-            .then(result => {
-              console.log(result.data.observerPhoto);
-              setObserverPhoto(result.data.observerPhoto);
-            });
+      const token = await getToken();
+      await axios
+        .post(
+          urlGetObserverPhoto,
+          {observer: observerEmail},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        )
+        .then(result => {
+          console.log(result.data.observerPhoto);
+          setObserverPhoto(result.data.observerPhoto);
+          setLoading(false);
         })
         .catch(error => {
-          console.log('errorrrrr', error);
+          console.log(error);
+          setLoading(false);
         });
     } catch (error) {
       console.log('error', error);
@@ -228,37 +229,36 @@ const SendRequestScreen = () => {
   const getRequestDemands = async () => {
     const observerEmail = route.params?.observerEmail;
     console.log('observerEmail', observerEmail);
-    await getToken().then(async token => {
-      console.log(token);
-      await axios
-        .post(
-          urlGetRequestDemands,
-          {observerEmail: observerEmail},
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+    const token = await getToken();
+    console.log(token);
+    await axios
+      .post(
+        urlGetRequestDemands,
+        {observerEmail: observerEmail},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
-        )
-        .then(result => {
-          console.log(result.data);
-          console.log(result.data.data[0]);
+        },
+      )
+      .then(result => {
+        console.log(result.data);
+        console.log(result.data.data[0]);
 
-          //setObserverSubject(response.data.data[0].subjectOfComplaint);
-          /* setObserverSubject([
+        //setObserverSubject(response.data.data[0].subjectOfComplaint);
+        /* setObserverSubject([
           
         ]); */
-          setObserverSubject(result.data.data[0].subjectOfRequest);
-          setDemands(result.data.data[0].optionalDemands);
-          setLoading(false);
-        })
-        .catch(error => {
-          console.log(error);
-          setLoading(false);
-        });
+        setObserverSubject(result.data.data[0].subjectOfRequest);
+        setDemands(result.data.data[0].optionalDemands);
+        //setLoading(false);
+      })
+      .catch(error => {
+        console.log(error);
+        //setLoading(false);
+      });
 
-      //console.log(observerSubject);
-    });
+    //console.log(observerSubject);
   };
 
   useEffect(() => {
@@ -344,7 +344,9 @@ const SendRequestScreen = () => {
           <TouchableOpacity onPress={onPressSend} style={styles.sendButton}>
             <Text style={styles.sendText}>SEND </Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={onPressBack} style={styles.backButton}>
+          <TouchableOpacity
+            onPress={onPressBackButton}
+            style={styles.backButton}>
             <Text style={styles.backText}>BACK </Text>
           </TouchableOpacity>
         </ScrollView>
@@ -362,12 +364,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  title: {
-    fontWeight: 'bold',
-    fontSize: 50,
-    color: '#9fbca7',
-    marginBottom: 40,
   },
 
   inputView: {

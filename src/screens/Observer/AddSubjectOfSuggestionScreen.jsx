@@ -15,6 +15,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {getToken} from '../../helpers/tokens';
 import {serverUrl} from '../../constants/serverUrl';
 import axios from 'axios';
+import {useNavigation} from '@react-navigation/native';
 
 const urlAdd = serverUrl + '/observer/add-subject-of-suggestion';
 const urlget = serverUrl + '/observer/get-subject-of-suggestion';
@@ -25,6 +26,8 @@ const AddSubjectOfSuggestionScreen = () => {
   const [firstSubjects, setFirstSubjects] = useState([]);
 
   const [loading, setLoading] = useState(true);
+
+  const navigation = useNavigation();
 
   const onPressAdd = () => {
     if (subject.length > 2) {
@@ -53,61 +56,63 @@ const AddSubjectOfSuggestionScreen = () => {
   };
 
   const getSubjectOfSuggestion = async () => {
-    await getToken()
-      .then(async token => {
-        await axios
-          .get(urlget, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          })
-          .then(result => {
-            console.log(result.data);
-            console.log(result.data.subjectOfSuggestion);
-            setSubjects(result.data.subjectOfSuggestion);
-            setFirstSubjects(result.data.subjectOfSuggestion);
-            console.log(typeof subjects);
-            setLoading(false);
-          })
-          .catch(error => {
-            console.log(error);
-            setLoading(false);
-            alert(error.response.data.message);
-          });
+    const token = await getToken();
+
+    await axios
+      .get(urlget, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(result => {
+        console.log(result.data);
+        console.log(result.data.subjectOfSuggestion);
+        setSubjects(result.data.subjectOfSuggestion);
+        setFirstSubjects(result.data.subjectOfSuggestion);
+
+        setLoading(false);
       })
       .catch(error => {
-        console.log('error', error);
+        console.log('error.response.data', error.response.data);
+        setSubjects(error.response.data.subjectOfSuggestion);
+        alert(error.response.data.message);
         setLoading(false);
       });
   };
 
   const onPressSave = async () => {
     if (subjects !== firstSubjects) {
-      await getToken()
-        .then(async token => {
-          const result = await axios
-            .post(
-              urlAdd,
-              {subjectOfSuggestion: subjects},
-              {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
-              },
-            )
-            .then(result => {
-              console.log(result.data);
-            })
-            .catch(error => {
-              console.log(error);
-            });
+      const token = await getToken();
+
+      await axios
+        .post(
+          urlAdd,
+          {subjectOfSuggestion: subjects},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        )
+        .then(result => {
+          console.log('result', result.data);
+          console.log('firstSubjects', firstSubjects);
+          setFirstSubjects(subjects);
+          alert(result.data.message);
         })
         .catch(error => {
-          console.log('error', error);
+          console.log(error.response.data);
+          setSubject(error.response.data.subjectOfSuggestion);
+          alert(error.response.data.message);
+          setLoading(false);
         });
     } else {
       alert('Please Change Something!');
     }
+  };
+
+  const onPressBackButton = () => {
+    navigation.goBack();
   };
 
   useEffect(() => {
@@ -170,10 +175,12 @@ const AddSubjectOfSuggestionScreen = () => {
             </View>
           ))}
 
-          <TouchableOpacity onPress={onPressSave} style={styles.signupButton}>
+          <TouchableOpacity onPress={onPressSave} style={styles.saveButton}>
             <Text style={styles.editText}>SAVE</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.backButton}>
+          <TouchableOpacity
+            onPress={onPressBackButton}
+            style={styles.backButton}>
             <Text style={styles.backText}>BACK </Text>
           </TouchableOpacity>
         </ScrollView>
@@ -188,21 +195,7 @@ const styles = StyleSheet.create({
     color: '#000000',
     backgroundColor: '#ffffff',
   },
-  title: {
-    fontWeight: 'bold',
-    fontSize: 50,
-    color: '#7d7d7d',
-    marginBottom: 20,
-  },
 
-  profilePic: {
-    width: 130,
-    height: 130,
-    borderRadius: 50,
-    marginBottom: 10,
-    borderWidth: 5,
-    borderColor: '#7d7d7d',
-  },
   scrollView: {
     backgroundColor: '#ffffff',
     alignItems: 'center',
@@ -210,7 +203,7 @@ const styles = StyleSheet.create({
   },
   inputView: {
     width: '85%',
-    backgroundColor: '#d6edff',
+    backgroundColor: '#b8adad',
     borderWidth: 1,
     borderRadius: 10,
     marginBottom: 20,
@@ -221,72 +214,7 @@ const styles = StyleSheet.create({
     height: 50,
     color: '#000000',
   },
-  name: {
-    fontSize: 30,
-    fontWeight: 'bold',
-    marginBottom: 5,
-    color: '#000000',
-  },
-  username: {
-    color: 'gray',
-    marginBottom: 10,
-    color: '#000000',
-    fontSize: 17,
-  },
-  nationality: {
-    color: 'gray',
-    marginBottom: 10,
-    color: '#000000',
-    fontSize: 22,
-  },
-  id: {
-    color: 'gray',
-    marginBottom: 10,
-    color: '#000000',
-    fontSize: 22,
-  },
-  email: {
-    color: 'gray',
-    marginBottom: 10,
-    color: '#000000',
-    fontSize: 22,
-  },
-  phoneNumber: {
-    color: 'gray',
-    marginBottom: 10,
-    color: '#000000',
-    fontSize: 22,
-  },
-  dateOfBirth: {
-    color: 'gray',
-    marginBottom: 10,
-    color: '#000000',
-    fontSize: 17,
-  },
-  bio: {
-    textAlign: 'center',
-    paddingHorizontal: 40,
-    marginBottom: 20,
-    color: '#000000',
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 20,
-    color: '#000000',
-    margin: 5,
-  },
-  button: {
-    backgroundColor: '#c1c7c2',
-    padding: 10,
-    borderRadius: 5,
-    alignItems: 'center',
-    marginBottom: 20,
-    color: '#000000',
-  },
-  buttonText: {
-    fontWeight: 'bold',
-    color: '#000000',
-  },
+
   editText: {
     fontWeight: 'bold',
     color: '#ffffff',
@@ -302,16 +230,16 @@ const styles = StyleSheet.create({
   },
   addButton: {
     width: '10%',
-    backgroundColor: '#addaff',
+    backgroundColor: '#b8adad',
     borderRadius: 10,
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',
     margin: 10,
   },
-  signupButton: {
+  saveButton: {
     width: '80%',
-    backgroundColor: '#addaff',
+    backgroundColor: '#b8adad',
     borderRadius: 10,
     height: 50,
     alignItems: 'center',

@@ -7,77 +7,36 @@ import {
   StyleSheet,
   Dimensions,
   ActivityIndicator,
+  Animated,
+  Easing,
 } from 'react-native';
 import {serverUrl} from '../../constants/serverUrl';
-import {useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {getToken} from '../../helpers/tokens';
 import axios from 'axios';
 
 const {width, height} = Dimensions.get('window');
 const imageWidth = width / 3;
 
-/* const complaints = [
-
-  
-  {
-    id: 1,
-    username: 'John',
-    userSurname: 'Doe',
-    userGender: 'Male',
-    userNationality: 'Turk',
-    userEmail: 'john@gmail.com',
-    userPhoneNumber: '01111111111',
-    vote: 3,
-  },
-  {
-    id: 2,
-    username: 'Alvin',
-    userSurname: 'Patrick',
-    userGender: 'Male',
-    userNationality: 'Turk',
-    userEmail: 'alvin@gmail.com',
-    userPhoneNumber: '02222222222',
-    vote: 2,
-  },
-  {
-    id: 3,
-    username: 'Fernando',
-    userSurname: 'Muslera',
-    userGender: 'Male',
-    userNationality: 'Turk',
-    userEmail: 'fernando@gmail.com',
-    userPhoneNumber: '03333333333',
-    vote: 5,
-  },
-  {
-    id: 4,
-    username: 'Erlink',
-    userSurname: 'Haaland',
-    userGender: 'Male',
-    userNationality: 'Turk',
-    userEmail: 'erlink@gmail.com',
-    userPhoneNumber: '03333333333',
-    vote: 5,
-  },
-  {
-    id: 5,
-    username: 'Erlink',
-    userSurname: 'Haaland',
-    userGender: 'Male',
-    userNationality: 'Turk',
-    userEmail: 'erlink@gmail.com',
-    userPhoneNumber: '03333333333',
-    vote: 5,
-  },
-]; */
-
 const url = serverUrl + '/observer/get-suggestions';
 
 const SuggestionsScreen = () => {
+  const scaleValue = useRef(new Animated.Value(0)).current;
+
+  const startAnimation = () => {
+    Animated.timing(scaleValue, {
+      toValue: 1,
+      duration: 1500,
+      easing: Easing.elastic(1.5), // Elastik animasyon efekti
+      useNativeDriver: true,
+    }).start();
+  };
+
   const [suggestions, setSuggestions] = useState([]);
 
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+
+  const [message, setMessage] = useState('');
 
   const getSuggestions = async () => {
     await getToken()
@@ -89,14 +48,15 @@ const SuggestionsScreen = () => {
             },
           })
           .then(result => {
-            console.log('result.data.requestContent', result.data);
+            //console.log('result.data.requestContent', result.data);
             setSuggestions(result.data);
             //console.log('complaint', complaints.length);
             setLoading(false);
           })
           .catch(error => {
             console.log(error.response.data);
-            alert(error.response.data.message);
+            setMessage(error.response.data.message);
+            //alert(error.response.data.message);
             setLoading(false);
           });
       })
@@ -108,6 +68,7 @@ const SuggestionsScreen = () => {
 
   useEffect(() => {
     getSuggestions();
+    startAnimation();
   }, []);
 
   return (
@@ -118,6 +79,20 @@ const SuggestionsScreen = () => {
           size="large"
           color="#000000"
         />
+      ) : suggestions.length === 0 ? (
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          <Animated.View
+            style={{
+              width: '100%',
+              height: '100%',
+              backgroundColor: '#ededed',
+              transform: [{scale: scaleValue}],
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <Text style={{fontSize: 24, color: '#000000'}}>{message}</Text>
+          </Animated.View>
+        </View>
       ) : (
         <View style={styles.flatListView}>
           <FlatList

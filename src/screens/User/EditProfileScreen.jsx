@@ -124,34 +124,40 @@ const EditProfileScreen = () => {
 
     if (imageUri !== '') {
       try {
-        await getToken().then(async token => {
-          await getUserEmail(token).then(async email => {
-            const formData = new FormData();
-            formData.append('photo', {
-              name: email + '_profile.jpg',
-              uri: imageUri,
-              type: 'image/jpg',
-            });
-            const result = await axios.post(urlUploadProfilePhoto, formData, {
-              headers: {
-                'Content-Type': 'multipart/form-data',
-                Authorization: `Bearer ${token}`,
-              },
-            });
-          });
-          setLoading(false);
+        const token = await getToken();
+        const email = await getUserEmail(token);
+        const formData = new FormData();
+        formData.append('photo', {
+          name: email + '_profile.jpg',
+          uri: imageUri,
+          type: 'image/jpg',
         });
+        await axios
+          .post(urlUploadProfilePhoto, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              Authorization: `Bearer ${token}`,
+            },
+          })
+          .then(result => {
+            console.log(result.data);
+            setLoading(false);
+            alert(result.data.message);
+            //setImageUri('');
+          })
+          .catch(error => {
+            console.log(error);
+            setLoading(false);
+          });
       } catch (error) {
         console.log(error);
+        setLoading(false);
       }
     } else {
-      setLoading(false);
-    }
-
-    if (Object.entries(uploadProfileData).length !== 0) {
-      console.log(uploadProfileData);
-      try {
-        await getToken().then(async token => {
+      if (Object.entries(uploadProfileData).length !== 0) {
+        console.log(uploadProfileData);
+        try {
+          const token = await getToken();
           const result = await axios.post(urlUpdateProfile, uploadProfileData, {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -160,32 +166,44 @@ const EditProfileScreen = () => {
           console.log('Result', result.data);
           setLoading(false);
           alert(result.data.message);
-        });
-      } catch (error) {
+          setPhoneNumber('');
+          setNationality(null);
+          setGender(null);
+        } catch (error) {
+          setLoading(false);
+          console.log(error);
+        }
+      } else {
+        alert('Please Change Something');
         setLoading(false);
-        console.log(error);
       }
     }
   };
 
-  const onPressBack = () => {
+  const onPressBackButton = () => {
     navigation.goBack();
   };
 
   const getProfilePhoto = async () => {
-    setLoading(true);
     try {
-      await getToken().then(async token => {
-        const result = await axios.get(urlGetProfilePhoto, {
+      const token = await getToken();
+      const result = await axios
+        .get(urlGetProfilePhoto, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
+        })
+        .then(result => {
+          const uri = `data:image/jpeg;base64,${result.data.photoData}`;
+          dispatch(setUserProfilePhoto(uri));
+          setLoading(false);
+        })
+        .catch(error => {
+          setLoading(false);
+          console.log(error);
         });
-        const uri = `data:image/jpeg;base64,${result.data.photoData}`;
-        dispatch(setUserProfilePhoto(uri));
-        setLoading(false);
-        //console.log('Resultttttt', result.data.photoData);
-      });
+
+      //console.log('Resultttttt', result.data.photoData);
     } catch (error) {
       setLoading(false);
       console.log('Error', error);
@@ -325,7 +343,9 @@ const EditProfileScreen = () => {
           <TouchableOpacity onPress={onPressSave} style={styles.signupButton}>
             <Text style={styles.editText}>SAVE</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={onPressBack} style={styles.backButton}>
+          <TouchableOpacity
+            onPress={onPressBackButton}
+            style={styles.backButton}>
             <Text style={styles.backText}>BACK </Text>
           </TouchableOpacity>
         </ScrollView>
@@ -339,12 +359,6 @@ const styles = StyleSheet.create({
     flex: 1,
     color: '#000000',
     backgroundColor: '#ffffff',
-  },
-  title: {
-    fontWeight: 'bold',
-    fontSize: 50,
-    color: '#7d7d7d',
-    marginBottom: 20,
   },
 
   profilePic: {
@@ -373,60 +387,7 @@ const styles = StyleSheet.create({
     height: 50,
     color: '#ffffff',
   },
-  name: {
-    fontSize: 30,
-    fontWeight: 'bold',
-    marginBottom: 5,
-    color: '#000000',
-  },
-  username: {
-    color: 'gray',
-    marginBottom: 10,
-    color: '#000000',
-    fontSize: 17,
-  },
-  nationality: {
-    color: 'gray',
-    marginBottom: 10,
-    color: '#000000',
-    fontSize: 22,
-  },
-  id: {
-    color: 'gray',
-    marginBottom: 10,
-    color: '#000000',
-    fontSize: 22,
-  },
-  email: {
-    color: 'gray',
-    marginBottom: 10,
-    color: '#000000',
-    fontSize: 22,
-  },
-  phoneNumber: {
-    color: 'gray',
-    marginBottom: 10,
-    color: '#000000',
-    fontSize: 22,
-  },
-  dateOfBirth: {
-    color: 'gray',
-    marginBottom: 10,
-    color: '#000000',
-    fontSize: 17,
-  },
-  bio: {
-    textAlign: 'center',
-    paddingHorizontal: 40,
-    marginBottom: 20,
-    color: '#000000',
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 20,
-    color: '#000000',
-    margin: 5,
-  },
+
   button: {
     backgroundColor: '#c1c7c2',
     padding: 10,

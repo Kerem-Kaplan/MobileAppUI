@@ -32,47 +32,61 @@ const ProfileScreen = () => {
 
   const getProfile = async () => {
     try {
-      await getToken().then(async token => {
-        const result = await axios.get(urlProfile, {
+      const token = await getToken();
+
+      await axios
+        .get(urlProfile, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
+        })
+        .then(result => {
+          result.data[0].dateOfBirth = result.data[0].dateOfBirth.substring(
+            0,
+            4,
+          );
+          setProfile(result.data[0]);
+          console.log('Result', result.data[0]);
+        })
+        .catch(error => {
+          console.log(error);
         });
-        result.data[0].dateOfBirth = result.data[0].dateOfBirth.substring(0, 4);
-        setProfile(result.data[0]);
-        console.log('Result', result.data[0]);
-      });
+
+      await axios
+        .get(urlGetProfilePhoto, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then(result => {
+          //console.log('Resuşlt photo', result);
+          const uri = `data:image/jpeg;base64,${result.data.photoData}`;
+          dispatch(setUserProfilePhoto(uri));
+          setLoading(false);
+          //console.log('Resultttttt', result.data.photoData);
+        })
+        .catch(error => {
+          console.log(error);
+        });
     } catch (error) {
       console.log('Error', error);
     }
   };
 
-  const getProfilePhoto = async () => {
+  /* const getProfilePhoto = async () => {
     console.log('Getting');
     try {
-      await getToken().then(async token => {
-        const result = await axios.get(urlGetProfilePhoto, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        //console.log('Resuşlt photo', result);
-        const uri = `data:image/jpeg;base64,${result.data.photoData}`;
-        dispatch(setUserProfilePhoto(uri));
-        setLoading(false);
-        //console.log('Resultttttt', result.data.photoData);
-      });
+      const token = await getToken();
     } catch (error) {
       setLoading(false);
       console.log('Error', error);
     }
-  };
-  console.log(useIsFocused());
+  }; */
 
   useEffect(() => {
     getProfile();
-    getProfilePhoto();
-  }, []);
+    //getProfilePhoto();
+  }, [useIsFocused()]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -122,7 +136,7 @@ const ProfileScreen = () => {
               onPress={() => {
                 navigation.navigate('EditProfile');
               }}>
-              <Text style={styles.buttonText}>Profili Düzenle</Text>
+              <Text style={styles.buttonText}>Edit Profile</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -166,12 +180,7 @@ const styles = StyleSheet.create({
     color: '#000000',
     fontSize: 20,
   },
-  id: {
-    color: 'gray',
-    marginBottom: 10,
-    color: '#000000',
-    fontSize: 22,
-  },
+
   email: {
     color: 'gray',
     marginBottom: 10,
@@ -190,12 +199,7 @@ const styles = StyleSheet.create({
     color: '#000000',
     fontSize: 17,
   },
-  bio: {
-    textAlign: 'center',
-    paddingHorizontal: 40,
-    marginBottom: 20,
-    color: '#000000',
-  },
+
   content: {
     flex: 1,
     paddingHorizontal: 20,

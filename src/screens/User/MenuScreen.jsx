@@ -1,5 +1,5 @@
 import {useNavigation} from '@react-navigation/native';
-import React, {useEffect} from 'react';
+import React from 'react';
 import {View, FlatList, Text, StyleSheet} from 'react-native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import {removeToken} from '../../helpers/tokens';
@@ -10,12 +10,6 @@ import {
   faComment,
   faPen,
 } from '@fortawesome/free-solid-svg-icons';
-import {
-  withTiming,
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-} from 'react-native-reanimated';
 
 const MenuScreen = () => {
   const navigation = useNavigation();

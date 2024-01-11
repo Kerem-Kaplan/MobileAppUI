@@ -18,7 +18,8 @@ export const calculateAverageVotes = async (observerVote, observers) => {
     });
 
     console.log('userVote', userVote);
-    const averageVote = userVote / votes.length;
+    const averageVote = (userVote / votes.length).toFixed(1);
+
     console.log('averageVote', averageVote);
 
     allAverageVotes.push({

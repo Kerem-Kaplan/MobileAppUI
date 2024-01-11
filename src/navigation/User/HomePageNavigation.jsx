@@ -24,11 +24,9 @@ const HomePageNavigation = () => {
         name="SendComplaint"
         component={SendComplaintScreen}
         options={{
-          headerLeft: null,
           headerTitle: 'Send Complaint',
           headerStyle: {
-            height: 0,
-            backgroundColor: '#c8f9cd',
+            backgroundColor: '#c4c4c4',
           },
         }}
       />
@@ -36,11 +34,9 @@ const HomePageNavigation = () => {
         name="SendRequest"
         component={SendRequestScreen}
         options={{
-          headerLeft: null,
           headerTitle: 'Send Request',
           headerStyle: {
-            height: 0,
-            backgroundColor: '#c8f9cd',
+            backgroundColor: '#c4c4c4',
           },
         }}
       />
@@ -48,11 +44,9 @@ const HomePageNavigation = () => {
         name="SendSuggestion"
         component={SendSuggestionScreen}
         options={{
-          headerLeft: null,
           headerTitle: 'Send Suggestion',
           headerStyle: {
-            height: 0,
-            backgroundColor: '#c8f9cd',
+            backgroundColor: '#c4c4c4',
           },
         }}
       />

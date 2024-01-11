@@ -1,8 +1,5 @@
 import {createStackNavigator} from '@react-navigation/stack';
 import MenuScreen from '../../screens/Observer/MenuScreen';
-import AddComplaintDetailScreen from '../../screens/Observer/AddComplaintDetailScreen';
-import AddRequestDetailScreen from '../../screens/Observer/AddRequestDetailScreen';
-import AddSuggestionDetailScreen from '../../screens/Observer/AddSuggestionDetailScreen';
 import ComplaintsScreen from '../../screens/Observer/ComplaintsScreen';
 import RequestsScreen from '../../screens/Observer/RequestsScreen';
 import SuggestionsScreen from '../../screens/Observer/SuggestionsScreen';
@@ -66,7 +63,7 @@ const MenuPageNavigation = () => {
         options={{
           headerTitle: 'Complaints',
           headerStyle: {
-            backgroundColor: '#c8f9cd',
+            backgroundColor: '#c4c4c4',
           },
         }}
       />
@@ -76,7 +73,7 @@ const MenuPageNavigation = () => {
         options={{
           headerTitle: 'Requests',
           headerStyle: {
-            backgroundColor: '#c8f9cd',
+            backgroundColor: '#c4c4c4',
           },
         }}
       />
@@ -86,7 +83,7 @@ const MenuPageNavigation = () => {
         options={{
           headerTitle: 'Suggestions',
           headerStyle: {
-            backgroundColor: '#c8f9cd',
+            backgroundColor: '#c4c4c4',
           },
         }}
       />

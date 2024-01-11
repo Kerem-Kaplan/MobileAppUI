@@ -30,7 +30,7 @@ const urlGetObserverPhoto = serverUrl + '/user/get-observer-photo';
 
 const SendComplaintScreen = () => {
   const [vote, setVote] = useState(0);
-  const [subject, setSubject] = useState('');
+  const [subject, setSubject] = useState(null);
   const [userInfo, setUserInfo] = useState([]);
   const [observerPhoto, setObserverPhoto] = useState('');
 
@@ -53,8 +53,8 @@ const SendComplaintScreen = () => {
     console.log('Answerss', demands);
   };
 
-  const onPressBack = () => {
-    navigation.navigate('HomePage');
+  const onPressBackButton = () => {
+    navigation.goBack();
   };
 
   const handleSubjectChange = subject => {
@@ -77,21 +77,20 @@ const SendComplaintScreen = () => {
 
   const getUserInfo = async () => {
     try {
-      await getToken()
-        .then(async token => {
-          await axios
-            .get(urlGetUserInfo, {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            })
-            .then(result => {
-              console.log(result.data[0]);
-              setUserInfo(result.data[0]);
-            });
+      const token = await getToken();
+
+      await axios
+        .get(urlGetUserInfo, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then(result => {
+          console.log(result.data[0]);
+          setUserInfo(result.data[0]);
         })
         .catch(error => {
-          console.log('errorrrrr', error);
+          console.log(error);
         });
     } catch (error) {
       console.log('error', error);
@@ -100,25 +99,25 @@ const SendComplaintScreen = () => {
 
   const getObserverImage = async () => {
     try {
-      await getToken()
-        .then(async token => {
-          await axios
-            .post(
-              urlGetObserverPhoto,
-              {observer: observerEmail},
-              {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
-              },
-            )
-            .then(result => {
-              console.log(result.data.observerPhoto);
-              setObserverPhoto(result.data.observerPhoto);
-            });
+      const token = await getToken();
+      await axios
+        .post(
+          urlGetObserverPhoto,
+          {observer: observerEmail},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        )
+        .then(result => {
+          //console.log(result.data.observerPhoto);
+          setObserverPhoto(result.data.observerPhoto);
+          setLoading(false);
         })
         .catch(error => {
-          console.log('errorrrrr', error);
+          console.log(error);
+          setLoading(false);
         });
     } catch (error) {
       console.log('error', error);
@@ -126,74 +125,85 @@ const SendComplaintScreen = () => {
   };
 
   const onPressSend = async () => {
-    await getToken().then(async token => {
-      await getUserEmail(token).then(async email => {
-        console.log(token);
-        const today = new Date();
-        const day = String(today.getDate()).padStart(2, '0'); // Gün
-        const month = String(today.getMonth() + 1).padStart(2, '0'); // Ay (0'dan başladığı için +1 eklenir)
-        const year = today.getFullYear(); // Yıl
-        const hours = String(today.getHours()).padStart(2, '0'); // Saat
-        const minutes = String(today.getMinutes()).padStart(2, '0'); // Dakika
-        const seconds = String(today.getSeconds()).padStart(2, '0');
+    if (subject === null) {
+      alert('Please Fill Subject!');
+    } else if (vote === 0) {
+      alert('Please Fill Vote!');
+    } else {
+      const token = await getToken();
+      const email = await getUserEmail(token);
 
-        const formData = new FormData();
-        if (imageUri !== '') {
-          formData.append('photo', {
-            name:
-              email +
-              '_' +
-              observerEmail +
-              '_' +
-              day +
-              month +
-              year +
-              '_' +
-              hours +
-              minutes +
-              seconds +
-              '_complaint.jpg',
-            uri: imageUri,
-            type: 'image/jpg',
-          });
-        }
+      console.log(token);
+      const today = new Date();
+      const day = String(today.getDate()).padStart(2, '0'); // Gün
+      const month = String(today.getMonth() + 1).padStart(2, '0'); // Ay (0'dan başladığı için +1 eklenir)
+      const year = today.getFullYear(); // Yıl
+      const hours = String(today.getHours()).padStart(2, '0'); // Saat
+      const minutes = String(today.getMinutes()).padStart(2, '0'); // Dakika
+      const seconds = String(today.getSeconds()).padStart(2, '0');
 
-        const data = {
-          userName: userInfo.name,
-          userSurname: userInfo.surname,
-          userGender: userInfo.gender,
-          userNationality: userInfo.nationality,
-          userPhoneNumber: userInfo.phoneNumber,
-          observerEmail: observerEmail,
-          observerName: observerName,
-          vote: vote,
-          complaintContent: {demands, subject},
-        };
+      const formData = new FormData();
+      if (imageUri !== '') {
+        formData.append('photo', {
+          name:
+            email +
+            '_' +
+            observerEmail +
+            '_' +
+            day +
+            month +
+            year +
+            '_' +
+            hours +
+            minutes +
+            seconds +
+            '_complaint.jpg',
+          uri: imageUri,
+          type: 'image/jpg',
+        });
+      }
 
-        formData.append('data', JSON.stringify(data));
-        await axios
-          .post(urlSendComplaint, formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-              Authorization: `Bearer ${token}`,
-            },
-          })
-          .then(response => {
-            console.log(response);
-          })
-          .catch(error => {
-            console.log('error', error);
-          });
-      });
-    });
+      const data = {
+        userName: userInfo.name,
+        userSurname: userInfo.surname,
+        userGender: userInfo.gender,
+        userNationality: userInfo.nationality,
+        userPhoneNumber: userInfo.phoneNumber,
+        observerEmail: observerEmail,
+        observerName: observerName,
+        vote: vote,
+        complaintContent: {demands, subject},
+      };
+
+      formData.append('data', JSON.stringify(data));
+      await axios
+        .post(urlSendComplaint, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then(response => {
+          console.log(response.data);
+          setSubject(null);
+          setVote(0);
+          navigation.goBack();
+          alert(response.data.message);
+        })
+        .catch(error => {
+          alert(error.response.data.message);
+          console.log('error', error);
+        });
+    }
   };
 
   const getComplaintDemands = async () => {
     const observerEmail = route.params?.observerEmail;
     console.log('observerEmail', observerEmail);
-    await getToken().then(async token => {
-      console.log(token);
-      const response = await axios.post(
+    const token = await getToken();
+    console.log(token);
+    await axios
+      .post(
         urlGetComplaintDemands,
         {observerEmail: observerEmail},
         {
@@ -201,18 +211,22 @@ const SendComplaintScreen = () => {
             Authorization: `Bearer ${token}`,
           },
         },
-      );
-      console.log(response.data.data[0]);
+      )
+      .then(result => {
+        console.log(result.data.data[0]);
 
-      //setObserverSubject(response.data.data[0].subjectOfComplaint);
-      /* setObserverSubject([
-        
-      ]); */
-      setObserverSubject(response.data.data[0].subjectOfComplaint);
-      setDemands(response.data.data[0].optionalDemands);
-      setLoading(false);
-      //console.log(observerSubject);
-    });
+        //setObserverSubject(response.data.data[0].subjectOfComplaint);
+        /* setObserverSubject([
+          
+        ]); */
+        setObserverSubject(result.data.data[0].subjectOfComplaint);
+        setDemands(result.data.data[0].optionalDemands);
+      })
+      .catch(error => {
+        console.log(error);
+      });
+
+    //console.log(observerSubject);
   };
 
   const requestCameraPermission = async () => {
@@ -333,7 +347,7 @@ const SendComplaintScreen = () => {
               <AirbnbRating
                 count={5}
                 reviews={['Terrible', 'Bad', 'Meh', 'OK', 'Good']}
-                defaultRating={0}
+                defaultRating={vote}
                 size={20}
                 onFinishRating={rating => onStarRatingPress(rating)}
               />
@@ -362,7 +376,9 @@ const SendComplaintScreen = () => {
                 placeholder={key.charAt(0).toUpperCase() + key.slice(1)}
                 placeholderTextColor={'#000000'}
                 value={demands[key]}
-                onChangeText={value => handleChange(key, value)}
+                onChangeText={value => {
+                  handleChange(key, value);
+                }}
               />
             </View>
           ))}
@@ -382,7 +398,9 @@ const SendComplaintScreen = () => {
           <TouchableOpacity onPress={onPressSend} style={styles.sendButton}>
             <Text style={styles.sendText}>SEND </Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={onPressBack} style={styles.backButton}>
+          <TouchableOpacity
+            onPress={onPressBackButton}
+            style={styles.backButton}>
             <Text style={styles.backText}>BACK </Text>
           </TouchableOpacity>
         </ScrollView>
@@ -433,10 +451,6 @@ const styles = StyleSheet.create({
     width: '60%',
     borderRadius: 10,
     marginBottom: 10,
-  },
-  inputText: {
-    height: 50,
-    color: 'black',
   },
 
   sendText: {

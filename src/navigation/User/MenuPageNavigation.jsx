@@ -26,7 +26,7 @@ const MenuPageNavigation = () => {
         options={{
           headerTitle: 'Past Complaints',
           headerStyle: {
-            backgroundColor: '#c8f9cd',
+            backgroundColor: '#c4c4c4',
           },
         }}
       />
@@ -36,7 +36,7 @@ const MenuPageNavigation = () => {
         options={{
           headerTitle: 'Past Requests',
           headerStyle: {
-            backgroundColor: '#c8f9cd',
+            backgroundColor: '#c4c4c4',
           },
         }}
       />
@@ -46,7 +46,7 @@ const MenuPageNavigation = () => {
         options={{
           headerTitle: 'Past Suggestions',
           headerStyle: {
-            backgroundColor: '#c8f9cd',
+            backgroundColor: '#c4c4c4',
           },
         }}
       />

@@ -7,9 +7,11 @@ import {
   Dimensions,
   Image,
   ActivityIndicator,
+  Animated,
+  Easing,
 } from 'react-native';
 import {serverUrl} from '../../constants/serverUrl';
-import {useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {getToken} from '../../helpers/tokens';
 import axios from 'axios';
 const {width, height} = Dimensions.get('window');
@@ -17,81 +19,48 @@ const imageWidth = width / 3;
 
 const url = serverUrl + '/user/past-complaints';
 
-/* const complaints = [
-  {
-    observerName: 'İşletme 1',
-    vote: 1,
-    subject: 'Example Subject1',
-    demands: {
-      date: '9.12.2023',
-      detail:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-    },
-  },
-  {
-    observerName: 'İşletme 3',
-    vote: 1,
-    subject: 'Example Subject1',
-    demands: {
-      date: '9.12.2023',
-      place: 'Place',
-      detail:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-    },
-  },
-  {
-    observerName: 'İşletme 2',
-    vote: 1,
-    subject: 'Example Subject1',
-    demands: {
-      date: '9.12.2023',
-      time: 'Time 2',
-      detail:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-    },
-  },
-]; */
-
 const PastComplaintScreen = () => {
+  const scaleValue = useRef(new Animated.Value(0)).current;
+
+  const startAnimation = () => {
+    Animated.timing(scaleValue, {
+      toValue: 1,
+      duration: 1500,
+      easing: Easing.elastic(1.5), // Elastik animasyon efekti
+      useNativeDriver: true,
+    }).start();
+  };
+
   const [complaints, setComplaints] = useState([]);
 
   const [loading, setLoading] = useState(true);
-  const [resultLength, setResultLength] = useState(0);
-  const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
 
   const getComplaints = async () => {
-    await getToken()
-      .then(async token => {
-        await axios
-          .get(url, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          })
-          .then(result => {
-            console.log('result.data.complaintContent', result.data);
-            setComplaints(result.data);
-            setResultLength(result.data.length);
-            console.log('complaint', complaints.length);
-            console.log('length', resultLength);
-            setLoading(false);
-          })
-          .catch(error => {
-            console.log(error);
-            if (error.response.status === 404) {
-              setResultLength(0);
-            }
-            setLoading(false);
-          });
+    const token = await getToken();
+
+    await axios
+      .get(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(result => {
+        //console.log('result.data.complaintContent', result.data);
+        setComplaints(result.data);
+        //console.log('complaint', complaints.length);
+        setLoading(false);
       })
       .catch(error => {
         console.log(error);
+        setMessage(error.response.data.message);
         setLoading(false);
       });
   };
 
   useEffect(() => {
     getComplaints();
+    startAnimation();
   }, []);
   return (
     <View style={styles.container}>
@@ -101,8 +70,20 @@ const PastComplaintScreen = () => {
           size="large"
           color="#000000"
         />
-      ) : resultLength === 0 ? (
-        <Text style={{color: '#000000'}}>No Result</Text>
+      ) : complaints.length === 0 ? (
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          <Animated.View
+            style={{
+              width: '100%',
+              height: '100%',
+              backgroundColor: '#ededed',
+              transform: [{scale: scaleValue}],
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <Text style={{fontSize: 24, color: '#000000'}}>{message}</Text>
+          </Animated.View>
+        </View>
       ) : (
         <View style={styles.flatListView}>
           <FlatList
@@ -203,11 +184,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
-  categoryContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    paddingVertical: 10,
-  },
   flatListView: {
     backgroundColor: '#ffffff',
     height: '100%',

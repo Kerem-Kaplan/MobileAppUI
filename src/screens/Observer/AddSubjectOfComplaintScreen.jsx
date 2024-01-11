@@ -1,5 +1,6 @@
 import {useEffect, useState} from 'react';
 import {
+  ActivityIndicator,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -14,6 +15,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {getToken} from '../../helpers/tokens';
 import {serverUrl} from '../../constants/serverUrl';
 import axios from 'axios';
+import {useNavigation} from '@react-navigation/native';
 
 const urlAdd = serverUrl + '/observer/add-subject-of-complaint';
 const urlget = serverUrl + '/observer/get-subject-of-complaint';
@@ -22,6 +24,8 @@ const AddSubjectOfComplaintScreen = () => {
   const [subject, setSubject] = useState('');
   const [subjects, setSubjects] = useState([]);
   const [firstSubjects, setFirstSubjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigation = useNavigation();
 
   const onPressAdd = () => {
     if (subject.length > 2) {
@@ -50,29 +54,33 @@ const AddSubjectOfComplaintScreen = () => {
   };
 
   const getSubjectOfComplaint = async () => {
-    await getToken().then(async token => {
-      const result = await axios
-        .get(urlget, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then(result => {
-          console.log(result.data.subjectOfComplaint);
-          setSubjects(result.data.subjectOfComplaint);
-          setFirstSubjects(result.data.subjectOfComplaint);
-        })
-        .catch(error => {
-          console.log(error);
-          alert(error.response.data.message);
-        });
-    });
+    const token = await getToken();
+    await axios
+      .get(urlget, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(result => {
+        console.log(result.data.subjectOfComplaint);
+        setSubjects(result.data.subjectOfComplaint);
+        setFirstSubjects(result.data.subjectOfComplaint);
+        setLoading(false);
+      })
+      .catch(error => {
+        console.log('error.response.data', error.response.data);
+        setSubjects(error.response.data.subjectOfComplaint);
+        alert(error.response.data.message);
+        setLoading(false);
+      });
   };
 
   const onPressSave = async () => {
     if (firstSubjects !== subjects) {
-      await getToken().then(async token => {
-        const result = await axios.post(
+      const token = await getToken();
+
+      await axios
+        .post(
           urlAdd,
           {subjectOfComplaint: subjects},
           {
@@ -80,71 +88,94 @@ const AddSubjectOfComplaintScreen = () => {
               Authorization: `Bearer ${token}`,
             },
           },
-        );
-        console.log(result.data);
-      });
+        )
+        .then(result => {
+          console.log('result', result.data);
+          console.log('firstSubjects', firstSubjects);
+          setFirstSubjects(subjects);
+          alert(result.data.message);
+        })
+
+        .catch(error => {
+          console.log('error.response', error);
+          //alert(error.response.data.message);
+        });
     } else {
       alert('Please Change Something!');
     }
   };
-
+  const onPressBackButton = () => {
+    navigation.goBack();
+  };
   useEffect(() => {
     getSubjectOfComplaint();
   }, []);
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollView}>
-        <View style={{flexDirection: 'row', margin: 10, width: '85%'}}>
-          <View style={styles.inputView}>
-            <TextInput
-              style={styles.inputText}
-              placeholder="Add Demands"
-              placeholderTextColor="#000000"
-              onChangeText={setSubject}
-              value={subject}
-            />
+      {loading ? (
+        <ActivityIndicator
+          style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}
+          size="large"
+          color="#000000"
+        />
+      ) : (
+        <ScrollView contentContainerStyle={styles.scrollView}>
+          <View style={{flexDirection: 'row', margin: 10, width: '85%'}}>
+            <View style={styles.inputView}>
+              <TextInput
+                style={styles.inputText}
+                placeholder="Add Demands"
+                placeholderTextColor="#ffffff"
+                onChangeText={setSubject}
+                value={subject}
+              />
+            </View>
+            <TouchableOpacity onPress={onPressAdd} style={styles.addButton}>
+              <Text style={styles.addText}>+</Text>
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity onPress={onPressAdd} style={styles.addButton}>
-            <Text style={styles.addText}>+</Text>
+
+          {subjects.map(object => (
+            <View
+              key={object.label}
+              style={{
+                flexDirection: 'row',
+                margin: 15,
+                width: '80%',
+                borderBottomWidth: 0.5,
+              }}>
+              <View style={{width: '80%'}}>
+                <Text
+                  style={{color: '#000000', fontSize: 18}}
+                  key={object.label}>
+                  {object.label.toString()}
+                </Text>
+              </View>
+              <View style={{width: '20%'}}>
+                <TouchableOpacity
+                  onPress={() => onPressDeleteIcon(object.label)}
+                  style={{
+                    marginLeft: 50,
+                    justifyContent: 'center',
+                  }}
+                  key={object.label + 'Button'}>
+                  <FontAwesomeIcon icon={faTrash} size={20} color="#ff4d4d" />
+                </TouchableOpacity>
+              </View>
+            </View>
+          ))}
+
+          <TouchableOpacity onPress={onPressSave} style={styles.saveButton}>
+            <Text style={styles.saveText}>SAVE</Text>
           </TouchableOpacity>
-        </View>
-
-        {subjects.map(object => (
-          <View
-            key={object.label}
-            style={{
-              flexDirection: 'row',
-              margin: 15,
-              width: '80%',
-              borderBottomWidth: 0.5,
-            }}>
-            <View style={{width: '80%'}}>
-              <Text style={{color: '#000000', fontSize: 18}} key={object.label}>
-                {object.label.toString()}
-              </Text>
-            </View>
-            <View style={{width: '20%'}}>
-              <TouchableOpacity
-                onPress={() => onPressDeleteIcon(object.label)}
-                style={{
-                  marginLeft: 50,
-                  justifyContent: 'center',
-                }}
-                key={object.label + 'Button'}>
-                <FontAwesomeIcon icon={faTrash} size={20} color="#ff4d4d" />
-              </TouchableOpacity>
-            </View>
-          </View>
-        ))}
-
-        <TouchableOpacity onPress={onPressSave} style={styles.saveButton}>
-          <Text style={styles.saveText}>SAVE</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.backButton}>
-          <Text style={styles.backText}>BACK </Text>
-        </TouchableOpacity>
-      </ScrollView>
+          <TouchableOpacity
+            onPress={onPressBackButton}
+            style={styles.backButton}>
+            <Text style={styles.backText}>BACK </Text>
+          </TouchableOpacity>
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 };
@@ -160,7 +191,7 @@ const styles = StyleSheet.create({
   },
   inputView: {
     width: '85%',
-    backgroundColor: '#f0fff3',
+    backgroundColor: '#b8adad',
     borderWidth: 1,
     borderRadius: 10,
     marginBottom: 20,
@@ -183,11 +214,11 @@ const styles = StyleSheet.create({
   },
   saveText: {
     fontWeight: 'bold',
-    color: '#000000',
+    color: '#ffffff',
   },
   addButton: {
     width: '10%',
-    backgroundColor: '#ccffd7',
+    backgroundColor: '#b8adad',
     borderRadius: 10,
     height: 50,
     alignItems: 'center',
@@ -196,7 +227,7 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     width: '80%',
-    backgroundColor: '#b8ffc7',
+    backgroundColor: '#b8adad',
     borderRadius: 10,
     height: 50,
     alignItems: 'center',

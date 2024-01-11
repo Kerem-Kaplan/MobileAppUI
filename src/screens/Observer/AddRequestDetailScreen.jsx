@@ -1,5 +1,6 @@
 import {useEffect, useState} from 'react';
 import {
+  ActivityIndicator,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -23,6 +24,7 @@ const AddRequestDetailScreen = () => {
   const [demand, setDemand] = useState('');
   const [demands, setDemands] = useState({});
   const [firstDemands, setFirstDemands] = useState({});
+  const [loading, setLoading] = useState(true);
 
   const navigation = useNavigation();
 
@@ -57,9 +59,10 @@ const AddRequestDetailScreen = () => {
 
   const onPressAddSave = async () => {
     if (firstDemands !== demands) {
-      await getToken().then(async token => {
-        console.log(token);
-        const result = await axios.post(
+      const token = await getToken();
+      console.log(token);
+      await axios
+        .post(
           urlAdd,
           {optionalDemands: demands},
           {
@@ -67,99 +70,120 @@ const AddRequestDetailScreen = () => {
               Authorization: `Bearer ${token}`,
             },
           },
-        );
-        console.log(result);
-      });
+        )
+        .then(result => {
+          console.log(result.data);
+          alert(result.data.message);
+          setFirstDemands(demands);
+        })
+        .catch(error => {
+          console.log(error.response);
+          alert(error.response);
+        });
     } else {
       alert('Please Change Something!');
     }
   };
 
   const getRequestDemand = async () => {
-    await getToken().then(async token => {
-      await axios
-        .get(urlGet, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then(result => {
-          console.log(result.data.optionalDemands);
-          setDemands(result.data.optionalDemands);
-          setFirstDemands(result.data.optionalDemands);
-        })
-        .catch(error => {
-          //setDemands({});
-          console.log(error);
-          alert(error.response.data.message);
-        });
-    });
-  };
+    const token = await getToken();
+    await axios
+      .get(urlGet, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(result => {
+        console.log(result.data.optionalDemands);
+        setDemands(result.data.optionalDemands);
+        setFirstDemands(result.data.optionalDemands);
 
+        setLoading(false);
+      })
+      .catch(error => {
+        setDemands(error.response.data.optionalDemands);
+        console.log(error);
+        alert(error.response.data.message);
+        setLoading(false);
+      });
+  };
+  const onPressBackButton = () => {
+    navigation.goBack();
+  };
   useEffect(() => {
     getRequestDemand();
   }, []);
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollView}>
-        <View style={{flexDirection: 'row', margin: 10, width: '85%'}}>
-          <View style={styles.inputView}>
-            <TextInput
-              style={styles.inputText}
-              placeholder="Add Demands"
-              placeholderTextColor="#000000"
-              onChangeText={setDemand}
-              value={demand}
-            />
+      {loading ? (
+        <ActivityIndicator
+          style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}
+          size="large"
+          color="#000000"
+        />
+      ) : (
+        <ScrollView contentContainerStyle={styles.scrollView}>
+          <View style={{flexDirection: 'row', margin: 10, width: '85%'}}>
+            <View style={styles.inputView}>
+              <TextInput
+                style={styles.inputText}
+                placeholder="Add Demands"
+                placeholderTextColor="#000000"
+                onChangeText={setDemand}
+                value={demand}
+              />
+            </View>
+            <TouchableOpacity onPress={onPressAdd} style={styles.addButton}>
+              <Text style={styles.addText}>+</Text>
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity onPress={onPressAdd} style={styles.addButton}>
-            <Text style={styles.addText}>+</Text>
+
+          {Object.entries(demands).map(([key, value]) => (
+            <View
+              key={key + 'View'}
+              style={{
+                flexDirection: 'row',
+                margin: 10,
+                width: '80%',
+                borderBottomWidth: 0.5,
+              }}>
+              <View style={{width: '80%'}}>
+                <Text
+                  style={{color: '#000000', fontSize: 18}}
+                  key={key + 'value'}>
+                  {key.toString()}
+                </Text>
+              </View>
+              <View style={{width: '20%'}}>
+                <TouchableOpacity
+                  onPress={() => onPressDeleteIcon(key)}
+                  style={{
+                    marginLeft: 50,
+                    justifyContent: 'center',
+                  }}
+                  key={key + 'Delete'}>
+                  <FontAwesomeIcon icon={faTrash} size={20} color="#ff0000" />
+                </TouchableOpacity>
+              </View>
+            </View>
+          ))}
+
+          <TouchableOpacity
+            onPress={onPressAddSubjectButton}
+            style={styles.addSubjectButton}>
+            <Text style={styles.editText}>ADD SUBJECT OF REQUESTS</Text>
           </TouchableOpacity>
-        </View>
-
-        {Object.entries(demands).map(([key, value]) => (
-          <View
-            key={key + 'View'}
-            style={{
-              flexDirection: 'row',
-              margin: 10,
-              width: '80%',
-              borderBottomWidth: 0.5,
-            }}>
-            <View style={{width: '80%'}}>
-              <Text
-                style={{color: '#000000', fontSize: 18}}
-                key={key + 'value'}>
-                {key.toString()}
-              </Text>
-            </View>
-            <View style={{width: '20%'}}>
-              <TouchableOpacity
-                onPress={() => onPressDeleteIcon(key)}
-                style={{
-                  marginLeft: 50,
-                  justifyContent: 'center',
-                }}
-                key={key + 'Delete'}>
-                <FontAwesomeIcon icon={faTrash} size={20} color="#ff0000" />
-              </TouchableOpacity>
-            </View>
-          </View>
-        ))}
-
-        <TouchableOpacity
-          onPress={onPressAddSubjectButton}
-          style={styles.addSubjectButton}>
-          <Text style={styles.editText}>ADD SUBJECT OF REQUESTS</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={onPressAddSave} style={styles.signupButton}>
-          <Text style={styles.editText}>SAVE</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.backButton}>
-          <Text style={styles.backText}>BACK </Text>
-        </TouchableOpacity>
-      </ScrollView>
+          <TouchableOpacity onPress={onPressAddSave} style={styles.saveButton}>
+            <Text style={styles.editText}>SAVE</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={onPressBackButton}
+            style={styles.backButton}>
+            <Text style={styles.backText}>BACK </Text>
+          </TouchableOpacity>
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 };
@@ -170,21 +194,7 @@ const styles = StyleSheet.create({
     color: '#000000',
     backgroundColor: '#ffffff',
   },
-  title: {
-    fontWeight: 'bold',
-    fontSize: 50,
-    color: '#7d7d7d',
-    marginBottom: 20,
-  },
 
-  profilePic: {
-    width: 130,
-    height: 130,
-    borderRadius: 50,
-    marginBottom: 10,
-    borderWidth: 5,
-    borderColor: '#7d7d7d',
-  },
   scrollView: {
     backgroundColor: '#ffffff',
     alignItems: 'center',
@@ -203,72 +213,7 @@ const styles = StyleSheet.create({
     height: 50,
     color: '#000000',
   },
-  name: {
-    fontSize: 30,
-    fontWeight: 'bold',
-    marginBottom: 5,
-    color: '#000000',
-  },
-  username: {
-    color: 'gray',
-    marginBottom: 10,
-    color: '#000000',
-    fontSize: 17,
-  },
-  nationality: {
-    color: 'gray',
-    marginBottom: 10,
-    color: '#000000',
-    fontSize: 22,
-  },
-  id: {
-    color: 'gray',
-    marginBottom: 10,
-    color: '#000000',
-    fontSize: 22,
-  },
-  email: {
-    color: 'gray',
-    marginBottom: 10,
-    color: '#000000',
-    fontSize: 22,
-  },
-  phoneNumber: {
-    color: 'gray',
-    marginBottom: 10,
-    color: '#000000',
-    fontSize: 22,
-  },
-  dateOfBirth: {
-    color: 'gray',
-    marginBottom: 10,
-    color: '#000000',
-    fontSize: 17,
-  },
-  bio: {
-    textAlign: 'center',
-    paddingHorizontal: 40,
-    marginBottom: 20,
-    color: '#000000',
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 20,
-    color: '#000000',
-    margin: 5,
-  },
-  button: {
-    backgroundColor: '#c1c7c2',
-    padding: 10,
-    borderRadius: 5,
-    alignItems: 'center',
-    marginBottom: 20,
-    color: '#000000',
-  },
-  buttonText: {
-    fontWeight: 'bold',
-    color: '#000000',
-  },
+
   editText: {
     fontWeight: 'bold',
     color: '#ffffff',
@@ -291,7 +236,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     margin: 10,
   },
-  signupButton: {
+  saveButton: {
     width: '80%',
     backgroundColor: '#9fbca7',
     borderRadius: 10,
@@ -302,7 +247,7 @@ const styles = StyleSheet.create({
   },
   addSubjectButton: {
     width: '80%',
-    backgroundColor: '#00ff00',
+    backgroundColor: '#b8adad',
     borderRadius: 10,
     height: 50,
     alignItems: 'center',

@@ -15,67 +15,86 @@ import axios from 'axios';
 import {ScrollView} from 'react-native-gesture-handler';
 import {setObserverProfilePhoto} from '../../redux/slice/observerProfilePhotoSlice';
 import {useDispatch, useSelector} from 'react-redux';
+import {AirbnbRating} from 'react-native-ratings';
+import {calculateObserverAverageVotes} from '../../utils/calculateObserverAverageVotes';
 
 const urlProfile = serverUrl + '/observer/profile';
 const urlGetProfilePhoto = serverUrl + '/observer/get-profile-photo';
 
 const ProfileScreen = () => {
-  const [profile, setProfile] = useState([]);
-  const [publicInfo, setPublicInfo] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const navigation = useNavigation();
 
   const dispatch = useDispatch();
   const profilePhoto = useSelector(
     state => state.observerProfilePhoto.observerProfilePhotoUri,
   );
 
-  const navigation = useNavigation();
+  const [profile, setProfile] = useState([]);
+  const [publicInfo, setPublicInfo] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [averageVote, setAverageVote] = useState(0);
+  const [totalVote, setTotalVote] = useState(0);
 
   const getProfile = async () => {
-    try {
-      await getToken().then(async token => {
-        const result = await axios.get(urlProfile, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+    const token = await getToken();
 
-        console.log('result', result.data.user[0]);
-        setProfile(result.data.user[0]);
+    await axios
+      .get(urlProfile, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(result => {
+        console.log(result.data.votes);
+        console.log('result', result.data.observer[0]);
+        const averageVote = calculateObserverAverageVotes(result.data.votes);
+
+        if (isNaN(averageVote.averageVote)) {
+          setAverageVote(0);
+          setTotalVote(0);
+        } else {
+          setAverageVote(averageVote.averageVote);
+          setTotalVote(averageVote.totalVote);
+        }
+        console.log('averageVote', averageVote);
+        setProfile(result.data.observer[0]);
         setPublicInfo(result.data.publicInfo[0]);
-        setLoading(false);
+      })
+      .catch(error => {
+        console.log(error);
       });
-    } catch (error) {
-      setLoading(false);
-      console.log('Error', error);
-    }
-  };
 
-  const getProfilePhoto = async () => {
-    console.log('Getting');
-    try {
-      await getToken().then(async token => {
-        const result = await axios.get(urlGetProfilePhoto, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+    await axios
+      .get(urlGetProfilePhoto, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(result => {
         //console.log('Resuşlt photo', result);
         const uri = `data:image/jpeg;base64,${result.data.photoData}`;
         dispatch(setObserverProfilePhoto(uri));
         setLoading(false);
         //console.log('Resultttttt', result.data.photoData);
+      })
+      .catch(error => {
+        console.log(error);
       });
-    } catch (error) {
-      setLoading(false);
-      console.log('Error', error);
-    }
   };
+
+  /* const getProfilePhoto = async () => {
+    console.log('Getting');
+    try {
+    } catch (error) {
+      console.log('Error', error);
+      setLoading(false);
+    }
+  }; */
 
   useEffect(() => {
     getProfile();
-    getProfilePhoto();
-  }, [useIsFocused()]);
+    //getProfilePhoto();
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -97,17 +116,40 @@ const ProfileScreen = () => {
             <Image source={{uri: profilePhoto}} style={styles.profilePic} />
 
             <Text style={styles.name}>{profile.name}</Text>
+            <View style={[styles.vote]}>
+              <AirbnbRating
+                count={5}
+                defaultRating={averageVote}
+                reviews={[]}
+                size={25}
+                isDisabled={true}
+              />
+              <View
+                style={{
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}>
+                <Text
+                  style={{
+                    color: '#000000',
+                    fontSize: 16,
+                  }}>
+                  average : {averageVote} | {totalVote} votes
+                </Text>
+              </View>
+            </View>
           </View>
+
           <View style={styles.content}>
             <Text style={styles.nationality}>
               <Text style={{fontWeight: 'bold'}}>Phone Number :</Text>
               {publicInfo.phoneNumber}
             </Text>
-            <Text style={styles.id}>
+            <Text style={styles.email}>
               <Text style={{fontWeight: 'bold'}}>Email :</Text>
               {publicInfo.emailForContact}
             </Text>
-            <Text style={styles.email}>
+            <Text style={styles.address}>
               <Text style={{fontWeight: 'bold'}}>Address :</Text>
               {publicInfo.address}
             </Text>
@@ -118,7 +160,7 @@ const ProfileScreen = () => {
               onPress={() => {
                 navigation.navigate('EditProfile');
               }}>
-              <Text style={styles.buttonText}>Profili Düzenle</Text>
+              <Text style={styles.buttonText}>Edit Profile</Text>
             </TouchableOpacity>
             {/* Diğer profil içeriği */}
           </View>
@@ -134,11 +176,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     color: '#000000',
   },
-  header: {
-    alignItems: 'center',
-    padding: 20,
-    color: '#000000',
-  },
+
   scrollView: {
     backgroundColor: '#ffffff',
   },
@@ -156,23 +194,15 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     color: '#000000',
   },
-  username: {
-    color: 'gray',
-    marginBottom: 10,
-    color: '#000000',
-    fontSize: 17,
-  },
+
   nationality: {
     color: 'gray',
     marginBottom: 10,
     color: '#000000',
     fontSize: 22,
   },
-  id: {
-    color: 'gray',
-    marginBottom: 10,
-    color: '#000000',
-    fontSize: 22,
+  vote: {
+    width: '60%',
   },
   email: {
     color: 'gray',
@@ -180,23 +210,11 @@ const styles = StyleSheet.create({
     color: '#000000',
     fontSize: 22,
   },
-  phoneNumber: {
+  address: {
     color: 'gray',
     marginBottom: 10,
     color: '#000000',
     fontSize: 22,
-  },
-  dateOfBirth: {
-    color: 'gray',
-    marginBottom: 10,
-    color: '#000000',
-    fontSize: 17,
-  },
-  bio: {
-    textAlign: 'center',
-    paddingHorizontal: 40,
-    marginBottom: 20,
-    color: '#000000',
   },
   content: {
     flex: 1,

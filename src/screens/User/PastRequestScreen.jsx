@@ -6,88 +6,63 @@ import {
   Dimensions,
   Image,
   ActivityIndicator,
+  Animated,
+  Easing,
 } from 'react-native';
 import {serverUrl} from '../../constants/serverUrl';
 import {getToken} from '../../helpers/tokens';
 import axios from 'axios';
-import {useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 const {width, height} = Dimensions.get('window');
 const imageWidth = width / 3;
 
 const url = serverUrl + '/user/past-requests';
 
-/* const requests = [
-  {
-    observerName: 'İşletme 1',
-    subject: 'Example Subject1',
-    demands: {
-      dateRequest: '9.12.2023',
-      detail:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-    },
-  },
-  {
-    observerName: 'İşletme 3',
-    subject: 'Example Subject1',
-    demands: {
-      dateRequest: '9.12.2023',
-      place: 'Place',
-      detail:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-    },
-  },
-  {
-    observerName: 'İşletme 2',
-    subject: 'Example Subject1',
-    demands: {
-      date: '9.12.2023',
-      time: 'Time 2',
-      detail:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-    },
-  },
-]; */
-
 const PastRequestScreen = () => {
+  const scaleValue = useRef(new Animated.Value(0)).current;
+
+  const startAnimation = () => {
+    Animated.timing(scaleValue, {
+      toValue: 1,
+      duration: 1500,
+      easing: Easing.elastic(1.5), // Elastik animasyon efekti
+      useNativeDriver: true,
+    }).start();
+  };
+
   const [requests, setRequest] = useState([]);
 
   const [loading, setLoading] = useState(true);
   const [resultLength, setResultLength] = useState(0);
-  const [error, setError] = useState('');
+
+  const [message, setMessage] = useState('');
 
   const getRequest = async () => {
-    await getToken()
-      .then(async token => {
-        await axios
-          .get(url, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          })
-          .then(result => {
-            console.log('result.data.requestContent', result.data.length);
-            setRequest(result.data);
-            setResultLength(result.data.length);
-            console.log('complaint', requests.length);
-            console.log('length', resultLength);
-            setLoading(false);
-          })
-          .catch(error => {
-            console.log(error);
-            if (error.response.status === 404) {
-              setResultLength(0);
-            }
-            setLoading(false);
-          });
+    const token = await getToken();
+    await axios
+      .get(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(result => {
+        //console.log('result.data.requestContent', result.data.length);
+        setRequest(result.data);
+        setResultLength(result.data.length);
+        console.log('complaint', requests.length);
+        //console.log('length', resultLength);
+        setLoading(false);
       })
       .catch(error => {
         console.log(error);
+        setMessage(error.response.data.message);
         setLoading(false);
       });
   };
 
   useEffect(() => {
     getRequest();
+    startAnimation();
   }, []);
 
   return (
@@ -98,8 +73,20 @@ const PastRequestScreen = () => {
           size="large"
           color="#000000"
         />
-      ) : resultLength === 0 ? (
-        <Text style={{color: '#000000'}}>No Result</Text>
+      ) : requests.length === 0 ? (
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          <Animated.View
+            style={{
+              width: '100%',
+              height: '100%',
+              backgroundColor: '#ededed',
+              transform: [{scale: scaleValue}],
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <Text style={{fontSize: 24, color: '#000000'}}>{message}</Text>
+          </Animated.View>
+        </View>
       ) : (
         <View style={styles.flatListView}>
           <FlatList
@@ -193,29 +180,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
-  categoryContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    paddingVertical: 10,
-  },
-  categoryItem: {
-    padding: 10,
-    borderRadius: 50,
-    borderWidth: 1,
-    marginHorizontal: 3,
-    backgroundColor: '#94e696',
-  },
-  categoryText: {
-    color: '#000000',
-    fontSize: imageWidth / 11,
-  },
   flatListView: {
     backgroundColor: '#ffffff',
     height: '100%',
     flexDirection: 'column',
-  },
-  selectedCategory: {
-    backgroundColor: '#93a994',
   },
 });
 

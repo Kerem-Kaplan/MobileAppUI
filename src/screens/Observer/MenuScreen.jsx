@@ -1,46 +1,18 @@
 import {useNavigation} from '@react-navigation/native';
-import React, {useEffect, useRef, useState} from 'react';
-import {View, FlatList, Text, StyleSheet, Animated} from 'react-native';
+import React from 'react';
+import {View, FlatList, Text, StyleSheet} from 'react-native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {
-  faArrowDown,
-  faCircleUser,
   faArchive,
-  faLink,
   faSearchPlus,
-  faPlusCircle,
-  faCartPlus,
   faCirclePlus,
-  faFileCirclePlus,
-  faFolder,
   faFolderPlus,
-  faFileArchive,
-  faBrain,
-  faHistory,
   faDoorOpen,
   faComment,
-  faReply,
   faPen,
-  faInbox,
-  faCodePullRequest,
-  faDrumSteelpan,
-  faEllipsisV,
-  faLeftLong,
-  faCompressAlt,
-  faHome,
-  faTableList,
-  faClipboard,
-  faUser,
-  faDoor,
 } from '@fortawesome/free-solid-svg-icons';
 import {removeToken} from '../../helpers/tokens';
-import {
-  withTiming,
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-} from 'react-native-reanimated';
 
 const MenuScreen = () => {
   const navigation = useNavigation();

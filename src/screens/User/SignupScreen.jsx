@@ -61,8 +61,8 @@ const SignupScreen = () => {
       isValidName &&
       isValidSurname
     ) {
-      try {
-        const response = await axios.post(url, {
+      await axios
+        .post(url, {
           name,
           surname,
           gender,
@@ -72,31 +72,33 @@ const SignupScreen = () => {
           email,
           password,
           phoneNumber,
+        })
+        .then(result => {
+          console.log('Response Signup', result);
+          const data = result.data;
+          console.log('Message Signup:', data.message);
+          alert(data.message);
+          setDateOfBirth(new Date());
+          setGender(null);
+          setNationality(null);
+          setName('');
+          setSurname('');
+          setIdentityNumberOrPassportNumber('');
+          setPhoneNumber('');
+          setEmail('');
+          setPassword('');
+          navigation.navigate('Login');
+        })
+        .catch(error => {
+          console.log(error);
+          alert(error.response.data.message);
         });
-
-        console.log('Response Signup', response);
-        const data = response.data;
-        console.log('Message Signup:', data.message);
-        alert(data.message);
-        setDateOfBirth(new Date());
-        setGender(null);
-        setNationality(null);
-        setName('');
-        setSurname('');
-        setIdentityNumberOrPassportNumber('');
-        setPhoneNumber('');
-        setEmail('');
-        setPassword('');
-        navigation.navigate('Login');
-      } catch (error) {
-        alert(error.response.data.message);
-      }
     } else {
       alert('Please Check Information');
     }
   };
-  const onPressBack = () => {
-    navigation.navigate('Login');
+  const onPressBackButton = () => {
+    navigation.goBack();
   };
 
   const handleChangeDateOfBirth = (event, selectedDate) => {
@@ -217,7 +219,7 @@ const SignupScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollView}>
-        <TextInput style={styles.title}>Sign UP</TextInput>
+        <TextInput style={styles.title}>Please Enter Infotmations</TextInput>
         <View
           style={[
             styles.selectDateOfBirth,
@@ -366,7 +368,7 @@ const SignupScreen = () => {
         <TouchableOpacity onPress={onPressSignup} style={styles.signupButton}>
           <Text style={styles.signupText}>SIGN UP </Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={onPressBack} style={styles.backButton}>
+        <TouchableOpacity onPress={onPressBackButton} style={styles.backButton}>
           <Text style={styles.backText}>BACK </Text>
         </TouchableOpacity>
       </ScrollView>
@@ -385,8 +387,8 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: 'bold',
-    fontSize: 50,
-    color: '#92ed7e',
+    fontSize: 20,
+    color: '#000000',
     marginBottom: 40,
   },
 

@@ -10,7 +10,13 @@ import {
   BackHandler,
 } from 'react-native';
 import ComplaintsScreen from './ComplaintsScreen';
-import {useEffect} from 'react';
+import {useCallback, useEffect} from 'react';
+import {
+  useFocusEffect,
+  useIsFocused,
+  useNavigation,
+} from '@react-navigation/native';
+import {removeToken} from '../../helpers/tokens';
 
 const {width, height} = Dimensions.get('window');
 const imageWidth = width / 3;
@@ -59,32 +65,35 @@ const complaints = [
 ];
 
 const HomeScreen = () => {
-  /*  useEffect(() => {
-    const backAction = () => {
-      Alert.alert('Uygulamadan çıkmak istediğinize emin misiniz?', '', [
-        {
-          text: 'Hayır',
-          onPress: () => null,
-          style: 'cancel',
-        },
-        {
-          text: 'Evet',
-          onPress: async () => {
-            navigation.navigate('Login'); // Uygulamadan çıkış yap
-            await removeToken();
+  const navigation = useNavigation();
+  useFocusEffect(
+    useCallback(() => {
+      const backAction = () => {
+        Alert.alert('Uygulamadan çıkmak istediğinize emin misiniz?', '', [
+          {
+            text: 'Hayır',
+            onPress: () => null,
+            style: 'cancel',
           },
-        },
-      ]);
-      return true;
-    };
+          {
+            text: 'Evet',
+            onPress: async () => {
+              navigation.navigate('Login');
+              await removeToken();
+            },
+          },
+        ]);
+        return true;
+      };
 
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      backAction,
-    );
+      const backHandler = BackHandler.addEventListener(
+        'hardwareBackPress',
+        backAction,
+      );
 
-    return () => backHandler.remove();
-  }); */
+      return () => backHandler.remove();
+    }, [navigation]),
+  );
   return (
     <>
       <View style={{alignItems: 'center', margin: 10}}>

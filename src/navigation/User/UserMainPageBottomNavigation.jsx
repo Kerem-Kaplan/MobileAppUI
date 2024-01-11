@@ -1,51 +1,20 @@
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faHome, faTableList, faUser} from '@fortawesome/free-solid-svg-icons';
-import {useEffect} from 'react';
-import {BackHandler, Alert} from 'react-native';
 import MenuPageNavigation from './MenuPageNavigation';
 import ProfilePageNavigation from './ProfilePageNavigation';
 import HomePageNavigation from './HomePageNavigation';
-import {removeToken} from '../../helpers/tokens';
 const Tab = createBottomTabNavigator();
 
-const UserMainPageBottomNavigation = ({navigation}) => {
- /*  useEffect(() => {
-    const backAction = () => {
-      Alert.alert('Uygulamadan çıkmak istediğinize emin misiniz?', '', [
-        {
-          text: 'Hayır',
-          onPress: () => null,
-          style: 'cancel',
-        },
-        {
-          text: 'Evet',
-          onPress: async () => {
-            navigation.navigate('Login');
-            await removeToken();
-          }, // Uygulamadan çıkış yap
-        },
-      ]);
-      return true;
-    };
-
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      backAction,
-    );
-
-    return () => backHandler.remove();
-  }, []); */
-
+const UserMainPageBottomNavigation = () => {
   return (
     <Tab.Navigator
-      initialRouteName="Home"
+      initialRouteName="UserHome"
       screenOptions={{
         tabBarActiveTintColor: '#000000',
       }}>
       <Tab.Screen
         name="UserHome"
-        navigationKey="Home"
         component={HomePageNavigation}
         options={{
           title: 'Home',

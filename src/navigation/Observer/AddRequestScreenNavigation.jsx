@@ -1,6 +1,4 @@
 import {createStackNavigator} from '@react-navigation/stack';
-import AddComplaintDetailScreen from '../../screens/Observer/AddComplaintDetailScreen';
-import AddSubjectOfComplaintScreen from '../../screens/Observer/AddSubjectOfComplaintScreen';
 import AddRequestDetailScreen from '../../screens/Observer/AddRequestDetailScreen';
 import AddSubjectOfRequestScreen from '../../screens/Observer/AddSubjectOfRequestScreen';
 

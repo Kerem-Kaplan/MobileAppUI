@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -15,7 +15,7 @@ import {
   Alert,
 } from 'react-native';
 import {getToken, removeToken} from '../../helpers/tokens';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {serverUrl} from '../../constants/serverUrl';
 import {AirbnbRating} from 'react-native-ratings';
 import {calculateAverageVotes} from '../../utils/calculateAverageVotes';
@@ -23,102 +23,39 @@ import {calculateAverageVotes} from '../../utils/calculateAverageVotes';
 const {width, height} = Dimensions.get('window');
 const imageWidth = width / 3;
 
-const categories = [
-  {id: 1, name: 'Ulaşım'},
-  {id: 2, name: 'Gıda'},
-  {id: 3, name: 'Giyim'},
-  {id: 4, name: 'Kategori-4'},
-  {id: 5, name: 'Kategori-5'},
-];
-
-const businesses = [
-  {
-    id: 1,
-    observerName: 'İşletme 1',
-    email: 'isletme1@gmail.com',
-    phoneNumber: '01111111',
-    address: 'Address İşletme 1',
-    voteAverage: 1.5,
-    categoryId: 1,
-  },
-  {
-    id: 2,
-    observerName: 'İşletme 2',
-    email: 'isletme2@gmail.com',
-    phoneNumber: '02222222',
-    address: 'Address İşletme 2',
-    voteAverage: 3.9,
-    categoryId: 1,
-  },
-  {
-    id: 3,
-    observerName: 'İşletme 3',
-    email: 'isletme3@gmail.com',
-    phoneNumber: '03333333',
-    address: 'Address İşletme 3',
-    voteAverage: 2.3,
-    categoryId: 2,
-  },
-  {
-    id: 4,
-    observerName: 'İşletme 4',
-    email: 'isletme4@gmail.com',
-    phoneNumber: '04444444',
-    address: 'Address İşletme 4',
-    voteAverage: 4.1,
-    categoryId: 2,
-  },
-  {
-    id: 5,
-    observerName: 'İşletme 5',
-    email: 'isletme5@gmail.com',
-    phoneNumber: '05555555',
-    address: 'Address İşletme 5',
-    voteAverage: 3.5,
-    categoryId: 3,
-  },
-  {
-    id: 6,
-    observerName: 'İşletme 6',
-    email: 'isletme6@gmail.com',
-    phoneNumber: '06666666',
-    address: 'Address İşletme 6',
-    voteAverage: 4.7,
-    categoryId: 3,
-  },
-];
-
 const url = serverUrl + '/user/homepage';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
 
-  useEffect(() => {
-    const backAction = () => {
-      Alert.alert('Uygulamadan çıkmak istediğinize emin misiniz?', '', [
-        {
-          text: 'Hayır',
-          onPress: () => null,
-          style: 'cancel',
-        },
-        {
-          text: 'Evet',
-          onPress: async () => {
-            navigation.navigate('Login');
-            await removeToken();
-          }, // Uygulamadan çıkış yap
-        },
-      ]);
-      return true;
-    };
+  useFocusEffect(
+    useCallback(() => {
+      const backAction = () => {
+        Alert.alert('Uygulamadan çıkmak istediğinize emin misiniz?', '', [
+          {
+            text: 'Hayır',
+            onPress: () => null,
+            style: 'cancel',
+          },
+          {
+            text: 'Evet',
+            onPress: async () => {
+              navigation.navigate('Login');
+              await removeToken();
+            },
+          },
+        ]);
+        return true;
+      };
 
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      backAction,
-    );
+      const backHandler = BackHandler.addEventListener(
+        'hardwareBackPress',
+        backAction,
+      );
 
-    return () => backHandler.remove();
-  }, []);
+      return () => backHandler.remove();
+    }, [navigation]),
+  );
 
   const [selectedCategory, setSelectedCategory] = React.useState(1);
 
@@ -135,40 +72,42 @@ const HomeScreen = () => {
   }, []);
 
   const getObservers = async () => {
-    await getToken().then(async token => {
-      const response = await axios.get(url, {
+    const token = await getToken();
+    await axios
+      .get(url, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+      })
+      .then(async result => {
+        setSelectedCategory(result.data.categories[0]._id);
+        //console.log(response.data);
+        console.log('response.data.categories', result.data.categories);
+        console.log('response.data.observers', result.data.observers);
+        console.log('response.data.publicInfo', result.data.publicInfo);
+        console.log('response.data.observerVote', result.data.observerVote);
+        //console.log('response.data.profilePhotos', response.data.profilePhotos);
+        //console.log(response.data);
+        setObservers(result.data.observers);
+        setCategories(result.data.categories);
+        setPublicInfo(result.data.publicInfo);
+        setProfilePhotos(result.data.profilePhotos);
+
+        const averageVote = await calculateAverageVotes(
+          result.data.observerVote,
+          result.data.observers,
+        );
+
+        console.log('averageVoteeeeeeeeeeeeeee', averageVote);
+        setAverageVote(averageVote);
+
+        setLoading(false);
+      })
+      .catch(error => {
+        console.log(error);
       });
-      setSelectedCategory(response.data.categories[0]._id);
-      //console.log(response.data);
-      console.log('response.data.categories', response.data.categories);
-      console.log('response.data.observers', response.data.observers);
-      console.log('response.data.publicInfo', response.data.publicInfo);
-      console.log('response.data.observerVote', response.data.observerVote);
-      //console.log('response.data.profilePhotos', response.data.profilePhotos);
-      //console.log(response.data);
-      setObservers(response.data.observers);
-      setCategories(response.data.categories);
-      setPublicInfo(response.data.publicInfo);
-      setProfilePhotos(response.data.profilePhotos);
 
-      const result = await calculateAverageVotes(
-        response.data.observerVote,
-        response.data.observers,
-      );
-      setAverageVote(result);
-      console.log('result', result);
-      //console.log('response', response.data.categories.categories);
-      //const publicInfo = response.data.publicInfo;
-      //setObservers([...observers, publicInfo]);
-
-      //console.log(profilePhotos);
-
-      setLoading(false);
-      ///console.log(observers[4].phoneNumber);
-    });
+    ///console.log(observers[4].phoneNumber);
   };
 
   return (
@@ -274,7 +213,11 @@ const HomeScreen = () => {
                                 key={vote.observer}
                                 style={{color: '#000000'}}>
                                 <Text key={vote.observer}>
-                                  {vote.averageVote} | {vote.voteLength} votes
+                                  average :
+                                  {isNaN(vote.averageVote)
+                                    ? 0
+                                    : vote.averageVote}{' '}
+                                  | {vote.voteLength} votes
                                 </Text>
                               </Text>
                             </View>
@@ -371,7 +314,7 @@ const HomeScreen = () => {
                         color: '#000000',
                       }}
                       onPress={() => {
-                        navigation.navigate('Send Complaint', {
+                        navigation.navigate('SendComplaint', {
                           observerEmail: item.email,
                           observerName: item.name,
                         });
@@ -393,7 +336,7 @@ const HomeScreen = () => {
                         color: '#000000',
                       }}
                       onPress={() => {
-                        navigation.navigate('Send Request', {
+                        navigation.navigate('SendRequest', {
                           observerEmail: item.email,
                           observerName: item.name,
                         });
@@ -415,7 +358,7 @@ const HomeScreen = () => {
                         color: '#000000',
                       }}
                       onPress={() => {
-                        navigation.navigate('Send Suggestion', {
+                        navigation.navigate('SendSuggestion', {
                           observerEmail: item.email,
                           observerName: item.name,
                         });

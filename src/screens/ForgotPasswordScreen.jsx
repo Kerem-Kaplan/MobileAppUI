@@ -9,6 +9,7 @@ import {
 import Validator from '../utils/validator';
 import axios from 'axios';
 import {serverUrl} from '../constants/serverUrl';
+import {useNavigation} from '@react-navigation/native';
 
 const url = serverUrl + '/user/forgot-password';
 
@@ -16,6 +17,8 @@ const ForgotPasswordScreen = () => {
   const [email, setEmail] = useState('');
 
   const [isValidEmail, setIsValidEmail] = useState(true);
+
+  const navigation = useNavigation();
 
   const validateEmail = email => {
     console.log(email);
@@ -29,20 +32,30 @@ const ForgotPasswordScreen = () => {
   };
   const onPressForgotPassword = async () => {
     if (isValidEmail) {
-      const response = await axios.post(url, {email});
-      const data = response.data;
-      console.log(response.data);
+      await axios
+        .post(url, {email})
+        .then(result => {
+          const data = result.data;
+          console.log(result.data);
 
-      alert(data.message);
-      setEmail('');
+          alert(data.message);
+          setEmail('');
+        })
+        .catch(error => {
+          console.log(error);
+        });
     } else {
       alert('Try again');
     }
   };
 
+  const onPressBackButton = () => {
+    navigation.goBack();
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Forgot Password Screen</Text>
+      <Text style={styles.title}>Please Enter Email</Text>
       <View style={[styles.inputView, !isValidEmail && styles.invalidInput]}>
         <TextInput
           style={styles.inputText}
@@ -57,8 +70,11 @@ const ForgotPasswordScreen = () => {
       </View>
       <TouchableOpacity
         onPress={onPressForgotPassword}
-        style={styles.forgotPasswordButton}>
-        <Text style={styles.forgotPasswordText}>FORGOT PASSWORD </Text>
+        style={styles.sendButton}>
+        <Text style={styles.sendText}>SEND </Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={onPressBackButton} style={styles.backButton}>
+        <Text style={styles.backText}>BACK </Text>
       </TouchableOpacity>
     </View>
   );
@@ -74,7 +90,7 @@ const styles = StyleSheet.create({
 
   title: {
     fontWeight: 'bold',
-    fontSize: 50,
+    fontSize: 20,
     color: '#000000',
     marginBottom: 20,
   },
@@ -88,14 +104,26 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 20,
   },
+  backButton: {
+    width: '85%',
+    backgroundColor: '#ff0000',
+    borderRadius: 10,
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+    margin: 10,
+  },
+  backText: {
+    color: '#ffffff',
+  },
   inputText: {
     height: 50,
     color: '#000000',
   },
-  forgotPasswordText: {
+  sendText: {
     color: '#ffffff',
   },
-  forgotPasswordButton: {
+  sendButton: {
     width: '85%',
     backgroundColor: '#616161',
     borderRadius: 10,

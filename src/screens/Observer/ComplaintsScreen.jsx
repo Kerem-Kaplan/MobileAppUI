@@ -7,126 +7,62 @@ import {
   StyleSheet,
   Dimensions,
   ActivityIndicator,
+  Animated,
+  Easing,
 } from 'react-native';
 import {serverUrl} from '../../constants/serverUrl';
-import {useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {getToken} from '../../helpers/tokens';
 import axios from 'axios';
 
 const {width, height} = Dimensions.get('window');
 const imageWidth = width / 3;
 
-/* const allComplaints = [
-  {
-    username: 'John',
-    userSurname: 'Doe',
-    userGender: 'Male',
-    userNationality: 'Turk',
-    userEmail: 'john@gmail.com',
-    userPhoneNumber: '01111111111',
-    vote: 3,
-    complaintContent: {
-      content1: 'Content1',
-      content2: 'Content2',
-    },
-  },
-  {
-    username: 'Alvin',
-    userSurname: 'Patrick',
-    userGender: 'Male',
-    userNationality: 'Turk',
-    userEmail: 'alvin@gmail.com',
-    userPhoneNumber: '02222222222',
-    vote: 2,
-    complaintContent: {
-      content1: 'Content3',
-      content2: 'Content4',
-    },
-  },
-  {
-    username: 'Fernando',
-    userSurname: 'Muslera',
-    userGender: 'Male',
-    userNationality: 'Turk',
-    userEmail: 'fernando@gmail.com',
-    userPhoneNumber: '03333333333',
-    vote: 5,
-    complaintContent: {
-      content1: 'Content5',
-      content2: 'Content6',
-    },
-  },
-  {
-    username: 'Erlink 1',
-    userSurname: 'Haaland',
-    userGender: 'Male',
-    userNationality: 'Turk',
-    userEmail: 'erlink1@gmail.com',
-    userPhoneNumber: '03333333333',
-    vote: 5,
-    complaintContent: {
-      content1: 'Content7',
-      content2: 'Content8',
-    },
-  },
-  {
-    username: 'Erlink',
-    userSurname: 'Haaland',
-    userGender: 'Male',
-    userNationality: 'Turk',
-    userEmail: 'erlink@gmail.com',
-    userPhoneNumber: '03333333333',
-    vote: 5,
-    complaintContent: {
-      content1: 'Content9',
-      content2: 'Content10',
-    },
-  },
-]; */
-
 const url = serverUrl + '/observer/get-complaints';
 
 const ComplaintsScreen = () => {
+  const scaleValue = useRef(new Animated.Value(0)).current;
+
+  const startAnimation = () => {
+    Animated.timing(scaleValue, {
+      toValue: 1,
+      duration: 1500,
+      easing: Easing.elastic(1.5), // Elastik animasyon efekti
+      useNativeDriver: true,
+    }).start();
+  };
+
   const [complaints, setComplaints] = useState([]);
 
   const [loading, setLoading] = useState(true);
-  const [resultLength, setResultLength] = useState(0);
-  const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
 
   const getComplaints = async () => {
-    await getToken()
-      .then(async token => {
-        await axios
-          .get(url, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          })
-          .then(result => {
-            console.log('result.data.complaintContent', result.data);
-            setComplaints(result.data);
-            setResultLength(result.data.length);
-            console.log('complaint', complaints.length);
-            console.log('length', resultLength);
-            setLoading(false);
-          })
-          .catch(error => {
-            console.log(error);
-            if (error.response.status === 404) {
-              setResultLength(0);
-            }
-            setLoading(false);
-          });
+    const token = await getToken();
+
+    await axios
+      .get(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(result => {
+        //console.log('result.data.complaintContent', result.data);
+        setComplaints(result.data);
+        //console.log('complaint', complaints.length);
+        setLoading(false);
       })
       .catch(error => {
-        console.log(error);
-        alert(error.response.data.message);
+        console.log(error.response.data.message);
+        setMessage(error.response.data.message);
+        //alert(error.response.data.message);
         setLoading(false);
       });
   };
 
   useEffect(() => {
     getComplaints();
+    startAnimation();
   }, []);
 
   return (
@@ -137,6 +73,20 @@ const ComplaintsScreen = () => {
           size="large"
           color="#000000"
         />
+      ) : complaints.length === 0 ? (
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          <Animated.View
+            style={{
+              width: '100%',
+              height: '100%',
+              backgroundColor: '#ededed',
+              transform: [{scale: scaleValue}],
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <Text style={{fontSize: 24, color: '#000000'}}>{message}</Text>
+          </Animated.View>
+        </View>
       ) : (
         <View style={styles.flatListView}>
           <View>
